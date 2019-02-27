@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h1>Welcome {{ name }}</h1>
+    <h1>Welcome {{ name }}, it is {{ date }}</h1>
   </div>
 </template>
 
@@ -12,6 +12,12 @@ export default {
       type: String,
       default: ''
     }
+  },
+
+  data: function() {
+    return {
+      date: new Date().toUTCString()
+    };
   }
 };
 </script>

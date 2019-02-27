@@ -1,12 +1,6 @@
 <template>
-  <v-snackbar
-    :left="true"
-    :auto-height="true"
-    :bottom="true"
-    v-model="showSnack"
-    :timeout="timeout"
-  >
-    <span v-bind:style="{ color: displayColor }">{{ text }}</span>
+  <v-snackbar :left="true" :auto-height="true" :bottom="true" v-model="showSnack" :timeout="timeout">
+    <span :style="{ color: displayColor }">{{ text }}</span>
     <v-btn dark flat color="pink" @click="showSnack = false">Close</v-btn>
   </v-snackbar>
 </template>
