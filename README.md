@@ -1,8 +1,35 @@
-# Dogber
+# Dogber <img align="right" src="https://i.imgur.com/UeDgJwK.png" width=100>
 
-Master [![Build Status](https://travis-ci.com/tehstun/Dogber.svg?token=yBBSq1qd5HMhutV7avm8&branch=master)](https://travis-ci.com/tehstun/Dogber)
+_Official Repro for [Dogber](https://app.dogber.co.uk)_
 
-Development: [![Build Status](https://travis-ci.com/tehstun/Dogber.svg?token=yBBSq1qd5HMhutV7avm8&branch=develop)](https://travis-ci.com/tehstun/Dogber)
+---
+
+## Stack:
+
+[![Build Status](https://travis-ci.com/tehstun/Dogber.svg?token=yBBSq1qd5HMhutV7avm8&branch=master)](https://travis-ci.com/tehstun/Dogber)
+[![Build Status](https://travis-ci.com/tehstun/Dogber.svg?token=yBBSq1qd5HMhutV7avm8&branch=develop)](https://travis-ci.com/tehstun/Dogber)
+
+![Firebase](https://img.shields.io/npm/v/firebase.svg?label=Firebase&logo=Firebase)
+![VueJs](https://img.shields.io/npm/v/vue.svg?label=VueJs&logo=Vue)
+![Vuetify](https://img.shields.io/npm/v/vuetify.svg?label=Vuetify&logo=Vuetify)
+![Jest](https://img.shields.io/npm/v/jest.svg?label=Jest&logo=Jest)
+
+---
+
+## Project Structure
+
+Overview
+
+    ├── src                           - Main App
+    |   ├── assets                      - Images and general assets that will be required into pages.
+    |   ├── components                  - Components that are used to build up complete pages. e.g Loading.
+    |   ├── constants                   - Fixed values that don't change during the runtime of the app.
+    |   ├── lib                       - Libraries that integrate into external systems. e.g Firebase.
+    |   ├── views                       - The complete pages build with components.
+    ├── test                           - tests to validate completeness and correctness.
+    |   ├── unit                        - The unit tests for the app.
+
+<img align="middle" src="https://i.imgur.com/M2LPQXY.png" alt="Preview">
 
 Dogber is the Uber for dogs, allowing owners to get there dogs walked when they are busy, away or lazy by dog lovers who are active, free and in need of some extra cash.
 
@@ -18,60 +45,95 @@ Before you can start you will need to install the latest version of [NodeJs](htt
 
 ### Installing
 
-First start by opening a console/terminal to the directory of the project and run the following command.
+First, start by opening a console/terminal to the directory of the project and run the following command.
 
 ```
 npm install
-```
-
-This first commmand will install all the base requirements for starting up the application.
-
-```
+npm install -g @vue/cli
 npm install -g firebase-tools
 ```
 
-This second command will install the tools required to deploy to firebase, this is only required if you are planning on deploying the application and have been setup correctly on firebase.
+This first command will install all the base requirements for starting up the application.
+The second will install the required components used for helping with using vue as a platform.
+
+This second command will install the tools required to deploy to firebase, this is **ONLY** required if you are planning on deploying the application and have been set up correctly on Firebase.
 
 ```
-npm run serve
+vue ui
 ```
 
-Compiles and hot-reloads for development, you can now access the envrionment from the web browser for viewing. Making changes will be reflected on the page.
+Running "vue ui" will load up a local website that can be used for the helping in the development of the application, this website will look something like the below image. We will use this website UI for building, testing and linting our code. You can follow the below information to understand how to test, run, lint and get the code ready for committing. You might have to specify the directory of dogber.
 
-```
-npm run build
-```
+<img align="middle" src="https://i.imgur.com/376sSE4.png" alt="Vue Ui">
 
-Builds the project into a set of files that can be deployed to firebase.
+## Running the application
+
+0. Making sure you have correctly ran "vue ui" in a terminal within the project directory.
+1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
+1. Click the "serve" option from the tasks list.
+1. Click "run task"
+
+<img align="middle" src="https://i.imgur.com/WAAqECO.png" alt="Vue Serve">
+
+4. Clicking "open app" will load the dogber website to the login page.
+
+From this page you can then go and edit the website, making changes to the files and as long as the run task section still says "stop task", your changes will automatically load into the website. Seeing the changes as they happen. This is your development environment.
+
+## Running the Linting Process
+
+Linting is run to make sure that your code is syntactically correct for the running of the application, so linting should be run before making commits, this is covered within the precommit process. To run the linting process manually to see errors that have occurred do the following.
+
+0. Making sure you have correctly run "vue ui" in a terminal within the project directory.
+1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
+1. Click the "lint" option from the tasks list.
+1. Click "run task"
+
+<img align="middle" src="https://i.imgur.com/E3wxH0m.png" alt="Vue Lint">
+
+When linting is all correct you will get the following message, this message is required for the commit to make it into master. All code must be valid. Additionally, it will attempt to auto-correct simple issues.
+
+<img align="middle" src="https://i.imgur.com/CUU89pM.png" alt="Vue Lint Yes">
+
+If the linting process fails, you will get an error message specifying what needs to change to make it pass. Make the required change and run linting again.
+
+<img align="middle" src="https://i.imgur.com/zlW3Iv1.png" alt="Vue Lint No">
 
 ## Running the tests
 
-Tests can be ran to validate the functionality of the vue components.
+Tests can be run to validate the functionality of the vue components.
 
-```
-npm run test:unit
-```
+0. Making sure you have correctly run "vue ui" in a terminal within the project directory.
+1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
+1. Click the "test:unit" option from the tasks list.
+1. Click "run task"
 
-### And coding style tests
+<img align="middle" src="https://i.imgur.com/Kvb3U9D.png" alt="Vue Test Unit">
 
-Code must pass linting before it can be commited.
+If tests pass you will get a message stating the tests that have passed.
 
-```
-npm run lint
-```
+<img align="middle" src="https://i.imgur.com/JXbhfJs.png" alt="Vue Test Unit Pass">
 
-## Deployment
+If the tests failed you will get a message telling you which failed and why. Fix the tests before committing into the branch. All tests must pass before committing.
 
-```
-npm run deploy
-```
+<img align="middle" src="https://i.imgur.com/UUzjaKt.png" alt="Vue Test Unit Fail">
 
-This command will build and deploy up to firebase if you are setup and configured too.
+## Running the PreCommit Process
+
+Precommit process must be ran (which runs the tests and the linting process) and must pass before you commit code into the project. This is to ensure that the code going in is correct and will function properly.
+
+0. Making sure you have correctly run "vue ui" in a terminal within the project directory.
+1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
+1. Click the "precommit" option from the tasks list.
+1. Click "run task"
+
+<img align="middle" src="https://i.imgur.com/C0ZirbL.png" alt="Vue PreCommit">
 
 ## Built With
 
 - [Firebase](http://www.firebase.com) - The web hosting/database framework
 - [Vue](https://vuejs.org/) - The web framework for responsive design.
+- [Vuetifyjs](https://vuetifyjs.com/en/) - The web framework UI components.
+- [Jest](https://jestjs.io/) - The Testing Framework.
 
 ## Versioning
 
