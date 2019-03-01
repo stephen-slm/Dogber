@@ -49,7 +49,7 @@ First, start by opening a console/terminal to the directory of the project and r
 
 ```
 npm install
-npm install -g @vue/cli
+npm install -g @vue/cli @vue/cli-service
 npm install -g firebase-tools
 ```
 
