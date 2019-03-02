@@ -16,7 +16,7 @@ describe('Firebase Wrapper', async () => {
     return firebaseWrapper.authentication
       .createUserWithEmailAndPassword(email, password)
       .then(() => firebaseWrapper.authentication.signInWithEmailAndPassword(email, password))
-      .then(() => firebaseWrapper.createNewUserAsync())
+      .then(() => firebaseWrapper.createNewUser())
       .then((account) => expect(account));
   });
 
@@ -25,7 +25,7 @@ describe('Firebase Wrapper', async () => {
    * system. This will run no matter if the tests fail or pass.
    */
   afterAll(async () => {
-    return firebaseWrapper.deleteAccountAsync().then(() => expect());
+    return firebaseWrapper.deleteAccount().then(() => expect());
   });
 
   /**
@@ -37,7 +37,7 @@ describe('Firebase Wrapper', async () => {
     it('Should create a profile with the basic users details', async () => {
       expect.assertions(4); // four assertions are taking plac and expected.
 
-      const profile = await firebaseWrapper.getProfileAsync();
+      const profile = await firebaseWrapper.getProfile();
 
       expect(profile.email).toEqual(email);
       expect(profile.new).toBeTruthy();
@@ -48,7 +48,7 @@ describe('Firebase Wrapper', async () => {
     it('Should should be marked as new within the profile if the account is recently created', async () => {
       expect.assertions(1); // one assertions are taking plac and expected.
 
-      const profile = await firebaseWrapper.getProfileAsync();
+      const profile = await firebaseWrapper.getProfile();
       expect(profile.new).toBeTruthy();
     });
 
@@ -57,7 +57,7 @@ describe('Firebase Wrapper', async () => {
 
       // we don't care that is perfect, just that its within the last two seconds of when the
       // account creation process was requested. Otherwise its probably not been set properly.
-      const profile = await firebaseWrapper.getProfileAsync();
+      const profile = await firebaseWrapper.getProfile();
       expect(Date.now() - profile.last_login <= 25000).toBeTruthy();
     });
   });
@@ -68,13 +68,13 @@ describe('Firebase Wrapper', async () => {
 
       // we must gather the profile to know what the login count is before we attempt to increment
       // the value. So when we increment the value we can check back with the old login count + 1.
-      const profile = await firebaseWrapper.getProfileAsync();
+      const profile = await firebaseWrapper.getProfile();
       const profileLoginCount = profile.login_count;
 
       // increment the login count and the login date time.
-      await firebaseWrapper.incrementUsersLoginAcountAsync();
+      await firebaseWrapper.incrementUsersLoginAcount();
 
-      const updatedProfile = await firebaseWrapper.getProfileAsync();
+      const updatedProfile = await firebaseWrapper.getProfile();
       const updatedProfileLoginCount = updatedProfile.login_count;
 
       // validate that the old profile has been incremented (by validating that the old value + 1 is
@@ -93,13 +93,13 @@ describe('Firebase Wrapper', async () => {
 
       // we must get the current profile, so we can use the last login count later on for validating
       // the difference.
-      const profile = await firebaseWrapper.getProfileAsync();
+      const profile = await firebaseWrapper.getProfile();
       const profileDateTime = profile.last_login;
 
       // increment the login count and the login date time.
-      await firebaseWrapper.incrementUsersLoginAcountAsync();
+      await firebaseWrapper.incrementUsersLoginAcount();
 
-      const updatedProfile = await firebaseWrapper.getProfileAsync();
+      const updatedProfile = await firebaseWrapper.getProfile();
 
       // we determine the difference here because we need to know the time difference from the point
       // of the new updated. Otherwise we will not be testing the correct difference if we do it
