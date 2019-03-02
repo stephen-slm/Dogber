@@ -44,5 +44,14 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "prettier": {
+    "arrowParens": "always",
+    "bracketSpacing": true,
+    "singleQuote": true,
+    "printWidth": 110,
+    "semi": true,
+    "tabWidth": 2,
+    "trailingComma": "none"
+  }
 }
