@@ -115,8 +115,9 @@ class FirebaseWrapper {
    * Gets the active users profile
    * @returns {firebase.Promise.<*>}
    */
-  async getProfileByIdAsync() {
-    return await this.database.ref(`users/${this.getUid()}/profile`).once('value');
+  async getProfileAsync() {
+    const profile = await this.database.ref(`users/${this.getUid()}/profile`).once('value');
+    return profile.val();
   }
 
   /**
@@ -141,7 +142,22 @@ class FirebaseWrapper {
   }
 
   /**
-   * creates a new user for which is called when a new sign in user happens
+   * This will increment the login count on the profile section for a given user, this will allow us
+   * to keep track of how many times a given user has authenticated and logged into the page. The
+   * downside of this is that it could result in a heavy increase in logins if we just refresh the
+   * page.
+   */
+  async incrementUsersLoginAcountAsync() {
+    const profile = await this.getProfileAsync();
+
+    if (!_.isNil(profile)) {
+      await this.database.ref(`users/${this.getUid()}/profile/login_count`).set(profile.login_count + 1);
+      await this.database.ref(`users/${this.getUid()}/profile/last_login`).set(Date.now());
+    }
+  }
+
+  /**
+   * creates a new user for which is called when a new sign in user happens.
    * @returns {firebase.Promise.<*>}
    */
   async createNewUserAsync() {
@@ -151,6 +167,7 @@ class FirebaseWrapper {
       email: profile.email,
       name: profile.displayName,
       last_login: Date.now(),
+      login_count: 1,
       new: true
     });
 
