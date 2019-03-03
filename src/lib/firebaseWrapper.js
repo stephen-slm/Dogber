@@ -136,8 +136,8 @@ class FirebaseWrapper {
     // make sure to append the action type and link if they are not null. Otherwise we can just
     // leave it blank and assume it as null. We will always be appending the message and title to
     // the notification object.
-    if (!_.isNil(actionType)) message.actionType = actionLink;
-    if (!_.isNil(actionLink)) message.actionLink = actionLink;
+    if (!_.isNil(actionType)) notification.actionType = actionType;
+    if (!_.isNil(actionLink)) notification.actionLink = actionLink;
 
     // push the notification object into the firebase database. Even though its async we dont have
     // to call await as the calling function will await on the returned push.
@@ -155,7 +155,7 @@ class FirebaseWrapper {
 
     // if the user is  not new then we don't want to be adding this. This is  notification just for
     // users who have a newly created account.
-    if (!_.isNil(process.new) && !profile.new)
+    if (!_.isNil(profile.new) && !profile.new)
       throw new Error('User must be null to have a welcome notification');
 
     return this.createNotification(
@@ -172,15 +172,24 @@ class FirebaseWrapper {
    */
   async getNotifications() {
     const notifications = await this.database.ref(`users/${this.getUid()}/notifications`).once('value');
-    return notifications.val() || [];
+    return notifications.val();
   }
 
   /**
    * Deletes / removes a notification by the given key for the currently authenticated user.
    * @param {string} key The key reference for the notifications.
    */
-  dismissNotification(key) {
+  removeNotification(key) {
     return this.database.ref(`users/${this.getUid()}/notifications/${key}`).remove();
+  }
+
+  /**
+   * Gets a single notification from the database that is of the key that was provided.
+   * @param {string} key The key of the notification to be gathered.
+   */
+  async getNotificationByKey(key) {
+    const notification = await this.database.ref(`users/${this.getUid()}/notifications/${key}`).once('value');
+    return notification.val();
   }
 
   /**
