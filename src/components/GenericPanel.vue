@@ -18,19 +18,19 @@
 export default {
   props: {
     topText: {
-      type: String | Number,
+      type: [String, Number],
       default: ''
     },
     topTextColor: {
-      type: String | Number,
+      type: [String, Number],
       default: ''
     },
     bottomText: {
-      type: String | Number,
+      type: [String, Number],
       default: ''
     },
     bottomTextColor: {
-      type: String | Number,
+      type: [String, Number],
       default: ''
     }
   },

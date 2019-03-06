@@ -2,36 +2,45 @@
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel
-          topText="Welcome to Dogber"
-          bottomText="Pending walk requests"
-        >{{ pendingWalks }}</GenericPanel>
+        <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">
+          {{
+          pendingWalks
+          }}
+        </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel topText="Activities" bottomText="Confirmed/Future Walks">{{ confirmedWalks }}</GenericPanel>
+        <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">
+          {{
+          confirmedWalks
+          }}
+        </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="Miles Walked" topTextColor="blue" :topText="milesWalked">
+        <GenericPanel bottom-text="Miles Walked" top-text-color="blue" :top-text="milesWalked">
           <v-icon>directions_walk</v-icon>
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="My 5 Star Rating" topTextColor="red" :topText="currentRating">
+        <GenericPanel bottom-text="My 5 Star Rating" top-text-color="red" :top-text="currentRating">
           <v-icon>star</v-icon>
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="Completed Walks" topTextColor="green" :topText="completedWalks">
+        <GenericPanel
+          bottom-text="Completed Walks"
+          top-text-color="green"
+          :top-text="completedWalks"
+        >
           <v-icon>check</v-icon>
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="Available" topTextColor="orange" :topText="availableIncome">
+        <GenericPanel bottom-text="Available" top-text-color="orange" :top-text="availableIncome">
           <v-icon>credit_card</v-icon>
         </GenericPanel>
       </v-flex>
@@ -47,7 +56,6 @@
 import _ from 'lodash';
 
 import firebaseWrapper from '@/lib/firebaseWrapper';
-import HelloWorld from '@/components/HelloWorld.vue';
 import GenericPanel from '@/components/GenericPanel.vue';
 import Calendar from '@/components/Calendar.vue';
 
@@ -80,7 +88,6 @@ export default {
   methods: {},
 
   components: {
-    HelloWorld,
     GenericPanel,
     Calendar
   }
