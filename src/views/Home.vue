@@ -2,33 +2,36 @@
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel topText="Welcome to Dogber" bottomText="Pending walk requests">12</GenericPanel>
+        <GenericPanel
+          topText="Welcome to Dogber"
+          bottomText="Pending walk requests"
+        >{{ pendingWalks }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel topText="Activities" bottomText="Confirmed/Future Walks">37</GenericPanel>
+        <GenericPanel topText="Activities" bottomText="Confirmed/Future Walks">{{ confirmedWalks }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="Miles Walked" topTextColor="blue" topText="37.6K">
+        <GenericPanel bottomText="Miles Walked" topTextColor="blue" :topText="milesWalked">
           <v-icon>directions_walk</v-icon>
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="My 5 Star Rating" topTextColor="red" topText="4.75">
+        <GenericPanel bottomText="My 5 Star Rating" topTextColor="red" :topText="currentRating">
           <v-icon>star</v-icon>
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="Completed Walks" topTextColor="green" topText="107">
+        <GenericPanel bottomText="Completed Walks" topTextColor="green" :topText="completedWalks">
           <v-icon>check</v-icon>
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottomText="Available" topTextColor="orange" topText="£48.64">
+        <GenericPanel bottomText="Available" topTextColor="orange" :topText="availableIncome">
           <v-icon>credit_card</v-icon>
         </GenericPanel>
       </v-flex>
@@ -53,10 +56,12 @@ export default {
 
   data: function() {
     return {
-      // the name of the authenticated user to display for preview reasons.
-      name: null,
-      // the current profile image of the authenticated user
-      image: null
+      pendingWalks: 0,
+      confirmedWalks: 0,
+      milesWalked: 0,
+      currentRating: 0,
+      completedWalks: 0,
+      availableIncome: `£0`
     };
   },
 

@@ -18,24 +18,21 @@
 export default {
   props: {
     topText: {
-      type: String,
+      type: String | Number,
       default: ''
     },
     topTextColor: {
-      type: String,
+      type: String | Number,
       default: ''
     },
     bottomText: {
-      type: String,
+      type: String | Number,
       default: ''
     },
     bottomTextColor: {
-      type: String,
+      type: String | Number,
       default: ''
     }
-  },
-  created: function() {
-    console.log(this.topColor);
   },
 
   data: function() {
