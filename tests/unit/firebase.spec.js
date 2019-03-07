@@ -144,7 +144,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('incrementRating', async () => {
     it('Should increment user profile rating', async () => {
-      expect.assertions(2);
+      expect.assertions(3);
 
       // Get the a profile and rating
       const profile = await firebaseWrapper.getProfile();
@@ -167,6 +167,13 @@ describe('Firebase Wrapper', async () => {
       // Check if the profile rating has added the values correctly
       const updatedProfile2 = await firebaseWrapper.getProfile();
       expect(updatedProfile2.rating).toEqual(updatedCurrentRating + 7);
+
+      // Increment floating point .5
+      await firebaseWrapper.incrementRating(2.5);
+
+      // Check if the profile rating has added the values correctly
+      const updatedProfile3 = await firebaseWrapper.getProfile();
+      expect(updatedProfile3.rating).toEqual(updatedCurrentRating + 9.5);
     });
     it('The rating should be a number', async () => {
       expect.assertions(1);
