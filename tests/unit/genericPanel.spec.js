@@ -24,6 +24,9 @@ describe('GenericPanel.vue', function() {
         topText: 'top_text_value',
         bottomText: 'bottom_text_value',
         topTextColor: 'red'
+      },
+      slots: {
+        default: '<div>slot_default_value</div>'
       }
     });
   });
@@ -57,5 +60,16 @@ describe('GenericPanel.vue', function() {
     const topTextElement = wrapper.find('.top-text').findAll('div');
     const topText = topTextElement.at(1);
     expect(topText.attributes().style).toBe('color: red;');
+  });
+
+  it('should contain the valid slot div, allowing passing in children', () => {
+    // The generic panel takes in body conent that is used to display this information on the right
+    // hand side of the component, this is important as we don't know what the user wants
+    // displaying. So it must correctly pass in the correct data as the slot.
+    const slot = wrapper.find('.text-right').findAll('div');
+    const slotDiv = slot.at(1);
+
+    // validate that our slot is data is actually existing.
+    expect(slotDiv.text()).toBe('slot_default_value');
   });
 });
