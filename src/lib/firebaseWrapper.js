@@ -246,6 +246,41 @@ class FirebaseWrapper {
   }
 
   /**
+   * Increments the user ratings
+   * @param {int} newRating
+   */
+  async incrementRating(newRating) {
+    if (!_.isNumber(newRating)) {
+      throw new Error('Previous rating must be number');
+    }
+    if (newRating < 0 || newRating > 5 || newRating % 0.5 !== 0) {
+      throw new Error('Your rating should be between 0 to 5 and integer or .5 floating number');
+    }
+    if (newRating < 0 || newRating > 5) {
+      throw new Error('Your rating should be between 0 to 5');
+    }
+
+    const profile = await this.getProfile();
+
+    if (!_.isNil(profile)) {
+      await this.database.ref(`users/${this.getUid()}/profile/rating`).set(profile.rating + newRating);
+    }
+  }
+
+  /**
+   * Increments the number of walks
+   */
+  async incrementCompletedWalks() {
+    const profile = await this.getProfile();
+
+    if (!_.isNull(profile)) {
+      await this.database
+        .ref(`users/${this.getUid()}/profile/completedWalks`)
+        .set(profile.completedWalks + 1);
+    }
+  }
+
+  /**
    * creates a new user for which is called when a new sign in user happens.
    * @returns {firebase.Promise.<*>}
    */
@@ -257,7 +292,9 @@ class FirebaseWrapper {
       name: profile.displayName,
       last_login: Date.now(),
       login_count: 1,
-      new: true
+      new: true,
+      rating: 0,
+      completedWalks: 0
     });
 
     // create the welcome message for the newly created account.
