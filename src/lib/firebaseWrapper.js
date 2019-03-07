@@ -156,7 +156,7 @@ class FirebaseWrapper {
     // if the user is  not new then we don't want to be adding this. This is  notification just for
     // users who have a newly created account.
     if (!_.isNil(profile.new) && !profile.new)
-      throw new Error('User must be null to have a welcome notification');
+      throw new Error('User must be new to have a welcome notification');
 
     return this.createNotification(
       `Welcome ${this.authentication.currentUser.displayName || 'User'}!`,

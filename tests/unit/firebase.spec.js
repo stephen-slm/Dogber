@@ -146,7 +146,7 @@ describe('Firebase Wrapper', async () => {
       await firebaseWrapper.database.ref(`users/${firebaseWrapper.getUid()}/profile/new`).set(false);
 
       await expect(firebaseWrapper.createWelcomeMessageNotification()).rejects.toEqual(
-        new Error('User must be null to have a welcome notification')
+        new Error('User must be new to have a welcome notification')
       );
 
       // make sure to set it back to whatever it was before we made the changes to false.
