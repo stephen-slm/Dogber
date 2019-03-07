@@ -37,14 +37,20 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(4); // four assertions are taking plac and expected.
+      expect.assertions(8); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
       expect(profile.email).toEqual(email);
       expect(profile.new).toBeTruthy();
-      expect(profile.login_count).toBe(1);
+      expect(profile.login_count).toEqual(1);
       expect(profile.last_login).toEqual(expect.any(Number));
+
+      expect(profile.rating).toEqual(expect.any(Number));
+      expect(profile.rating).toEqual(0);
+
+      expect(profile.completedWalks).toEqual(expect.any(Number));
+      expect(profile.completedWalks).toEqual(0);
     });
 
     it('Should should be marked as new within the profile if the account is recently created', async () => {
@@ -107,7 +113,7 @@ describe('Firebase Wrapper', async () => {
      * users have logged in last and how many people login. Additionally this will help with
      * understanding if someone has been accessing a given account. (for reporting reasons).
      */
-    it('Should reset the last login count for the given user', async () => {
+    it('Should reset the last login count date for the given user', async () => {
       expect.assertions(1); // we only have one assertion that is being checked.
 
       // we must get the current profile, so we can use the last login count later on for validating
@@ -129,6 +135,96 @@ describe('Firebase Wrapper', async () => {
 
       // the difference should be greater as this is the old date time.
       expect(difference > updatedDifference).toBeTruthy();
+    });
+  });
+
+  /**
+   * Test to check if the increment function works correctly.
+   * we also checks the parameter validates correctly before incrementing.
+   */
+  describe('incrementRating', async () => {
+    it('Should increment user profile rating', async () => {
+      expect.assertions(2);
+
+      // Get the a profile and rating
+      const profile = await firebaseWrapper.getProfile();
+      const currentRating = profile.rating;
+
+      // Increment the profile rating to 3
+      await firebaseWrapper.incrementRating(3);
+
+      // Get the updated profile with new rating
+      const updatedProfile = await firebaseWrapper.getProfile();
+      const updatedCurrentRating = updatedProfile.rating;
+
+      // Compare the ratings from old profile to new profile
+      expect(updatedCurrentRating).toEqual(currentRating + 3);
+
+      // Increment profile rating by 7 using different calls
+      await firebaseWrapper.incrementRating(2);
+      await firebaseWrapper.incrementRating(5);
+
+      // Check if the profile rating has added the values correctly
+      const updatedProfile2 = await firebaseWrapper.getProfile();
+      expect(updatedProfile2.rating).toEqual(updatedCurrentRating + 7);
+    });
+    it('The rating should be a number', async () => {
+      expect.assertions(1);
+      await expect(firebaseWrapper.incrementRating('Not a number')).rejects.toEqual(
+        new Error('Previous rating must be number')
+      );
+    });
+    it('The rating should be a number', async () => {
+      expect.assertions(1);
+      await expect(firebaseWrapper.incrementRating(true)).rejects.toEqual(
+        new Error('Previous rating must be number')
+      );
+    });
+    it('The rating should be a number', async () => {
+      expect.assertions(1);
+      await expect(firebaseWrapper.incrementRating([1, 2])).rejects.toEqual(
+        new Error('Previous rating must be number')
+      );
+    });
+    it('The rating should not be less than 0', async () => {
+      expect.assertions(1);
+      await expect(firebaseWrapper.incrementRating(-1)).rejects.toEqual(
+        new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
+      );
+    });
+
+    it('The rating should not be bigger than 5', async () => {
+      expect.assertions(1);
+      await expect(firebaseWrapper.incrementRating(10)).rejects.toEqual(
+        new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
+      );
+    });
+    it('The rating should not be bigger than 5', async () => {
+      expect.assertions(1);
+      await expect(firebaseWrapper.incrementRating(3.2)).rejects.toEqual(
+        new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
+      );
+    });
+  });
+
+  describe('incrementCompletedWalks', async () => {
+    it('Should increment the profile total amount of completed wakls', async () => {
+      expect.assertions(1);
+
+      // To test the increment of walk we get the profile alongisde the number of walks
+      // and store in a variable used afterwards to compare old value to a new one
+      const profile = await firebaseWrapper.getProfile();
+      const profileCompletedWalks = profile.completedWalks;
+
+      // Increment the number of walks by 1
+      await firebaseWrapper.incrementCompletedWalks();
+
+      // We get again the profile with the updated completed number of walks
+      const updatedProfile = await firebaseWrapper.getProfile();
+      const updatedProfileCompletedWalks = updatedProfile.completedWalks;
+
+      // Now compare the new expected value with the previous value number of walks
+      expect(updatedProfileCompletedWalks).toEqual(profileCompletedWalks + 1);
     });
   });
 
