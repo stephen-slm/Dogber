@@ -316,7 +316,7 @@ class FirebaseWrapper {
     if (amount <= 0) {
       // we should not be allowing the user to update the balance to a negative amount, this is not
       // the method for handling the decreasing of the balance.
-      throw new Error('The provided amount change must be posative for incrementing');
+      throw new Error('The provided amount change must be posative for decreasing');
     }
 
     // first we need to get the profile, get the curren balance and update that.

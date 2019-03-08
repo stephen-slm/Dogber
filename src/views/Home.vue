@@ -2,17 +2,15 @@
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel
-          top-text="Welcome to Dogber"
-          bottom-text="Pending walk requests"
-        >{{ pendingWalks }}</GenericPanel>
+        <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">{{
+          pendingWalks
+        }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel
-          top-text="Activities"
-          bottom-text="Confirmed/Future Walks"
-        >{{ confirmedWalks }}</GenericPanel>
+        <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">{{
+          confirmedWalks
+        }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
@@ -28,11 +26,7 @@
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel
-          bottom-text="Completed Walks"
-          top-text-color="green"
-          :top-text="completedWalks"
-        >
+        <GenericPanel bottom-text="Completed Walks" top-text-color="green" :top-text="completedWalks">
           <v-icon>check</v-icon>
         </GenericPanel>
       </v-flex>
@@ -44,7 +38,7 @@
       </v-flex>
 
       <v-flex xs12 class="calendar-wrapper">
-        <Calendar/>
+        <Calendar />
       </v-flex>
     </v-layout>
   </v-container>
