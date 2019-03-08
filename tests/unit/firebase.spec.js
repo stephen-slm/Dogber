@@ -37,7 +37,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(14); // four assertions are taking plac and expected.
+      expect.assertions(16); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -60,6 +60,10 @@ describe('Firebase Wrapper', async () => {
       // The user has not completed any walks so we will default to 0
       expect(profile.walk.completed).toEqual(expect.any(Number));
       expect(profile.walk.completed).toEqual(0);
+
+      // The user will get a welcome amount of balance of 5.
+      expect(profile.walk.balance).toEqual(expect.any(Number));
+      expect(profile.walk.balance).toEqual(5);
 
       // The user has not set a price so we will default to 5/10
       expect(profile.walk.price.min).toEqual(expect.any(Number));
