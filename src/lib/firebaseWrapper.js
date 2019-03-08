@@ -330,7 +330,7 @@ class FirebaseWrapper {
 
     // finally updating the value to the new amount, that of the current value with it incremented
     // by the provided amount.
-    await this.database.ref(`users/${this.getUid()}/profile/walk/balance`).set(profile.walk.balance + amount);
+    await this.database.ref(`users/${this.getUid()}/profile/walk/balance`).set(profile.walk.balance - amount);
   }
 
   /**
