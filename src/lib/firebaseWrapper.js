@@ -246,16 +246,19 @@ class FirebaseWrapper {
   }
 
   /**
-   * Increments the user ratings
-   * @param {int} newRating
+   * Increments the user ratings, respecting the rating limits of being a int, less than or greater
+   * than 5 and a modulo of 0.5.
+   * @param {int} newRating The newly added rating value.
    */
   async incrementRating(newRating) {
     if (!_.isNumber(newRating)) {
       throw new Error('Previous rating must be number');
     }
+
     if (newRating < 0 || newRating > 5 || newRating % 0.5 !== 0) {
       throw new Error('Your rating should be between 0 to 5 and integer or .5 floating number');
     }
+
     if (newRating < 0 || newRating > 5) {
       throw new Error('Your rating should be between 0 to 5');
     }
@@ -263,20 +266,80 @@ class FirebaseWrapper {
     const profile = await this.getProfile();
 
     if (!_.isNil(profile)) {
-      await this.database.ref(`users/${this.getUid()}/profile/rating`).set(profile.rating + newRating);
+      await this.database
+        .ref(`users/${this.getUid()}/profile/walk/rating`)
+        .set(profile.walk.rating + newRating);
     }
   }
 
   /**
-   * Increments the number of walks
+   * Increments the number of completed walks for the given authenticated user. This will gather the
+   * existing profile and the existing profiles walk.completed and increment this by 1. Always being
+   * consistant with what is currently being stored on the server.
    */
   async incrementCompletedWalks() {
     const profile = await this.getProfile();
 
     if (!_.isNull(profile)) {
       await this.database
-        .ref(`users/${this.getUid()}/profile/completedWalks`)
-        .set(profile.completedWalks + 1);
+        .ref(`users/${this.getUid()}/profile/walk/completed`)
+        .set(profile.walk.completed + 1);
+    }
+  }
+
+  /**
+   * Updates the existing profile with the properties that are set on the profile object. This will
+   * be limited to what is currently being stored on the profile, attempting to add anymore
+   * information will result in the data being filted out.
+   * @param {object} profileObject The profile object containing all required updating properties.
+   */
+  async updateProfile(profileObject) {
+    const filtedProfile = _.pick(profileObject, firebaseConstants.PROFILE_UPDATE_SELECT);
+
+    _.forEach(filtedProfile, async (value, key) => {
+      await this.database.ref(`users/${this.getUid()}/profile/${key}`).set(value);
+    });
+  }
+
+  /**
+   * Updates the current authenticated users min and max value they are using for there dog cost
+   * section of there profile. (general cost per walk).
+   * @param {number} min The new minimal value to be updated.
+   * @param {number} max The new max value to be set.
+   */
+  async updateWalkCost(min, max) {
+    if (!_.isNumber(min) && !_.isNil(min)) {
+      // if min is provided and not a number then we don't want to process this information and let
+      // the user know that what they are providing is not a valid input.
+      throw new Error('if min is provided it must be a number');
+    }
+
+    if (!_.isNumber(max) && !_.isNil(max)) {
+      // if max is provided and not a number then we don't want to process this information and let
+      // the user know that what they are providing is not a valid input.
+      throw new Error('if min is provided it must be a number');
+    }
+
+    // we don't want the chance of the fields being updated with negative numbers, so we will
+    // invalidate anyhing lower than 0 or if the user tries to enter a max lower than the min.
+    if (!_.isNil(min) && min < 0) {
+      throw new Error('if min is provided it must be greater than 0');
+    }
+
+    if (!_.isNil(max) && (max < 0 || max < min)) {
+      throw new Error('if max is provided it must be greater than 0 and greater than min');
+    }
+
+    // we will only attempt to update the min and max if the values that have been passed are not
+    // null, otherwise we will just continue without attempting to update any of the values. This
+    // will just result in no value returned. (no error thrown).
+
+    if (!_.isNil(min)) {
+      await this.database.ref(`users/${this.getUid()}/profile/walk/price/min`).set(min);
+    }
+
+    if (!_.isNil(max)) {
+      await this.database.ref(`users/${this.getUid()}/profile/walk/price/max`).set(max);
     }
   }
 
@@ -293,8 +356,15 @@ class FirebaseWrapper {
       last_login: Date.now(),
       login_count: 1,
       new: true,
-      rating: 0,
-      completedWalks: 0
+      walk: {
+        rating: 0,
+        completed: 0,
+        price: {
+          min: 5,
+          max: 10
+        }
+      },
+      age: 0
     });
 
     // create the welcome message for the newly created account.

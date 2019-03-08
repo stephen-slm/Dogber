@@ -37,7 +37,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(8); // four assertions are taking plac and expected.
+      expect.assertions(14); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -46,11 +46,28 @@ describe('Firebase Wrapper', async () => {
       expect(profile.login_count).toEqual(1);
       expect(profile.last_login).toEqual(expect.any(Number));
 
-      expect(profile.rating).toEqual(expect.any(Number));
-      expect(profile.rating).toEqual(0);
+      // We can determine the users age when they first login with the welcome screen. but until
+      // then we will have the age defaulted to 0. Its not really required but used for information
+      // gathering.
+      expect(profile.age).toEqual(expect.any(Number));
+      expect(profile.age).toEqual(0);
 
-      expect(profile.completedWalks).toEqual(expect.any(Number));
-      expect(profile.completedWalks).toEqual(0);
+      // the rating will start off as 0 as the user as no real rating when first starting to use the
+      // application. This will be changed throughout the use of the application.
+      expect(profile.walk.rating).toEqual(expect.any(Number));
+      expect(profile.walk.rating).toEqual(0);
+
+      // The user has not completed any walks so we will default to 0
+      expect(profile.walk.completed).toEqual(expect.any(Number));
+      expect(profile.walk.completed).toEqual(0);
+
+      // The user has not set a price so we will default to 5/10
+      expect(profile.walk.price.min).toEqual(expect.any(Number));
+      expect(profile.walk.price.min).toEqual(5);
+
+      // The user has not set a price so we will default to 5/10
+      expect(profile.walk.price.max).toEqual(expect.any(Number));
+      expect(profile.walk.price.max).toEqual(10);
     });
 
     it('Should should be marked as new within the profile if the account is recently created', async () => {
@@ -148,14 +165,14 @@ describe('Firebase Wrapper', async () => {
 
       // Get the a profile and rating
       const profile = await firebaseWrapper.getProfile();
-      const currentRating = profile.rating;
+      const currentRating = profile.walk.rating;
 
       // Increment the profile rating to 3
       await firebaseWrapper.incrementRating(3);
 
       // Get the updated profile with new rating
       const updatedProfile = await firebaseWrapper.getProfile();
-      const updatedCurrentRating = updatedProfile.rating;
+      const updatedCurrentRating = updatedProfile.walk.rating;
 
       // Compare the ratings from old profile to new profile
       expect(updatedCurrentRating).toEqual(currentRating + 3);
@@ -166,35 +183,44 @@ describe('Firebase Wrapper', async () => {
 
       // Check if the profile rating has added the values correctly
       const updatedProfile2 = await firebaseWrapper.getProfile();
-      expect(updatedProfile2.rating).toEqual(updatedCurrentRating + 7);
+      expect(updatedProfile2.walk.rating).toEqual(updatedCurrentRating + 7);
 
       // Increment floating point .5
       await firebaseWrapper.incrementRating(2.5);
 
       // Check if the profile rating has added the values correctly
       const updatedProfile3 = await firebaseWrapper.getProfile();
-      expect(updatedProfile3.rating).toEqual(updatedCurrentRating + 9.5);
+      expect(updatedProfile3.walk.rating).toEqual(updatedCurrentRating + 9.5);
     });
+
     it('The rating should be a number', async () => {
       expect.assertions(1);
+
       await expect(firebaseWrapper.incrementRating('Not a number')).rejects.toEqual(
         new Error('Previous rating must be number')
       );
     });
+
     it('The rating should be a number', async () => {
       expect.assertions(1);
+
       await expect(firebaseWrapper.incrementRating(true)).rejects.toEqual(
         new Error('Previous rating must be number')
       );
     });
+
     it('The rating should be a number', async () => {
       expect.assertions(1);
+
       await expect(firebaseWrapper.incrementRating([1, 2])).rejects.toEqual(
         new Error('Previous rating must be number')
       );
     });
+
     it('The rating should not be less than 0', async () => {
       expect.assertions(1);
+
+      // must fit within the correct ranges of 0-5
       await expect(firebaseWrapper.incrementRating(-1)).rejects.toEqual(
         new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
       );
@@ -202,12 +228,18 @@ describe('Firebase Wrapper', async () => {
 
     it('The rating should not be bigger than 5', async () => {
       expect.assertions(1);
+
+      // must fit within the correct ranges of 0-5
       await expect(firebaseWrapper.incrementRating(10)).rejects.toEqual(
         new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
       );
     });
+
     it('The rating should not be bigger than 5', async () => {
       expect.assertions(1);
+
+      // all though we allow decimal numbers, it should be in the range of 0.5, so we must make sure
+      // to reject the possible chance of it being a decimal place but not .5
       await expect(firebaseWrapper.incrementRating(3.2)).rejects.toEqual(
         new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
       );
@@ -221,17 +253,188 @@ describe('Firebase Wrapper', async () => {
       // To test the increment of walk we get the profile alongisde the number of walks
       // and store in a variable used afterwards to compare old value to a new one
       const profile = await firebaseWrapper.getProfile();
-      const profileCompletedWalks = profile.completedWalks;
+      const profileWalk = profile.walk.completed;
 
       // Increment the number of walks by 1
       await firebaseWrapper.incrementCompletedWalks();
 
       // We get again the profile with the updated completed number of walks
       const updatedProfile = await firebaseWrapper.getProfile();
-      const updatedProfileCompletedWalks = updatedProfile.completedWalks;
+      const updatedProfileCompleted = updatedProfile.walk.completed;
 
       // Now compare the new expected value with the previous value number of walks
-      expect(updatedProfileCompletedWalks).toEqual(profileCompletedWalks + 1);
+      expect(updatedProfileCompleted).toEqual(profileWalk + 1);
+    });
+  });
+
+  describe('UpdateProfile', async () => {
+    it('Should reject any non-core components of the profile', async () => {
+      expect.assertions(2);
+
+      // update the profile with the new data, once we regather the profile we need to validate that
+      // the fake value does not exist in the updated.
+      await firebaseWrapper.updateProfile({ fake: 'invalid_value' });
+
+      // the updated profile we will use to validate that the changes have taken place.
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      // validate that our fake input value did not actually make it into the profile.
+      expect(updatedProfile.fake).not.toEqual('invalid_value');
+      expect(updatedProfile.fake).toBeUndefined();
+    });
+
+    it('should replace any existing value that is already in the profile', async () => {
+      expect.assertions(4);
+
+      // get the current profile as we will use this to expect that the updated profile has changed
+      // based on the calls to update the profile.
+      const existingProfile = await firebaseWrapper.getProfile();
+
+      // update the profile with the new data, once we regather the profile we need to validate that
+      // the name and age have been updated but the fake value does not exist in the updated.
+      await firebaseWrapper.updateProfile({ name: 'new_name', age: 5 });
+
+      // the updated profile we will use to validate that the changes have taken place.
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      // validate that the updated profile does actually contain some kind of change.
+      expect(updatedProfile.name).not.toEqual(existingProfile.name);
+      expect(updatedProfile.age).not.toEqual(existingProfile.age);
+
+      // validate that our new values are actually what we expect them to be.
+      expect(updatedProfile.name).toEqual('new_name');
+      expect(updatedProfile.age).toEqual(5);
+    });
+
+    it('should not update the walk section, as this is not related the profile', async () => {
+      expect.assertions(2);
+
+      // update the profile with the new data, once we regather the profile we need to validate that
+      // the walk has not been updated.
+      await firebaseWrapper.updateProfile({ walk: { bob: 5 } });
+
+      // the updated profile we will use to validate that the changes have taken place.
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      // validate that our fake input value did not actually make it into the profile.
+      expect(updatedProfile.walk.bob).not.toEqual(5);
+      expect(updatedProfile.walk.bob).toBeUndefined();
+    });
+  });
+
+  describe('UpdateWalkCost', async () => {
+    // the errors that can be thrown, just defined to stop the creation of duplicate code.
+    const minMissingError = new Error('if min is provided it must be a number');
+    const maxMissingError = new Error('if min is provided it must be a number');
+    const minMinError = new Error('if min is provided it must be greater than 0');
+    const maxMinError = new Error('if max is provided it must be greater than 0 and greater than min');
+
+    it('Should reject if min value is not a number', async () => {
+      expect.assertions(2);
+
+      // we need to process it as a number for displaying for a given user.
+      await expect(firebaseWrapper.updateWalkCost([5], 5)).rejects.toEqual(minMissingError);
+      await expect(firebaseWrapper.updateWalkCost('5', 5)).rejects.toEqual(minMissingError);
+    });
+
+    it('Should reject if max value is not a number', async () => {
+      expect.assertions(2);
+
+      // we need to process it as a number for displaying for a given user.
+      await expect(firebaseWrapper.updateWalkCost(5, [5])).rejects.toEqual(maxMissingError);
+      await expect(firebaseWrapper.updateWalkCost(5, '5')).rejects.toEqual(maxMissingError);
+    });
+
+    it('Should reject if min value is less than 0', async () => {
+      expect.assertions(2);
+
+      // negative numbers will always be misleading for a users interface.
+      await expect(firebaseWrapper.updateWalkCost(-5, 5)).rejects.toEqual(minMinError);
+      await expect(firebaseWrapper.updateWalkCost(-100, 5)).rejects.toEqual(minMinError);
+    });
+
+    it('Should reject if max value is less than 0', async () => {
+      expect.assertions(2);
+
+      // negative numbers will always be misleading for a users interface.
+      await expect(firebaseWrapper.updateWalkCost(5, -1)).rejects.toEqual(maxMinError);
+      await expect(firebaseWrapper.updateWalkCost(5, -100)).rejects.toEqual(maxMinError);
+    });
+
+    it('Should reject if max value is less than min value', async () => {
+      expect.assertions(2);
+
+      // it is important to check that the max value is actually bigger than the min, otherwise it
+      // will be really misleading when it comes to dislaying this information on the profile
+      // section for a given user, when someone is viewing another persons profile.
+      await expect(firebaseWrapper.updateWalkCost(5, 4)).rejects.toEqual(maxMinError);
+      await expect(firebaseWrapper.updateWalkCost(11, 1)).rejects.toEqual(maxMinError);
+    });
+
+    it('Should just update min if max is null', async () => {
+      expect.assertions(1);
+
+      // we will use this to validate that the changes have taken place.
+      const currentProfile = await firebaseWrapper.getProfile();
+
+      // update the min value to be less than the current min value, we can then validate that this
+      // has changed but max has not.
+      await firebaseWrapper.updateWalkCost(currentProfile.walk.price.min - 1, null);
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.walk.price.min).toEqual(currentProfile.walk.price.min - 1);
+    });
+
+    it('Should just update max if min is null', async () => {
+      expect.assertions(1);
+
+      // we will use this to validate that the changes have taken place.
+      const currentProfile = await firebaseWrapper.getProfile();
+
+      // update the max value to be more than the current max value, we can then validate that this
+      // has changed but max has not.
+      await firebaseWrapper.updateWalkCost(null, currentProfile.walk.price.max + 1);
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.walk.price.max).toEqual(currentProfile.walk.price.max + 1);
+    });
+
+    it('Should update both min and max with all values are valid', async () => {
+      expect.assertions(2);
+
+      // we will use this to validate that the changes have taken place.
+      const currentProfile = await firebaseWrapper.getProfile();
+
+      // update the max value to be more than the current max value, we can then validate that this
+      // has changed but max has not.
+      await firebaseWrapper.updateWalkCost(
+        currentProfile.walk.price.min + 2,
+        currentProfile.walk.price.max + 2
+      );
+
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      // in this case we must validate that both the values have updated to the newly incremented by two values.
+      expect(updatedProfile.walk.price.min).toEqual(currentProfile.walk.price.min + 2);
+      expect(updatedProfile.walk.price.max).toEqual(currentProfile.walk.price.max + 2);
+    });
+
+    it('Should update no values if both input values are null', async () => {
+      expect.assertions(2);
+
+      // we will use this to validate that the changes have taken place.
+      const currentProfile = await firebaseWrapper.getProfile();
+
+      // update the max value to be more than the current max value, we can then validate that this
+      // has changed but max has not.
+      await firebaseWrapper.updateWalkCost(null, null);
+
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      // in this case we must validate that both the values have not updated as we have passed null
+      // for both inputs, resulting in nothing being set and all inputs being ingored.
+      expect(updatedProfile.walk.price.min).toEqual(currentProfile.walk.price.min);
+      expect(updatedProfile.walk.price.max).toEqual(currentProfile.walk.price.max);
     });
   });
 
