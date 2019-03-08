@@ -37,7 +37,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(14); // four assertions are taking plac and expected.
+      expect.assertions(16); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -60,6 +60,10 @@ describe('Firebase Wrapper', async () => {
       // The user has not completed any walks so we will default to 0
       expect(profile.walk.completed).toEqual(expect.any(Number));
       expect(profile.walk.completed).toEqual(0);
+
+      // The user will get a welcome amount of balance of 5.
+      expect(profile.walk.balance).toEqual(expect.any(Number));
+      expect(profile.walk.balance).toEqual(5);
 
       // The user has not set a price so we will default to 5/10
       expect(profile.walk.price.min).toEqual(expect.any(Number));
@@ -435,6 +439,133 @@ describe('Firebase Wrapper', async () => {
       // for both inputs, resulting in nothing being set and all inputs being ingored.
       expect(updatedProfile.walk.price.min).toEqual(currentProfile.walk.price.min);
       expect(updatedProfile.walk.price.max).toEqual(currentProfile.walk.price.max);
+    });
+  });
+
+  /**
+   * Testing the implementation process of the user balance incrementing, this will be used when the
+   * user has completed walks, added balance to there account or a new user to the system.
+   */
+  describe('increaseBalance', async () => {
+    // the list of all the errors that could be triggered within the function, this lets us get
+    // better format our code to have cleaner tests. Below is all the error cases that are being
+    // triggered wtihin the code.
+    const notNumberError = new Error('The provided amount must be a number');
+    const nonNegError = new Error('The provided amount change must be posative for incrementing');
+
+    it('Should reject if the provided value is not a number', async () => {
+      expect.assertions(3);
+
+      // we want to ensure that the balance cannto be adjusted wildly with different values
+      // so all other values that are not a number should be rejected.
+      await expect(firebaseWrapper.increaseBalance([])).rejects.toEqual(notNumberError);
+      await expect(firebaseWrapper.increaseBalance({ balance: 5 })).rejects.toEqual(notNumberError);
+      await expect(firebaseWrapper.increaseBalance('string')).rejects.toEqual(notNumberError);
+    });
+
+    it('Should reject if the amount is less than 0', async () => {
+      expect.assertions(3);
+
+      // incrementing by a negative number could result in a funky outcome, we don't want this to be
+      // used as decreasing as decreasing has been done seperately. Validate that you cannot have a
+      // negative number as a value.
+      await expect(firebaseWrapper.increaseBalance(-0.1)).rejects.toEqual(nonNegError);
+      await expect(firebaseWrapper.increaseBalance(-100)).rejects.toEqual(nonNegError);
+      await expect(firebaseWrapper.increaseBalance(-1000)).rejects.toEqual(nonNegError);
+    });
+
+    it('Should increase the amount of the balance by the given amount', async () => {
+      expect.assertions(2);
+
+      // we need to get the current balance value so we can validate that we are actaully increasing
+      // the value as we call into the method. The balance value is stored under the profile.
+      const profile = await firebaseWrapper.getProfile();
+      const currentBalance = profile.walk.balance;
+
+      // pefroming multiple balance increases to ensure that our changes are going through as
+      // expected.
+      await firebaseWrapper.increaseBalance(5);
+
+      const updatedProfile = await firebaseWrapper.getProfile();
+      const updatedBalance = updatedProfile.walk.balance;
+
+      expect(updatedBalance).toEqual(currentBalance + 5);
+
+      // supporting the incrementing of decimal point values should be supported and should be
+      // treated properly as we would expect. Not adjusting the output value by anything but the
+      // passed values.
+      await firebaseWrapper.increaseBalance(0.3);
+      await firebaseWrapper.increaseBalance(100);
+
+      const doubleUpdatedProfile = await firebaseWrapper.getProfile();
+      const doubleBalance = doubleUpdatedProfile.walk.balance;
+
+      // validate that our overall new double balance does match what we expect it to be.
+      expect(doubleBalance).toEqual(currentBalance + 5 + 0.3 + 100);
+    });
+  });
+
+  describe('decreaseBalance', async () => {
+    // the list of all the errors that could be triggered within the function, this lets us get
+    // better format our code to have cleaner tests. Below is all the error cases that are being
+    // triggered wtihin the code.
+    const notNumberError = new Error('The provided amount must be a number');
+    const nonNegError = new Error('The provided amount change must be posative for decreasing');
+
+    it('Should reject if the provided value is not a number', async () => {
+      expect.assertions(3);
+
+      // we want to ensure that the balance cannto be adjusted wildly with different values
+      // so all other values that are not a number should be rejected.
+      await expect(firebaseWrapper.decreaseBalance([])).rejects.toEqual(notNumberError);
+      await expect(firebaseWrapper.decreaseBalance({ balance: 5 })).rejects.toEqual(notNumberError);
+      await expect(firebaseWrapper.decreaseBalance('string')).rejects.toEqual(notNumberError);
+    });
+
+    it('Should reject if the amount is less than 0', async () => {
+      expect.assertions(3);
+
+      // decreasing by a negative number could result in a funky outcome, we don't want this to be
+      // used as decreasing as decreasing has been done seperately. Validate that you cannot have a
+      // negative number as a value.
+      await expect(firebaseWrapper.decreaseBalance(-0.1)).rejects.toEqual(nonNegError);
+      await expect(firebaseWrapper.decreaseBalance(-100)).rejects.toEqual(nonNegError);
+      await expect(firebaseWrapper.decreaseBalance(-1000)).rejects.toEqual(nonNegError);
+    });
+
+    it('Should reject if the current amount - the change is less than 0', async () => {});
+
+    it('Should decrease the amount of the balance by the given amount', async () => {
+      expect.assertions(2);
+
+      // performing a base increase will allow us to make changes without breaking the code by
+      // decreasing hte amount below 0 causing a error to be thrown.
+      await firebaseWrapper.increaseBalance(200);
+
+      // we need to get the current balance value so we can validate that we are actaully decreasing
+      // the value as we call into the method. The balance value is stored under the profile.
+      const profile = await firebaseWrapper.getProfile();
+      const currentBalance = profile.walk.balance;
+
+      // first pefrom a single small decrease for validation of small changes.
+      await firebaseWrapper.decreaseBalance(5);
+
+      const updatedProfile = await firebaseWrapper.getProfile();
+      const updatedBalance = updatedProfile.walk.balance;
+
+      expect(updatedBalance).toEqual(currentBalance - 5);
+
+      // supporting the decreasing of decimal point values should be supported and should be
+      // treated properly as we would expect. Not adjusting the output value by anything but the
+      // passed values.
+      await firebaseWrapper.decreaseBalance(0.3);
+      await firebaseWrapper.decreaseBalance(100);
+
+      const doubleUpdatedProfile = await firebaseWrapper.getProfile();
+      const doubleBalance = doubleUpdatedProfile.walk.balance;
+
+      // validate that our overall new double balance does match what we expect it to be.
+      expect(doubleBalance).toEqual(currentBalance - 5 - 0.3 - 100);
     });
   });
 

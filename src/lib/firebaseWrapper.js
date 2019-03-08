@@ -302,6 +302,64 @@ class FirebaseWrapper {
   }
 
   /**
+   * Decreases the amount of the current authenticated balance.
+   * @param {number} amount The amount the balance is going to be decreased by.
+   */
+  async decreaseBalance(amount) {
+    if (!_.isNumber(amount)) {
+      // we dont want the user to have a chance of seeing there balance as being not what you
+      // expect, and in this case it would be actually making sure that they are acutally trying to
+      // use a value to increase it by and not a number value.
+      throw new Error('The provided amount must be a number');
+    }
+
+    if (amount <= 0) {
+      // we should not be allowing the user to update the balance to a negative amount, this is not
+      // the method for handling the decreasing of the balance.
+      throw new Error('The provided amount change must be posative for decreasing');
+    }
+
+    // first we need to get the profile, get the curren balance and update that.
+    const profile = await this.getProfile();
+
+    if (profile.walk.balance - amount < 0) {
+      // if the user does not have enough balance, then they should not be given the chance to
+      // adjust it or make changes. They must first have enough of a balance to decrease it.
+      throw new Error('You must have enough money to make the decrease in balance');
+    }
+
+    // finally updating the value to the new amount, that of the current value with it incremented
+    // by the provided amount.
+    await this.database.ref(`users/${this.getUid()}/profile/walk/balance`).set(profile.walk.balance - amount);
+  }
+
+  /**
+   * Increments the current authenticated users balance by the provided amount.
+   * @param {number} amount The amount the current balance is going to be incremented by.
+   */
+  async increaseBalance(amount) {
+    if (!_.isNumber(amount)) {
+      // we dont want the user to have a chance of seeing there balance as being not what you
+      // expect, and in this case it would be actually making sure that they are acutally trying to
+      // use a value to increase it by and not a number value.
+      throw new Error('The provided amount must be a number');
+    }
+
+    if (amount <= 0) {
+      // we should not be allowing the user to update the balance to a negative amount, this is not
+      // the method for handling the decreasing of the balance.
+      throw new Error('The provided amount change must be posative for incrementing');
+    }
+
+    // first we need to get the profile, get the curren balance and update that.
+    const profile = await this.getProfile();
+
+    // finally updating the value to the new amount, that of the current value with it incremented
+    // by the provided amount.
+    await this.database.ref(`users/${this.getUid()}/profile/walk/balance`).set(profile.walk.balance + amount);
+  }
+
+  /**
    * Updates the current authenticated users min and max value they are using for there dog cost
    * section of there profile. (general cost per walk).
    * @param {number} min The new minimal value to be updated.
@@ -359,6 +417,7 @@ class FirebaseWrapper {
       walk: {
         rating: 0,
         completed: 0,
+        balance: 5,
         price: {
           min: 5,
           max: 10

@@ -3,13 +3,17 @@
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
         <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">
-          {{ pendingWalks }}
+          {{
+          pendingWalks
+          }}
         </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
         <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">
-          {{ confirmedWalks }}
+          {{
+          confirmedWalks
+          }}
         </GenericPanel>
       </v-flex>
 
@@ -26,7 +30,11 @@
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottom-text="Completed Walks" top-text-color="green" :top-text="completedWalks">
+        <GenericPanel
+          bottom-text="Completed Walks"
+          top-text-color="green"
+          :top-text="completedWalks"
+        >
           <v-icon>check</v-icon>
         </GenericPanel>
       </v-flex>
@@ -38,7 +46,7 @@
       </v-flex>
 
       <v-flex xs12 class="calendar-wrapper">
-        <Calendar />
+        <Calendar/>
       </v-flex>
     </v-layout>
   </v-container>
@@ -65,15 +73,23 @@ export default {
     };
   },
 
-  created: function() {
+  created: async function() {
     // get the currenlty authenticated user.
     const user = firebaseWrapper.getCurrentUser();
+    const profile = await firebaseWrapper.getProfile();
 
-    // if we are authenticated and the user object exists, set the name and image from the
-    // authenticated object.
-    if (!_.isNil(user)) {
-      this.name = user.displayName;
+    if (!_.isNil(profile) && !_.isNil(user)) {
+      this.name = profile.name;
       this.image = user.photoURL;
+
+      // set all the required data fields on the home page for displaying.
+      this.currentRating = profile.walk.rating / profile.walk.completed;
+      this.completedWalks = profile.walk.completed;
+      this.availableIncome = `£${profile.walk.balance}`;
+
+      // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
+      // is true then we are just just to set the value back to 0
+      if (_.isNaN(this.currentRating)) this.currentRating = 0;
     }
   },
 
