@@ -60,10 +60,10 @@ export default {
       priceMax: 7,
       distance: 0
     };
-    dropdown_distanceArea: [5, 10, 15, 20, 25, 30, 40, 50, 75, 100];
-    dropdown_ratings: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    dropdown_availability: ["TBA"];
-    dropdown_priceRange: ["TBA"]
+    [5, 10, 15, 20, 25, 30, 40, 50, 75, 100];
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    ["TBA"];
+    ["TBA"]
   }
 };
 </script>
