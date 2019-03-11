@@ -13,15 +13,16 @@
               <img :src="profile.url" alt="avatar">
             </v-avatar>
             <div class="core-text">
+              <div style="text-align: center; margin-left: -50px;">
+                <v-rating dense readonly hover half-increments v-model="profile.walk.rating"/>
+              </div>
               <div>Name: {{ profile.name }}</div>
               <div>Email: {{ profile.email }}</div>
               <div>Age: {{ profile.age }}</div>
               <div>Completed Walks: {{ profile.walk.completed }}</div>
               <div>Area: {{ area }}</div>
               <div>Distance: {{ distance }}</div>
-              <div>
-                <v-rating dense readonly hover half-increments v-model="profile.walk.rating"/>
-              </div>
+
               <div>Price Range: £{{ profile.walk.price.min }} - £{{ profile.walk.price.max }} (/h)</div>
             </div>
           </v-card-text>
