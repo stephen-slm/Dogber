@@ -3,18 +3,20 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-text class="px-0 title-text gray lighten-1">Dog Walker Profile: {{ profile.name }}</v-card-text>
+          <v-card-text class="px-0 title-text gray lighten-1"
+            >Dog Walker Profile: {{ profile.name }}</v-card-text
+          >
         </v-card>
       </v-flex>
       <v-flex xs12 sm6 md4>
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
-              <img :src="profile.url" alt="avatar">
+              <img :src="profile.url" alt="avatar" />
             </v-avatar>
             <div class="core-text">
               <div style="text-align: center; margin-left: -50px;">
-                <v-rating dense readonly hover half-increments v-model="profile.walk.rating"/>
+                <v-rating dense readonly hover half-increments v-model="profile.walk.rating" />
               </div>
 
               <div class="core-text-inner">
@@ -46,7 +48,6 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import firebaseWrapper from '@/lib/firebaseWrapper.js';
 
 export default {
