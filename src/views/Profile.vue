@@ -32,7 +32,7 @@
           <v-flex d-flex>
             <v-card>
               <v-card-title>Feedback</v-card-title>
-              <v-card-text>Feedback</v-card-text>
+              <v-card-text>No Feedback 😓</v-card-text>
             </v-card>
           </v-flex>
         </v-layout>
@@ -76,5 +76,6 @@ export default {
 .core-text {
   text-align: left;
   margin-left: 50px;
+  margin-top: 10px;
 }
 </style>
