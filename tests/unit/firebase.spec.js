@@ -6,7 +6,13 @@ describe('Firebase Wrapper', async () => {
   // generate a random apendix so that two tests running at any given time will not be clashing when
   // attempting to create the account. This is a cheap away of avoiding collision.
   const email = `test-${Math.floor(Math.random() * (1000 - 0) + 0)}@dogber.co.uk`;
+  const emailSecond = `test-${Math.floor(Math.random() * (1000 - 0) + 0)}-second@dogber.co.uk`;
   const password = 'testingpassword';
+
+  // user id references that will be used for when two ids will be required, this can be related to
+  // storing notifications, adding feedback and creating related works for given users.
+  let userOneId = '';
+  let userTwoId = '';
 
   /**
    * Before any test has been ran, we want to test and ensure that the account has been created.
@@ -14,20 +20,37 @@ describe('Firebase Wrapper', async () => {
    * database and firebase that we need to test. Without this process we are limited in what we can
    * test.
    */
-  beforeAll(() => {
-    return firebaseWrapper.authentication
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => firebaseWrapper.authentication.signInWithEmailAndPassword(email, password))
-      .then(() => firebaseWrapper.createNewUser())
-      .then((account) => expect(account));
+  beforeAll(async (done) => {
+    await firebaseWrapper.authentication.createUserWithEmailAndPassword(emailSecond, password);
+    await firebaseWrapper.authentication.signInWithEmailAndPassword(emailSecond, password);
+    await firebaseWrapper.createNewUser();
+    userTwoId = firebaseWrapper.getUid();
+
+    // sign out the second account
+    await firebaseWrapper.authentication.signOut();
+
+    // create the account that will actually be used for the authentication and data processsing the
+    // first email (email second) will be used for transfering data between two existing users.
+    await firebaseWrapper.authentication.createUserWithEmailAndPassword(email, password);
+    await firebaseWrapper.authentication.signInWithEmailAndPassword(email, password);
+    await firebaseWrapper.createNewUser();
+    userOneId = firebaseWrapper.getUid();
+
+    done();
   });
 
   /**
    * Delete the account afterward, we don't need it anymore and we dont need the junk data in the
    * system. This will run no matter if the tests fail or pass.
    */
-  afterAll(async () => {
-    return firebaseWrapper.deleteAccount().then(() => expect());
+  afterAll(async (done) => {
+    await firebaseWrapper.deleteAccount();
+
+    // authentication as the old account and delete the account as we have two accounts.
+    await firebaseWrapper.authentication.signInWithEmailAndPassword(emailSecond, password);
+    await firebaseWrapper.deleteAccount();
+
+    done();
   });
 
   /**
@@ -488,6 +511,89 @@ describe('Firebase Wrapper', async () => {
       // for both inputs, resulting in nothing being set and all inputs being ingored.
       expect(updatedProfile.walk.price.min).toEqual(currentProfile.walk.price.min);
       expect(updatedProfile.walk.price.max).toEqual(currentProfile.walk.price.max);
+    });
+  });
+
+  describe('addFeedback', async () => {
+    // the list of possible errors that have been created by the add feedback method, this is used
+    // for testing reasons as it will help with the validation of errors when you don't have to
+    // constantly repeat the error messages.
+    const feedtargetNull = new Error('Feedback and target id must not be null or undefined');
+    const feedtargetString = new Error('Feedback and target id must be of type string');
+    const nullNotStringError = new Error('Feedback message must be a valid string');
+
+    it('Should reject if the feedbacker id is null', async () => {
+      expect.assertions(1);
+
+      await expect(firebaseWrapper.addFeedback(null, 'targetid', 'message')).rejects.toEqual(feedtargetNull);
+    });
+
+    it('Should reject if the feedbacker id is not a string', async () => {
+      expect.assertions(4);
+
+      await expect(firebaseWrapper.addFeedback('id', [1], 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback('id', false, 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback('id', true, 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback('id', () => {}, 'm')).rejects.toEqual(feedtargetString);
+    });
+
+    it('Should reject if the target id is null', async () => {
+      expect.assertions(1);
+
+      await expect(firebaseWrapper.addFeedback(null, 'targetid', 'message')).rejects.toEqual(feedtargetNull);
+    });
+
+    it('Should reject if the target id is not a string', async () => {
+      expect.assertions(4);
+
+      await expect(firebaseWrapper.addFeedback([1], 'id', 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback(false, 'id', 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback(true, 'id', 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback(() => {}, 'id', 'm')).rejects.toEqual(feedtargetString);
+    });
+
+    it('Should reject the message if its null or undefined', async () => {
+      expect.assertions(2);
+
+      await expect(firebaseWrapper.addFeedback('id', 'id', null)).rejects.toEqual(nullNotStringError);
+      await expect(firebaseWrapper.addFeedback('id', 'id', undefined)).rejects.toEqual(nullNotStringError);
+    });
+
+    it('Should reject the message if its not a string', async () => {
+      expect.assertions(4);
+
+      await expect(firebaseWrapper.addFeedback('id', 'id', [1])).rejects.toEqual(nullNotStringError);
+      await expect(firebaseWrapper.addFeedback('id', 'id', false)).rejects.toEqual(nullNotStringError);
+      await expect(firebaseWrapper.addFeedback('id', 'id', true)).rejects.toEqual(nullNotStringError);
+      await expect(firebaseWrapper.addFeedback('id', 'id', () => {})).rejects.toEqual(nullNotStringError);
+    });
+
+    it('Should add feedback to the provided id', async () => {
+      expect.assertions(5);
+
+      // first we can get the base feedback, this is important as we can then use this in the future
+      // to validate that the new feedback does not exist in the old feedback, making sure changes
+      // are taken place.
+      const userTwoFeedback = await firebaseWrapper.getFeedback(userTwoId);
+
+      // first add a feedback so we can then validate that a single feedback is being added
+      // correctly. Then we can test aginast multiple in a row and so fourth.
+      const feedbackOne = await firebaseWrapper.addFeedback(userOneId, userTwoId, 'feedback one');
+      const feedbackOneUpdate = await firebaseWrapper.getFeedback(userTwoId);
+
+      // validate that the new feedback size has increased and the feedback exists.
+      expect(_.size(feedbackOneUpdate)).toEqual(_.size(userTwoFeedback) + 1);
+      expect(_.isNil(feedbackOneUpdate[feedbackOne])).toBeFalsy();
+
+      // used to validate that the correct name was stored under the profile and id.
+      const currentProfile = await firebaseWrapper.getProfile();
+
+      // validate that the feedback object contains all the correct information.
+      expect(feedbackOneUpdate[feedbackOne].message).toEqual('feedback one');
+      expect(feedbackOneUpdate[feedbackOne].feedbacker.id).toEqual(userOneId);
+      expect(feedbackOneUpdate[feedbackOne].feedbacker.name).toEqual(
+        currentProfile.name || currentProfile.email
+      );
     });
   });
 
