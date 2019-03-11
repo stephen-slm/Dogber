@@ -3,7 +3,7 @@
     <v-layout row wrap class="wrapper">
       <v-flex class="top-text">
         <div :style="topColor">
-          <v-rating small dense readonly hover half-increments v-model="rating"/>
+          <v-rating small dense readonly hover half-increments v-model="rating" />
         </div>
         <div class="grey--text lighten-2">{{ bottomText }}</div>
       </v-flex>
