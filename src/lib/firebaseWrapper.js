@@ -197,8 +197,20 @@ class FirebaseWrapper {
    * basic information that was created for the authenticated user when they first signed into the
    * application.
    */
-  async getProfile() {
-    const profile = await this.database.ref(`users/${this.getUid()}/profile`).once('value');
+  async getProfile(id = this.getUid()) {
+    if (_.isNil(id)) {
+      // passed id must be of a type, we cannot work with the process if the id is null or
+      // undefined. the user should always pass a valid id.
+      throw new Error('Passed id cannot be null or undefined');
+    }
+
+    if (!_.isString(id)) {
+      // while get uid will return a string, a user can pass a string directly into this method,
+      // this must be of type string as firebase id are of type string.
+      throw new Error('Passed id should be of type string');
+    }
+
+    const profile = await this.database.ref(`users/${id}/profile`).once('value');
     return profile.val();
   }
 

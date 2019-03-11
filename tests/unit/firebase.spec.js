@@ -326,6 +326,55 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
+  describe('GetProfile', async () => {
+    // the errors that can be thrown through the implementation process of the get profile, these
+    // are here to allow for better code qualifty of testing. We don't have to keep repeating the
+    // errors.
+    const idNullError = new Error('Passed id cannot be null or undefined');
+    const notStringError = new Error('Passed id should be of type string');
+
+    it('Should return a valid profile object when the user is authenticated with no id passed', async () => {
+      expect.assertions(7);
+
+      const profile = await firebaseWrapper.getProfile();
+
+      // all the core properties we are expecting on the object.
+      expect(profile.last_login).toEqual(expect.any(Number));
+      expect(profile.age).toEqual(expect.any(Number));
+      expect(profile.walk.rating).toEqual(expect.any(Number));
+      expect(profile.walk.completed).toEqual(expect.any(Number));
+      expect(profile.walk.balance).toEqual(expect.any(Number));
+      expect(profile.walk.price.min).toEqual(expect.any(Number));
+      expect(profile.walk.price.max).toEqual(expect.any(Number));
+    });
+
+    it('Should reject the id if its not of type string', async () => {
+      expect.assertions(3);
+
+      // all given ids should be of type string,this is due to firebase ids being related around the
+      // string properly, using anything else should be rejected.
+      await expect(firebaseWrapper.getProfile([5])).rejects.toEqual(notStringError);
+      await expect(firebaseWrapper.getProfile(5)).rejects.toEqual(notStringError);
+      await expect(firebaseWrapper.getProfile(true)).rejects.toEqual(notStringError);
+    });
+
+    it('Should reject the id if its null or undefined it should use the authenticated user.', async () => {
+      expect.assertions(2);
+
+      // all given ids should be of type null or undefined,this is due to firebase ids being related
+      // around the string properly, using anything else should be rejected.
+      await expect(firebaseWrapper.getProfile(null)).rejects.toEqual(idNullError);
+
+      // the current profile and profile with the undefined state, we should expect undefined to
+      // pull back the actual profile as the defautlt value will kick in (using the current
+      // authenticated person).
+      const profile = firebaseWrapper.getProfile(undefined);
+      const actualProfile = firebaseWrapper.getProfile();
+
+      await expect(profile).toEqual(actualProfile);
+    });
+  });
+
   describe('UpdateWalkCost', async () => {
     // the errors that can be thrown, just defined to stop the creation of duplicate code.
     const minMissingError = new Error('if min is provided it must be a number');
