@@ -9,41 +9,24 @@
             </v-card>
           </v-flex>
           <v-flex xs12 sm3>
-            <v-overflow-btn :items="dropdown_distanceArea" label="Distance Area"></v-overflow-btn>
+            <v-select :items="dropdown_distanceArea" label="Distance Area"></v-select>
           </v-flex>
           <v-flex xs12 sm3>
-            <v-overflow-btn :items="dropdown_ratings" label="Ratings"></v-overflow-btn>
+            <v-select :items="dropdown_ratings" label="Ratings"></v-select>
           </v-flex>
           <v-flex xs12 sm3>
-            <v-overflow-btn :items="dropdown_availability" label="Availability"></v-overflow-btn>
+            <v-select :items="dropdown_availability" label="Availability"></v-select>
           </v-flex>
           <v-flex xs12 sm3>
-            <v-overflow-btn :items="dropdown_priceRange" label="Price Range"></v-overflow-btn>
+            <v-select :items="dropdown_priceRange" label="Price Range"></v-select>
           </v-flex>
           <v-flex xs12>
-            <v-card>
-              <v-layout align-baseline>
-                <v-flex xs12 sm1>
-                  <v-avatar color="grey lighten-4">
-                    <img src="../assets/placeholder.jpg" alt="avatar">
-                  </v-avatar>
-                </v-flex>
-                <v-flex xs12 sm3>
-                  Name: {{ firstName }} {{ lastName }}
-                  <br>
-                  Price Range: £{{ priceMin }} - £{{ priceMax }} (/h)
-                </v-flex>
-                <v-flex xs12 sm3>
-                  Rating: {{ rating }}/10
-                  <br>
-                  Distance: {{ distance }} Miles
-                </v-flex>
-                <v-flex xs12 sm5>
-                  <v-btn>Profile</v-btn>
-                  <v-btn>Check Availability</v-btn>
-                </v-flex>
-              </v-layout>
-            </v-card>
+            <WalkFinderResult
+              v-for="item in [1, 2, 3, 4, 5]"
+              :key="item"
+              class="walk-result"
+              :id="localUserId"
+            />
           </v-flex>
         </v-layout>
       </v-container>
@@ -52,17 +35,29 @@
 </template>
 
 <script>
+import WalkFinderResult from '@/components/WalkFinderResult.vue';
+import firebaseWrapper from '@/lib/firebaseWrapper';
+
 export default {
   name: 'WalkFinder',
   data: function() {
     return {
-      firstName: 'Mark',
-      lastName: 'Anthony',
-      rating: 8,
-      priceMin: 3,
-      priceMax: 7,
-      distance: 0
+      localUserId: firebaseWrapper.getUid(),
+      dropdown_distanceArea: ['Portsmouth', 'London', 'Brighton'],
+      dropdown_ratings: ['0 - 1', '1 - 2', '2 - 3', '3 - 4', '4 - 5'],
+      dropdown_availability: ['now', 'later'],
+      dropdown_priceRange: ['0 - 5', '5 - 10', '10 - 20', '20+']
     };
+  },
+
+  components: {
+    WalkFinderResult
   }
 };
 </script>
+
+<style scoped>
+.walk-result {
+  margin-bottom: 25px;
+}
+</style>
