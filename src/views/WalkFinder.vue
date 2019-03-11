@@ -25,15 +25,17 @@
               <v-layout align-baseline>
                 <v-flex xs12 sm1>
                   <v-avatar color="grey lighten-4">
-                    <img src="https://vuetifyjs.com/apple-touch-icon-180x180.png" alt="avatar" />
+                    <img src="../assets/placeholder.jpg" alt="avatar">
                   </v-avatar>
                 </v-flex>
                 <v-flex xs12 sm3>
-                  Name: {{ firstName }} {{ lastName }}<br />
+                  Name: {{ firstName }} {{ lastName }}
+                  <br>
                   Price Range: £{{ priceMin }} - £{{ priceMax }} (/h)
                 </v-flex>
                 <v-flex xs12 sm3>
-                  Rating: {{ rating }}/10<br />
+                  Rating: {{ rating }}/10
+                  <br>
                   Distance: {{ distance }} Miles
                 </v-flex>
                 <v-flex xs12 sm5>
