@@ -10,6 +10,9 @@
           </v-flex>
           <v-flex xs3>
             <v-card>
+              <v-avatar color="grey lighten-4">
+                <img src="https://vuetifyjs.com/apple-touch-icon-180x180.png" alt="avatar" />
+              </v-avatar>
               <v-card-text class="px-0">
                 Name: {{ firstName }} {{ lastName }}<br />
                 Age: {{ age }}<br />

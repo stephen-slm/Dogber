@@ -5,7 +5,7 @@
         <v-layout row wrap>
           <v-flex xs12>
             <v-card>
-              <v-card-text class="px-0">Walk Finder</v-card-text>
+              <v-card-title class="px-2">Walk Finder</v-card-title>
             </v-card>
           </v-flex>
           <v-flex xs12 sm3>
@@ -22,12 +22,25 @@
           </v-flex>
           <v-flex xs12>
             <v-card>
-              <v-card-text class="px-0">
-                Name: {{ firstName }} {{ lastName }} Rating: {{ rating }}/10<br />
-                Price Range: £{{ priceMin }} - £{{ priceMax }} (/h) Distance: {{ distance }} Miles
-              </v-card-text>
-              <v-btn>Profile</v-btn>
-              <v-btn>Check Availability</v-btn>
+              <v-layout align-baseline>
+                <v-flex xs12 sm1>
+                  <v-avatar color="grey lighten-4">
+                    <img src="https://vuetifyjs.com/apple-touch-icon-180x180.png" alt="avatar" />
+                  </v-avatar>
+                </v-flex>
+                <v-flex xs12 sm3>
+                  Name: {{ firstName }} {{ lastName }}<br />
+                  Price Range: £{{ priceMin }} - £{{ priceMax }} (/h)
+                </v-flex>
+                <v-flex xs12 sm3>
+                  Rating: {{ rating }}/10<br />
+                  Distance: {{ distance }} Miles
+                </v-flex>
+                <v-flex xs12 sm5>
+                  <v-btn>Profile</v-btn>
+                  <v-btn>Check Availability</v-btn>
+                </v-flex>
+              </v-layout>
             </v-card>
           </v-flex>
         </v-layout>
