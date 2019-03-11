@@ -16,12 +16,15 @@
               <div style="text-align: center; margin-left: -50px;">
                 <v-rating dense readonly hover half-increments v-model="profile.walk.rating"/>
               </div>
-              <div>Name: {{ profile.name }}</div>
-              <div>Email: {{ profile.email }}</div>
-              <div>Age: {{ profile.age }}</div>
-              <div>Completed Walks: {{ profile.walk.completed }}</div>
-              <div>Area: {{ area }}</div>
-              <div>Distance: {{ distance }}</div>
+
+              <div class="core-text-inner">
+                <div>Name: {{ profile.name }}</div>
+                <div>Email: {{ profile.email }}</div>
+                <div>Age: {{ profile.age }}</div>
+                <div>Completed Walks: {{ profile.walk.completed }}</div>
+                <div>Area: {{ area }}</div>
+                <div>Distance: {{ distance }}</div>
+              </div>
 
               <div>Price Range: £{{ profile.walk.price.min }} - £{{ profile.walk.price.max }} (/h)</div>
             </div>
@@ -50,18 +53,37 @@ export default {
   name: 'Profile',
   data: function() {
     return {
-      profile: {}
+      profile: {
+        walk: { rating: 0, price: { min: 0, max: 0 } }
+      },
+      distance: '',
+      area: ''
     };
   },
 
+  // on the creation and loading of the profile page, we load the profile and feedback of the given
+  // page.
   created: async function() {
-    const user = firebaseWrapper.getCurrentUser();
-    const profile = await firebaseWrapper.getProfile();
+    await this.loadProfile();
+    await this.loadFeedback();
+  },
 
-    if (!_.isNil(profile)) {
+  methods: {
+    // Loads the current profile into the page, this allows us display the related information. This
+    // will be used for loading a profile by a given id in the future.
+    loadProfile: async function() {
+      const user = firebaseWrapper.getCurrentUser();
+      const profile = await firebaseWrapper.getProfile();
+
       this.profile = profile;
       this.profile.url = user.photoURL;
-    }
+
+      this.distance = 0;
+      this.area = 'Portsmouth';
+    },
+
+    // Loads all the feedback for the current authenticated user into the page.
+    loadFeedback: async function() {}
   },
 
   components: {}
@@ -78,5 +100,9 @@ export default {
   text-align: left;
   margin-left: 50px;
   margin-top: 10px;
+}
+
+.core-text-inner div {
+  margin-top: 5px;
 }
 </style>
