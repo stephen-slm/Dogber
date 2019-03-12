@@ -485,12 +485,14 @@ class FirebaseWrapper {
    */
   async createNewUser() {
     const profile = this.generateProfileFromLogin();
+    const user = this.getCurrentUser();
 
     const created = await this.database.ref(`users/${this.getUid()}/profile`).set({
       email: profile.email,
       name: profile.displayName,
       last_login: Date.now(),
       login_count: 1,
+      photo: user.photoURL || '../assets/placeholder.jpg',
       new: true,
       walk: {
         rating: 0,

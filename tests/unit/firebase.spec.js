@@ -60,7 +60,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(16); // four assertions are taking plac and expected.
+      expect.assertions(17); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -68,6 +68,7 @@ describe('Firebase Wrapper', async () => {
       expect(profile.new).toBeTruthy();
       expect(profile.login_count).toEqual(1);
       expect(profile.last_login).toEqual(expect.any(Number));
+      expect(profile.photo).toEqual(expect.any(String));
 
       // We can determine the users age when they first login with the welcome screen. but until
       // then we will have the age defaulted to 0. Its not really required but used for information
