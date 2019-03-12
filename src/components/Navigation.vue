@@ -4,7 +4,7 @@
       <v-list>
         <v-list-tile avatar>
           <v-list-tile-avatar>
-            <img class="avatar" alt="Peoples Image" :src="imageUrl" />
+            <img class="avatar" alt="Peoples Image" :src="imageUrl">
           </v-list-tile-avatar>
 
           <v-list-tile-content>
@@ -22,7 +22,7 @@
             <v-list-tile-title class="grey--text">Home</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile :to="'/me'">
+        <v-list-tile :to="'/profile/me'">
           <v-list-tile-action>
             <v-icon>person</v-icon>
           </v-list-tile-action>
@@ -67,10 +67,10 @@
     </v-navigation-drawer>
     <v-toolbar app>
       <v-toolbar-title>
-        <v-toolbar-side-icon v-if="$vuetify.breakpoint.mdAndDown" @click.stop="drawer = !drawer" />
+        <v-toolbar-side-icon v-if="$vuetify.breakpoint.mdAndDown" @click.stop="drawer = !drawer"/>
         <span class="subheading">{{ getWelcome }}</span>
       </v-toolbar-title>
-      <v-spacer />
+      <v-spacer/>
 
       <v-btn icon>
         <v-badge overlap>
@@ -80,7 +80,7 @@
       </v-btn>
       <v-btn icon large>
         <v-avatar size="32px" tile>
-          <img src="../assets/logo.png" alt="Dogber" />
+          <img src="../assets/logo.png" alt="Dogber">
         </v-avatar>
       </v-btn>
     </v-toolbar>
@@ -112,14 +112,14 @@ export default {
     };
   },
 
-  created: function() {
-    const user = firebaseWrapper.getCurrentUser();
+  created: async function() {
+    const profile = await firebaseWrapper.getProfile();
 
     // validate that we are authenticated before we attempt to get the notifications
-    if (!_.isNil(user)) {
-      this.name = user.displayName || '../assets/placeholder.jpg';
-      this.imageUrl = user.photoURL || '';
-      this.email = user.email || '';
+    if (!_.isNil(profile)) {
+      this.name = profile.name || 'User';
+      this.imageUrl = profile.photo;
+      this.email = profile.email || '';
 
       const notificationReference = firebaseWrapper.getNotificationReference();
 

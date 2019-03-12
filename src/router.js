@@ -24,7 +24,7 @@ const routes = [
     component: Home
   },
   {
-    path: '/me',
+    path: '/profile/:id',
     name: 'profile',
     component: Profile
   },
