@@ -22,7 +22,7 @@
             <v-list-tile-title class="grey--text">Home</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile :to="'/me'">
+        <v-list-tile :to="'/profile/me'">
           <v-list-tile-action>
             <v-icon>person</v-icon>
           </v-list-tile-action>
@@ -112,14 +112,14 @@ export default {
     };
   },
 
-  created: function() {
-    const user = firebaseWrapper.getCurrentUser();
+  created: async function() {
+    const profile = await firebaseWrapper.getProfile();
 
     // validate that we are authenticated before we attempt to get the notifications
-    if (!_.isNil(user)) {
-      this.name = user.displayName || '';
-      this.imageUrl = user.photoURL || '';
-      this.email = user.email || '../assets/placeholder.jpg';
+    if (!_.isNil(profile)) {
+      this.name = profile.name || 'User';
+      this.imageUrl = profile.photo;
+      this.email = profile.email || '';
 
       const notificationReference = firebaseWrapper.getNotificationReference();
 

@@ -16,15 +16,15 @@
       <Loading v-if="loading" :message="loadingMessage" />
 
       <div v-if="!loading" class="loginContainer">
-        <a @click="loginWithFacebookAsync" class="facebook">
+        <a @click="loginWithFacebook" class="facebook">
           <i class="fab fa-facebook"></i>
         </a>
 
-        <a @click="loginWithGithubAsync" class="github">
+        <a @click="loginWithGithub" class="github">
           <i class="fab fa-github"></i>
         </a>
 
-        <a @click="loginWithGoogleAsync" class="google">
+        <a @click="loginWithGoogle" class="google">
           <i class="fab fa-google"></i>
         </a>
       </div>
@@ -74,7 +74,7 @@ export default {
       if (_.isNil(login)) return this.setLoading(false);
 
       try {
-        await this.completeAuthenticationAsync(login, true);
+        await this.completeAuthentication(login, true);
         this.navigateHome();
       } catch (error) {
         this.handleAuthenticationError(error);
@@ -90,7 +90,7 @@ export default {
     this.loadingMessage = 'authenticating redirection';
 
     try {
-      await this.completeAuthenticationAsync(redirectionResult);
+      await this.completeAuthentication(redirectionResult);
       this.navigateHome();
     } catch (error) {
       this.handleAuthenticationError(error);
@@ -100,34 +100,35 @@ export default {
   methods: {
     /**
      * Completes the authentication from firebase.
-     * @param {object} login The authentication loginr returned from firebase.
+    //  * @param {object} login The authentication loginr returned from firebase.
      * @param {bool} reauth If its not a reauthentication.
      */
-    completeAuthenticationAsync: async function(login, reauth = false) {
+    completeAuthentication: async function(login, reauth = false) {
       if (_.isNil(login)) return;
 
       const name = _.isNil(login.displayName) ? '' : login.displayName;
       this.loadingMessage = `Authenticating user${name}`;
 
       if (reauth || !login.additionalUserInfo.isNewUser) {
+        await firebaseWrapper.incrementUsersLoginAcount();
         return this.setLoading(false);
       }
 
-      await firebaseWrapper.createNewUserAsync();
+      await firebaseWrapper.createNewUser();
     },
 
     /**
      * Authenticates the user with Google.
      */
-    loginWithGoogleAsync: async function() {
+    loginWithGoogle: async function() {
       this.loadingMessage = 'Attempting to authenticate with Google.';
       this.showSnackbar(this.loadingMessage);
 
       this.setLoading(true);
 
       try {
-        const login = await firebaseWrapper.authenticateWithGoogleAsync(this.isMobile);
-        await this.completeAuthenticationAsync(login);
+        const login = await firebaseWrapper.authenticateWithGoogle(this.isMobile);
+        await this.completeAuthentication(login);
       } catch (error) {
         this.handleAuthenticationError(error);
       }
@@ -138,15 +139,15 @@ export default {
     /**
      * Authenticates the user with Facebook.
      */
-    loginWithFacebookAsync: async function() {
+    loginWithFacebook: async function() {
       this.loadingMessage = 'Attempting to authenticate with Facebook.';
       this.showSnackbar(this.loadingMessage);
       this.setLoading(true);
 
       try {
-        const login = await firebaseWrapper.authenticateWithFacebookAsync(this.isMobile);
+        const login = await firebaseWrapper.authenticateWithFacebook(this.isMobile);
 
-        await this.completeAuthenticationAsync(login);
+        await this.completeAuthentication(login);
       } catch (error) {
         this.handleAuthenticationError(error);
       }
@@ -157,14 +158,14 @@ export default {
     /**
      * Authenticates the user with Github.
      */
-    loginWithGithubAsync: async function() {
+    loginWithGithub: async function() {
       this.loadingMessage = 'Attempting to authenticate with Github.';
       this.showSnackbar(this.loadingMessage);
       this.setLoading(true);
 
       try {
-        const login = await firebaseWrapper.authenticateWithGithubAsync(this.isMobile);
-        await this.completeAuthenticationAsync(login);
+        const login = await firebaseWrapper.authenticateWithGithub(this.isMobile);
+        await this.completeAuthentication(login);
       } catch (error) {
         this.handleAuthenticationError(error);
       }
