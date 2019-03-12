@@ -3,16 +3,16 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-text
-            class="subheading text-sm-left gray lighten-1"
-          >Dog Walker Profile: {{ profile.name }}</v-card-text>
+          <v-card-text class="subheading text-sm-left gray lighten-1"
+            >Dog Walker Profile: {{ profile.name }}</v-card-text
+          >
         </v-card>
       </v-flex>
       <v-flex xs12 sm6 md4>
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
-              <img :src="profile.photo" alt="avatar">
+              <img :src="profile.photo" alt="avatar" />
             </v-avatar>
             <div class="core-text">
               <div style="text-align: center; margin-left: -50px;">

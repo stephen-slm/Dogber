@@ -4,7 +4,7 @@
       <v-list>
         <v-list-tile avatar>
           <v-list-tile-avatar>
-            <img class="avatar" alt="Peoples Image" :src="imageUrl">
+            <img class="avatar" alt="Peoples Image" :src="imageUrl" />
           </v-list-tile-avatar>
 
           <v-list-tile-content>
@@ -67,10 +67,10 @@
     </v-navigation-drawer>
     <v-toolbar app>
       <v-toolbar-title>
-        <v-toolbar-side-icon v-if="$vuetify.breakpoint.mdAndDown" @click.stop="drawer = !drawer"/>
+        <v-toolbar-side-icon v-if="$vuetify.breakpoint.mdAndDown" @click.stop="drawer = !drawer" />
         <span class="subheading">{{ getWelcome }}</span>
       </v-toolbar-title>
-      <v-spacer/>
+      <v-spacer />
 
       <v-btn icon>
         <v-badge overlap>
@@ -80,7 +80,7 @@
       </v-btn>
       <v-btn icon large>
         <v-avatar size="32px" tile>
-          <img src="../assets/logo.png" alt="Dogber">
+          <img src="../assets/logo.png" alt="Dogber" />
         </v-avatar>
       </v-btn>
     </v-toolbar>

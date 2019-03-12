@@ -3,7 +3,7 @@
     <v-layout align-baseline>
       <v-flex xs12 sm1>
         <v-avatar color="grey lighten-4">
-          <img :src="userProfile.photo" alt="avatar">
+          <img :src="userProfile.photo" alt="avatar" />
         </v-avatar>
       </v-flex>
       <v-flex xs12 sm3>
@@ -86,4 +86,3 @@ export default {
   display: inline-flex;
 }
 </style>
-
