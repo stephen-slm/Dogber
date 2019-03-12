@@ -1,70 +1,109 @@
 <template>
-  <div id="profile">
-    <v-app id="inspire">
-      <v-container grid-list-md text-xs-center>
+  <v-container grid-list-md text-xs-center>
+    <v-layout row wrap>
+      <v-flex xs12>
+        <v-card>
+          <v-card-text class="px-0 title-text gray lighten-1"
+            >Dog Walker Profile: {{ profile.name }}</v-card-text
+          >
+        </v-card>
+      </v-flex>
+      <v-flex xs12 sm6 md4>
+        <v-card>
+          <v-card-text class="px-0">
+            <v-avatar size="75">
+              <img :src="profile.url" alt="avatar" />
+            </v-avatar>
+            <div class="core-text">
+              <div style="text-align: center; margin-left: -50px;">
+                <v-rating dense readonly hover half-increments v-model="profile.walk.rating" />
+              </div>
+
+              <div class="core-text-inner">
+                <div>Name: {{ profile.name }}</div>
+                <div>Email: {{ profile.email }}</div>
+                <div>Age: {{ profile.age }}</div>
+                <div>Completed Walks: {{ profile.walk.completed }}</div>
+                <div>Area: {{ area }}</div>
+                <div>Distance: {{ distance }}</div>
+              </div>
+
+              <div>Price Range: £{{ profile.walk.price.min }} - £{{ profile.walk.price.max }} (/h)</div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <v-flex d-flex xs12 sm8>
         <v-layout row wrap>
-          <v-flex xs12>
+          <v-flex d-flex>
             <v-card>
-              <v-card-title primary class="title">
-                Dog Walker Profile: {{ firstName }} {{ lastName }}
-              </v-card-title>
-            </v-card>
-          </v-flex>
-          <v-flex xs3>
-            <v-card>
-              <v-avatar color="grey lighten-4">
-                <img src="https://vuetifyjs.com/apple-touch-icon-180x180.png" alt="avatar" />
-              </v-avatar>
-              <v-card-text class="px-0">
-                Name: {{ firstName }} {{ lastName }}<br />
-                Age: {{ age }}<br />
-                Completed Walks: {{ completedWalks }}<br />
-                Area: {{ area }}<br />
-                Distance: {{ distance }}<br />
-                Ratings: {{ rating }}/10<br />
-                Price Range: £{{ priceMin }} - £{{ priceMax }} (/h)<br />
-              </v-card-text>
-            </v-card>
-          </v-flex>
-          <v-flex xs9>
-            <v-card>
-              <v-card-title primary class="title">Feedback</v-card-title>
-              <v-card-text class="px-0">Coming Soon</v-card-text>
-            </v-card>
-          </v-flex>
-          <v-flex xs3 offset-xs3>
-            <v-card>
-              <v-card-text class="px-0">
-                <div>Name: {{ dogName }}</div>
-                <div>Breed: {{ breed }}</div>
-                <div>Age: {{ dogAge }}</div>
-              </v-card-text>
+              <v-card-title>Feedback</v-card-title>
+              <v-card-text>No Feedback 😓</v-card-text>
             </v-card>
           </v-flex>
         </v-layout>
-      </v-container>
-    </v-app>
-  </div>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>
+import firebaseWrapper from '@/lib/firebaseWrapper.js';
+
 export default {
   name: 'Profile',
   data: function() {
     return {
-      firstName: 'Júnior',
-      lastName: 'Silva',
-      age: 20,
-      completedWalks: 0,
-      area: 'Portsmouth',
-      distance: 0,
-      rating: 8,
-      priceMin: 3,
-      priceMax: 7,
-      dogName: 'Richy',
-      breed: 'German Shepard',
-      dogAge: 3
+      profile: {
+        walk: { rating: 0, price: { min: 0, max: 0 } }
+      },
+      distance: '',
+      area: ''
     };
-  }
+  },
+
+  // on the creation and loading of the profile page, we load the profile and feedback of the given
+  // page.
+  created: async function() {
+    await this.loadProfile();
+    await this.loadFeedback();
+  },
+
+  methods: {
+    // Loads the current profile into the page, this allows us display the related information. This
+    // will be used for loading a profile by a given id in the future.
+    loadProfile: async function() {
+      const user = firebaseWrapper.getCurrentUser();
+      const profile = await firebaseWrapper.getProfile();
+
+      this.profile = profile;
+      this.profile.url = user.photoURL;
+
+      this.distance = 0;
+      this.area = 'Portsmouth';
+    },
+
+    // Loads all the feedback for the current authenticated user into the page.
+    loadFeedback: async function() {}
+  },
+
+  components: {}
 };
 </script>
+
+<style scoped>
+.title-text {
+  text-align: left;
+  margin-left: 25px;
+}
+
+.core-text {
+  text-align: left;
+  margin-left: 50px;
+  margin-top: 10px;
+}
+
+.core-text-inner div {
+  margin-top: 5px;
+}
+</style>

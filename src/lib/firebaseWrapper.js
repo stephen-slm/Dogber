@@ -99,7 +99,7 @@ class FirebaseWrapper {
    * Gets the notification reference that is used for live notification updates.
    */
   getNotificationReference() {
-    return this.database.ref(`/users/${this.getUid()}/notifications`);
+    return this.database.ref(`users/${this.getUid()}/notifications`);
   }
 
   /**
@@ -343,6 +343,72 @@ class FirebaseWrapper {
     // finally updating the value to the new amount, that of the current value with it incremented
     // by the provided amount.
     await this.database.ref(`users/${this.getUid()}/profile/walk/balance`).set(profile.walk.balance - amount);
+  }
+
+  /**
+   * Inserts feedback for a given user, the users id being the target and the current persons id
+   * being the feedback id.
+   * @param {string} feedbackerId The id of the person who is giving the feedback.
+   * @param {string} targetId The id of the person who is getting the feedback.
+   * @param {string} message The message of the feedback for the given target.
+   */
+  async addFeedback(feedbackerId = this.getUid(), targetId, message) {
+    if (_.isNil(feedbackerId) || _.isNil(targetId)) {
+      // The id of the person adding the feedback and the person giving the feedback should both not
+      // be null or undefined, we don't need random unknown data being used for the id.
+      throw new Error('Feedback and target id must not be null or undefined');
+    }
+
+    // firebase only uses strings as ids and so the id of the person and target must both be a valid
+    // string. Make sure that both the feedback and target are valid strings.
+    if (!_.isString(feedbackerId) || !_.isString(targetId)) {
+      throw new Error('Feedback and target id must be of type string');
+    }
+
+    // validate that our stored message is acutally a string, we don't want the chance of not being
+    // able to properly display the information if its a object or a array. etc.
+    if (_.isNil(message) || !_.isString(message)) {
+      throw new Error('Feedback message must be a valid string');
+    }
+
+    // get the profile so we can store a reference for the name.
+    const feedbackerProfile = await this.getProfile(feedbackerId);
+
+    // inserts the new feedback for the given target person with the message and reference, we will
+    // also store the given name of the feedbacker, this will allow us to have a proper reference
+    // without querying to get the information.
+    const feedback = await this.database.ref(`users/${targetId}/feedback`).push({
+      message,
+      feedbacker: {
+        id: feedbackerId,
+        name: feedbackerProfile.name || feedbackerProfile.email
+      },
+      timestamp: Date.now()
+    });
+
+    // returns the related feedback id that was created in insert.
+    return feedback.key;
+  }
+
+  /**
+   * Gathers the feedback for the given user by the user id.
+   * @param {string} id The id of the user who feedback is being gathered.
+   */
+  async getFeedback(id = this.getUid()) {
+    if (_.isNil(id)) {
+      // passed id must be of a type, we cannot work with the process if the id is null or
+      // undefined. the user should always pass a valid id.
+      throw new Error('Passed id cannot be null or undefined');
+    }
+
+    if (!_.isString(id)) {
+      // while get uid will return a string, a user can pass a string directly into this method,
+      // this must be of type string as firebase id are of type string.
+      throw new Error('Passed id should be of type string');
+    }
+
+    const feedback = await this.database.ref(`users/${id}/feedback`).once('value');
+    return feedback.val();
   }
 
   /**
