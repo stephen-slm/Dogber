@@ -3,7 +3,7 @@
     <v-layout align-baseline>
       <v-flex xs12 sm1>
         <v-avatar color="grey lighten-4">
-          <img :src="userProfile.photo" alt="avatar">
+          <img :src="userProfile.photo" alt="avatar" />
         </v-avatar>
       </v-flex>
       <v-flex xs12 sm3>
@@ -13,7 +13,14 @@
       <v-flex xs12 sm3>
         <div class="rating-inline">
           <div style="padding-right: 5px">Rating:</div>
-          <v-rating small dense readonly hover half-increments v-model="userProfile.walk.rating"/>
+          <v-rating
+            small
+            dense
+            readonly
+            hover
+            half-increments
+            :value="userProfile.walk.rating / userProfile.walk.completed"
+          />
         </div>
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
@@ -79,4 +86,3 @@ export default {
   display: inline-flex;
 }
 </style>
-
