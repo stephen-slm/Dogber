@@ -3,7 +3,7 @@
     <v-layout align-baseline>
       <v-flex xs12 sm1>
         <v-avatar color="grey lighten-4">
-          <img :src="userProfile.photo" alt="avatar" />
+          <img :src="userProfile.photo" alt="avatar">
         </v-avatar>
       </v-flex>
       <v-flex xs12 sm3>
@@ -11,7 +11,10 @@
         <div>Price Range: £{{ userProfile.walk.price.min }} - £{{ userProfile.walk.price.max }} (/h)</div>
       </v-flex>
       <v-flex xs12 sm3>
-        <div>Rating: {{ userProfile.walk.rating }}/10</div>
+        <div class="rating-inline">
+          <div style="padding-right: 5px">Rating:</div>
+          <v-rating small dense readonly hover half-increments v-model="userProfile.walk.rating"/>
+        </div>
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
       <v-flex xs12 sm5>
@@ -71,4 +74,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.rating-inline {
+  display: inline-flex;
+}
+</style>
+
