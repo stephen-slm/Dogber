@@ -11,13 +11,20 @@
           <v-flex xs3>
             <v-card>
               <v-card-text class="px-0">
-                Name: {{ firstName }} {{ lastName }}<br />
-                Age: {{ age }}<br />
-                Completed Walks: {{ completedWalks }}<br />
-                Area: {{ area }}<br />
-                Distance: {{ distance }}<br />
-                Ratings: {{ rating }}/10<br />
-                Price Range: £{{ priceMin }} - £{{ priceMax }} (/h)<br />
+                Name: {{ firstName }} {{ lastName }}
+                <br />
+                Age: {{ age }}
+                <br />
+                Completed Walks: {{ completedWalks }}
+                <br />
+                Area: {{ area }}
+                <br />
+                Distance: {{ distance }}
+                <br />
+                Ratings: {{ rating }}/10
+                <br />
+                Price Range: £{{ priceMin }} - £{{ priceMax }} (/h)
+                <br />
               </v-card-text>
             </v-card>
           </v-flex>
@@ -30,9 +37,12 @@
           <v-flex xs3 offset-xs3 offset-md2 offset-lg3>
             <v-card>
               <v-card-text class="px-0">
-                Name: {{ dogName }}<br />
-                Breed: {{ breed }}<br />
-                Age: {{ dogAge }}<br />
+                Name: {{ dogName }}
+                <br />
+                Breed: {{ breed }}
+                <br />
+                Age: {{ dogAge }}
+                <br />
               </v-card-text>
             </v-card>
           </v-flex>
