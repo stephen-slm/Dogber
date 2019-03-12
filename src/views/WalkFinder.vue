@@ -5,7 +5,7 @@
         <v-layout row wrap>
           <v-flex xs12>
             <v-card>
-              <v-card-title class="px-2">Walk Finder</v-card-title>
+              <v-card-title primary class="title">Walk Finder</v-card-title>
             </v-card>
           </v-flex>
           <v-flex xs12 sm3>

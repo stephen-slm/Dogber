@@ -5,7 +5,9 @@
         <v-layout row wrap>
           <v-flex xs12>
             <v-card>
-              <v-card-text class="px-0">Dog Walker Profile: {{ firstName }} {{ lastName }}</v-card-text>
+              <v-card-title primary class="title">
+                Dog Walker Profile: {{ firstName }} {{ lastName }}
+              </v-card-title>
             </v-card>
           </v-flex>
           <v-flex xs3>
@@ -30,12 +32,12 @@
               <v-card-text class="px-0">Coming Soon</v-card-text>
             </v-card>
           </v-flex>
-          <v-flex xs3 offset-xs3 offset-md2 offset-lg3>
+          <v-flex xs3 offset-xs3>
             <v-card>
               <v-card-text class="px-0">
-                Name: {{ dogName }}<br />
-                Breed: {{ breed }}<br />
-                Age: {{ dogAge }}<br />
+                <div>Name: {{ dogName }}</div>
+                <div>Breed: {{ breed }}</div>
+                <div>Age: {{ dogAge }}</div>
               </v-card-text>
             </v-card>
           </v-flex>
