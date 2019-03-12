@@ -20,9 +20,9 @@
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottom-text="My 5 Star Rating" top-text-color="red" :top-text="currentRating">
+        <RatingPanel bottom-text="My 5 Star Rating" top-text-color="red" :rating="currentRating">
           <v-icon>star</v-icon>
-        </GenericPanel>
+        </RatingPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
@@ -49,6 +49,7 @@ import _ from 'lodash';
 
 import firebaseWrapper from '@/lib/firebaseWrapper';
 import GenericPanel from '@/components/GenericPanel.vue';
+import RatingPanel from '@/components/RatingPanel.vue';
 import Calendar from '@/components/Calendar.vue';
 
 export default {
@@ -89,7 +90,8 @@ export default {
 
   components: {
     GenericPanel,
-    Calendar
+    Calendar,
+    RatingPanel
   }
 };
 </script>
