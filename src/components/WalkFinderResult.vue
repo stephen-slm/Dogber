@@ -13,7 +13,14 @@
       <v-flex xs12 sm3>
         <div class="rating-inline">
           <div style="padding-right: 5px">Rating:</div>
-          <v-rating small dense readonly hover half-increments v-model="userProfile.walk.rating"/>
+          <v-rating
+            small
+            dense
+            readonly
+            hover
+            half-increments
+            :value="userProfile.walk.rating / userProfile.walk.completed"
+          />
         </div>
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
