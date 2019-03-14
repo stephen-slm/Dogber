@@ -3,7 +3,7 @@
     <v-layout align-baseline>
       <v-flex xs12 sm1>
         <v-avatar color="grey lighten-4">
-          <img :src="userProfile.photo" alt="avatar" />
+          <img :src="userProfile.photo" alt="avatar">
         </v-avatar>
       </v-flex>
       <v-flex xs12 sm3>
@@ -41,7 +41,7 @@ export default {
     return {
       userProfile: {
         name: '',
-        photo: '../assets/placeholder.jpg',
+        photo: '',
         walk: { price: { min: 0, max: 0 }, rating: 0, distance: 0 }
       },
       profilePath: `/profile/${this.id}`
@@ -75,7 +75,7 @@ export default {
      * Gets the curernt profile url for the given users id or the place holder image instead.
      */
     getPhotoUrl() {
-      return this.userProfile.photo || '../assets/placeholder.jpg';
+      return this.userProfile.photo;
     }
   }
 };
