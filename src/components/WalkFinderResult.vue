@@ -40,7 +40,7 @@ export default {
   data: function() {
     return {
       userProfile: {
-        name: '',
+        name: 'User',
         photo: '',
         walk: { price: { min: 0, max: 0 }, rating: 0, distance: 0 }
       },
