@@ -388,6 +388,7 @@ class FirebaseWrapper {
       message,
       feedbacker: {
         id: feedbackerId,
+        photo: feedbackerProfile.photo,
         name: feedbackerProfile.name || feedbackerProfile.email
       },
       timestamp: Date.now()
@@ -416,6 +417,14 @@ class FirebaseWrapper {
 
     const feedback = await this.database.ref(`users/${id}/feedback`).once('value');
     return feedback.val();
+  }
+
+  /**
+   * Gets the feedback reference that is used for live feedback updates.
+   * @param feedbackId The id of the feedbacker to be listening for.
+   */
+  getFeedbackReference(feedbackId = this.getUid()) {
+    return this.database.ref(`users/${feedbackId}/feedback`);
   }
 
   /**
