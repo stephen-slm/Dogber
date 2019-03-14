@@ -108,7 +108,7 @@ export default {
       welcomeMessage: '',
       imageUrl: '',
       name: '',
-      email: '../assets/placeholder.jpg'
+      email: ''
     };
   },
 

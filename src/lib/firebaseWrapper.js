@@ -371,6 +371,13 @@ class FirebaseWrapper {
       throw new Error('Feedback message must be a valid string');
     }
 
+    // the user who is giving feedback should not be able to give feedback to themselves, as this
+    // defeats the point of feedback and will give a unrealistc feeling for a given user. who see
+    // there profile.
+    if (feedbackerId === this.getUid() && targetId === this.getUid()) {
+      throw new Error('Feedback cannot be given to youself.');
+    }
+
     // get the profile so we can store a reference for the name.
     const feedbackerProfile = await this.getProfile(feedbackerId);
 
@@ -381,6 +388,7 @@ class FirebaseWrapper {
       message,
       feedbacker: {
         id: feedbackerId,
+        photo: feedbackerProfile.photo,
         name: feedbackerProfile.name || feedbackerProfile.email
       },
       timestamp: Date.now()
@@ -409,6 +417,14 @@ class FirebaseWrapper {
 
     const feedback = await this.database.ref(`users/${id}/feedback`).once('value');
     return feedback.val();
+  }
+
+  /**
+   * Gets the feedback reference that is used for live feedback updates.
+   * @param feedbackId The id of the feedbacker to be listening for.
+   */
+  getFeedbackReference(feedbackId = this.getUid()) {
+    return this.database.ref(`users/${feedbackId}/feedback`);
   }
 
   /**
@@ -492,7 +508,7 @@ class FirebaseWrapper {
       name: profile.displayName,
       last_login: Date.now(),
       login_count: 1,
-      photo: user.photoURL || '../assets/placeholder.jpg',
+      photo: user.photoURL || 'https://i.imgur.com/7c0tNV6.png',
       new: true,
       walk: {
         rating: 0,

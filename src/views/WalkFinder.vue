@@ -52,7 +52,15 @@ export default {
     const usersReference = await firebaseWrapper.database.ref('users').once('value');
     const users = usersReference.val();
 
-    this.userKeys = _.map(users, (value, index) => index);
+    // we don't want to add our current self into the list.
+    const currentUserId = firebaseWrapper.getUid();
+
+    const userKeys = _.map(users, (value, index) => {
+      if (index !== currentUserId) return index;
+    });
+
+    // remove all values that are not valid. e.g null, undefined.
+    this.userKeys = _.compact(userKeys);
   },
 
   components: {
