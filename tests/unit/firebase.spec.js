@@ -522,6 +522,7 @@ describe('Firebase Wrapper', async () => {
     const feedtargetNull = new Error('Feedback and target id must not be null or undefined');
     const feedtargetString = new Error('Feedback and target id must be of type string');
     const nullNotStringError = new Error('Feedback message must be a valid string');
+    const noSelfFeedbackERror = new Error('Feedback cannot be given to youself.');
 
     it('Should reject if the feedbacker id is null', async () => {
       expect.assertions(1);
@@ -567,6 +568,18 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.addFeedback('id', 'id', false)).rejects.toEqual(nullNotStringError);
       await expect(firebaseWrapper.addFeedback('id', 'id', true)).rejects.toEqual(nullNotStringError);
       await expect(firebaseWrapper.addFeedback('id', 'id', () => {})).rejects.toEqual(nullNotStringError);
+    });
+
+    it('Should reject adding feedback if you are attempting to add feedback to youself', async () => {
+      expect.assertions(1);
+
+      // the user who is giving feedback should not be able to give feedback to themselves, as this
+      // defeats the point of feedback and will give a unrealistc feeling for a given user. who see
+      // there profile.
+      const selfId = firebaseWrapper.getUid();
+      await expect(firebaseWrapper.addFeedback(selfId, selfId, 'message')).rejects.toEqual(
+        noSelfFeedbackERror
+      );
     });
 
     it('Should add feedback to the provided id', async () => {
