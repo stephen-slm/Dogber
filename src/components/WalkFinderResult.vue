@@ -3,7 +3,7 @@
     <v-layout align-baseline>
       <v-flex xs12 sm1>
         <v-avatar color="grey lighten-4">
-          <img :src="userProfile.photo" alt="avatar">
+          <img :src="userProfile.photo" alt="avatar" />
         </v-avatar>
       </v-flex>
       <v-flex xs12 sm3>
@@ -25,8 +25,8 @@
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
       <v-flex xs12 sm5>
-        <v-btn :to="profilePath">Profile</v-btn>
-        <v-btn>Check Availability</v-btn>
+        <v-btn flat color="primary" :to="profilePath">Profile</v-btn>
+        <v-btn flat color="secondary">Check Availability</v-btn>
       </v-flex>
     </v-layout>
   </v-card>
