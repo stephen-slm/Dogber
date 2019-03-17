@@ -9,6 +9,7 @@ import SignOut from '@/views/SignOut.vue';
 import Login from '@/views/Login.vue';
 import Walks from '@/views/Walks.vue';
 import Home from '@/views/Home.vue';
+import Introduction from '@/views/Introduction.vue'
 
 Vue.use(Router);
 
@@ -47,6 +48,11 @@ const routes = [
     path: '/signout',
     name: 'signout',
     component: SignOut
+  },
+  {
+    path: '/introduction',
+    name: 'introduction',
+    component: Introduction
   },
   {
     path: '*',
