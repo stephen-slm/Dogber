@@ -13,6 +13,5 @@ module.exports = {
   testURL: 'http://localhost/',
   collectCoverage: false,
   verbose: true,
-  detectOpenHandles: true,
   setupTestFrameworkScriptFile: './tests/unit/jest-setup.js'
 };
