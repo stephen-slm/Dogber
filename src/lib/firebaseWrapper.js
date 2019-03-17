@@ -446,6 +446,70 @@ class FirebaseWrapper {
   }
 
   /**
+   * Adds in a new address for the current authenticated user, this will be pushed to a array which
+   * will allow the user to acutally have more addresses than a single address. Reference the
+   * firebaseConstants.PROFILE_ADDRESS object for all required properties within the address object.
+   */
+  async addAddress(addressObject) {
+    const filteredAddress = _.pick(addressObject, firebaseConstants.PROFILE_ADDRESS);
+
+    // validate that all properties are strings and not a empty string.
+    firebaseConstants.PROFILE_ADDRESS.forEach((value) => {
+      if (_.isNil(filteredAddress[value]) || !_.isString(filteredAddress[value])) {
+        throw new Error(`${value} cannot be null, undefined or not a string`);
+      }
+    });
+
+    // the address reference that will be used for inserting the addresses into the database
+    const addressReference = this.database.ref(`users/${this.getUid()}/profile/addresses`);
+
+    // performing the address insert, allowing us to then return the related key to the address for
+    // later on. This could be used for also deleting the addresses.
+    const insertedAddress = await addressReference.push(filteredAddress);
+    return insertedAddress.key;
+  }
+
+  /**
+   * Gathers a single address by the address key for the current authenticated user.
+   * @param {string} key The addresss key that will be used to gather the address.
+   */
+  async getAddressByKey(key) {
+    // keys are all strings and not null or undefined, we must validate this is correct before
+    // attempting to gather the required address by the key.
+    if (_.isNil(key) || !_.isString(key)) {
+      throw new Error('Address key must not be empty and must be a valid string');
+    }
+
+    // get the reference / data object for the single address and return its object.
+    const address = await this.database.ref(`users/${this.getUid()}/profile/addresses/${key}`).once('value');
+    return address.val();
+  }
+
+  /**
+   * Removes a single address by the provided address key for the current authenticated user.
+   * @param {string} addressKey The address key that will be used to remove the address.
+   */
+  async removeAddress(addressKey) {
+    // keys are all strings and not null or undefined, we must validate this is correct before
+    // attempting to gather the required address by the key.
+    if (_.isNil(addressKey) || !_.isString(addressKey)) {
+      throw new Error('Address key must not be empty and must be a valid string');
+    }
+
+    // delete the reference to the address and all the address objects.
+    return this.database.ref(`users/${this.getUid()}/profile/addresses/${addressKey}`).remove();
+  }
+
+  /**
+   * Gets all the addresses for the current authenticated user. This is a object and not a array but
+   * will have keys for the indexes of all the objects in the object.
+   */
+  async getAddresses() {
+    const addresses = await this.database.ref(`users/${this.getUid()}/profile/addresses`).once('value');
+    return addresses.val();
+  }
+
+  /**
    * Increments the current authenticated users balance by the provided amount.
    * @param {number} amount The amount the current balance is going to be incremented by.
    */
@@ -527,6 +591,8 @@ class FirebaseWrapper {
       last_login: Date.now(),
       login_count: 1,
       photo: user.photoURL || 'https://i.imgur.com/7c0tNV6.png',
+      phone_number: null,
+      addresses: [],
       new: true,
       walk: {
         active: false,
