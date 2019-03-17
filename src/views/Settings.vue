@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import firebaseWrapper from '@/lib/firebaseWrapper';
+
 export default {
   name: 'Settings',
 
@@ -18,6 +20,17 @@ export default {
     return {
       dark: false
     };
+  },
+
+  created: async function() {
+    // get the currenlty authenticated user.
+    const user = firebaseWrapper.getCurrentUser();
+    const profile = await firebaseWrapper.getProfile();
+
+    // If the profile is new redirect to introduction
+    if(profile.new){
+      this.$router.push({ name:'introduction' })
+    }
   },
 
   mounted: function() {
