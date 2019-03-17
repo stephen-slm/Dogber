@@ -191,14 +191,15 @@ export default {
     },
 
     /**
-     * Sets the loading value of the data prop loading. adjusting this will adjust if the loading panel
-     * is showing or not.
+     * Sets the loading value of the data prop loading. adjusting this will adjust if the loading
+     * panel is showing or not.
      */
     setLoading: function(value) {
       this.loading = value;
     },
 
     /**
+     * Shows the snackbar on the screen with the provided message.
      * @param {string} Message the snackbar message to show.
      */
     showSnackbar: function(message) {
@@ -206,6 +207,7 @@ export default {
       this.showSnack = true;
     },
 
+    // resets the snackbar back to normal ready to process the following message.
     resetSnack: function() {
       this.authenticationErrored = false;
       this.showSnack = false;

@@ -30,7 +30,7 @@ export default {
 
   data: function() {
     return {
-      timeout: 8000,
+      timeout: 6000,
       showSnack: this.show,
       displayColor: this.color
     };

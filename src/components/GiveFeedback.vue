@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <snackbar :text="snackMessage" :show="showSnack" @snackbar-end="resetSnack" />
     <v-dialog v-model="showFeedbackLocal" max-width="600px">
       <v-card>
         <v-card-title>
@@ -34,6 +35,8 @@
 </template>
 
 <script>
+import Snackbar from '@/components/Snackbar.vue';
+
 export default {
   props: {
     // triggered when the external requiring object is looking to display the feedback panel.
@@ -61,7 +64,10 @@ export default {
         required: (value) => !!value || 'Required.',
         counter: (value) =>
           (value.length <= 100 && value.length > 10) || 'Max 100 characters && Greater than 10'
-      }
+      },
+      // the message that will be displayed on the screen.
+      snackMessage: '',
+      showSnack: false
     };
   },
 
@@ -74,11 +80,37 @@ export default {
       const submittedFeedback = await this.submit(message.trim());
 
       if (submittedFeedback) {
+        this.showSnackbar('Thank you for submitting feedback! 🎉🎉🎉');
+
         this.showFeedbackLocal = false;
         this.feedbackMessage = '';
       } else {
         this.feedbackMessage = this.feedbackMessage.trim();
       }
+    },
+
+    /**
+     * Sets the loading value of the data prop loading. adjusting this will adjust if the loading
+     * panel is showing or not.
+     */
+    setLoading: function(value) {
+      this.loading = value;
+    },
+
+    /**
+     * Shows the snackbar on the screen with the provided message.
+     * @param {string} Message the snackbar message to show.
+     */
+    showSnackbar: function(message) {
+      this.snackMessage = message;
+      this.showSnack = true;
+    },
+
+    // resets the snackbar back to normal ready to process the following message.
+    resetSnack: function() {
+      this.authenticationErrored = false;
+      this.showSnack = false;
+      this.snackMessage = '';
     }
   },
 
@@ -89,6 +121,10 @@ export default {
     showFeedback: function(newValue) {
       this.showFeedbackLocal = newValue;
     }
+  },
+
+  components: {
+    Snackbar
   }
 };
 </script>
