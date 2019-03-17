@@ -56,7 +56,7 @@ export default {
     const currentUserId = firebaseWrapper.getUid();
 
     const userKeys = _.map(users, (value, index) => {
-      if (index !== currentUserId) return index;
+      if (index !== currentUserId && value.profile.walk.active) return index;
     });
 
     // remove all values that are not valid. e.g null, undefined.

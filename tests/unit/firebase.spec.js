@@ -60,7 +60,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(17); // four assertions are taking plac and expected.
+      expect.assertions(19); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -77,7 +77,7 @@ describe('Firebase Wrapper', async () => {
       expect(profile.age).toEqual(0);
 
       // the rating will start off as 0 as the user as no real rating when first starting to use the
-      // application. This will be changed throughout the use of the application.
+      // application. This will be changed throughout the use of th`e application.
       expect(profile.walk.rating).toEqual(expect.any(Number));
       expect(profile.walk.rating).toEqual(0);
 
@@ -96,6 +96,10 @@ describe('Firebase Wrapper', async () => {
       // The user has not set a price so we will default to 5/10
       expect(profile.walk.price.max).toEqual(expect.any(Number));
       expect(profile.walk.price.max).toEqual(10);
+
+      // The user has not set a default active state (if they can be active or not).
+      expect(profile.walk.active).toEqual(expect.any(Boolean));
+      expect(profile.walk.active).toEqual(false);
     });
 
     it('Should should be marked as new within the profile if the account is recently created', async () => {
@@ -180,6 +184,50 @@ describe('Firebase Wrapper', async () => {
 
       // the difference should be greater as this is the old date time.
       expect(difference > updatedDifference).toBeTruthy();
+    });
+  });
+
+  describe('adjustWalkActiveState', async () => {
+    // errors that occure during the adjust walk phase, these are here to help improve testability of the code without repeating it constantly.
+    const notBooleanError = new Error('New active state must be a boolean');
+
+    it('Should reject if the input value is not a boolean', async () => {
+      expect.assertions(5);
+
+      // validate that the core types are not going to be accepted within the function, heavily
+      // reducing the chance of misplaced data types being inserted instead of the correct
+      // responding value.
+      await expect(firebaseWrapper.adjustWalkActiveState('boolean')).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState(8001)).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState(['boolean'])).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState({ active: true })).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState((x) => x > 5)).rejects.toEqual(notBooleanError);
+    });
+
+    it('Should set the value if a given boolean is used', async () => {
+      expect.assertions(2);
+
+      const profile = await firebaseWrapper.getProfile();
+      const existingState = profile.walk.active;
+
+      // by taking the exsting state, we can reflect the change on the users profile, then
+      // validating that its changed easily (instead of expecting it to always be false).
+      await firebaseWrapper.adjustWalkActiveState(!existingState);
+
+      // get the updated profile, this will be used to validate the changes going through.
+      const updatedProfile = await firebaseWrapper.getProfile();
+      const updatedState = updatedProfile.walk.active;
+
+      expect(updatedState).toEqual(!existingState);
+
+      // now lets confirm that the changes work going backwards as well, we need to make sure
+      // that is a consistant result.
+      await firebaseWrapper.adjustWalkActiveState(existingState);
+
+      const revertedProfile = await firebaseWrapper.getProfile();
+      const revertedState = revertedProfile.walk.active;
+
+      expect(revertedState).toEqual(existingState);
     });
   });
 
