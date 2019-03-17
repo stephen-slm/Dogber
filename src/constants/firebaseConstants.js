@@ -6,4 +6,4 @@ export const PROFILE_UPDATE_SELECT = ['email', 'name', 'new', 'age', 'phone_numb
 
 // when a user has a address they will require the below information, anything missing will throw a
 // error and anything more will be filtered out.
-export const PROFILE_ADDRESS = ['lineOne', 'lineTwo', 'city', 'state', 'zip', 'country'];
+export const PROFILE_ADDRESS = ['lineOne', 'city', 'state', 'zip', 'country'];

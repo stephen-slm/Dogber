@@ -461,29 +461,27 @@ class FirebaseWrapper {
     });
 
     // the address reference that will be used for inserting the addresses into the database
-    const addressReference = await this.database
-      .ref(`users/${this.getUid()}/profile/addresses`)
-      .once('value');
+    const addressReference = this.database.ref(`users/${this.getUid()}/profile/addresses`);
 
     // performing the address insert, allowing us to then return the related key to the address for
     // later on. This could be used for also deleting the addresses.
-    const addressInsert = await addressReference.push(filteredAddress);
-    return addressInsert.key;
+    const insertedAddress = await addressReference.push(filteredAddress);
+    return insertedAddress.key;
   }
 
   /**
    * Gathers a single address by the address key for the current authenticated user.
-   * @param {string} addressKey The addresss key that will be used to gather the address.
+   * @param {string} key The addresss key that will be used to gather the address.
    */
-  async getAddress(addressKey) {
+  async getAddressByKey(key) {
     // keys are all strings and not null or undefined, we must validate this is correct before
     // attempting to gather the required address by the key.
-    if (_.isNil(addressKey) || !_.isString(addressKey)) {
+    if (_.isNil(key) || !_.isString(key)) {
       throw new Error('Address key must not be empty and must be a valid string');
     }
 
     // get the reference / data object for the single address and return its object.
-    const address = await this.database.ref(`users/${this.getUid()}/addresses/${addressKey}`).once('value');
+    const address = await this.database.ref(`users/${this.getUid()}/addresses/${key}`).once('value');
     return address.val();
   }
 
@@ -499,7 +497,7 @@ class FirebaseWrapper {
     }
 
     // delete the reference to the address and all the address objects.
-    return await this.database.ref(`users/${this.getUid()}/addresses/${addressKey}`).remove();
+    return this.database.ref(`users/${this.getUid()}/addresses/${addressKey}`).remove();
   }
 
   /**
