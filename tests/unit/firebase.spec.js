@@ -60,7 +60,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(17); // four assertions are taking plac and expected.
+      expect.assertions(19); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -77,7 +77,7 @@ describe('Firebase Wrapper', async () => {
       expect(profile.age).toEqual(0);
 
       // the rating will start off as 0 as the user as no real rating when first starting to use the
-      // application. This will be changed throughout the use of the application.
+      // application. This will be changed throughout the use of th`e application.
       expect(profile.walk.rating).toEqual(expect.any(Number));
       expect(profile.walk.rating).toEqual(0);
 
@@ -96,6 +96,10 @@ describe('Firebase Wrapper', async () => {
       // The user has not set a price so we will default to 5/10
       expect(profile.walk.price.max).toEqual(expect.any(Number));
       expect(profile.walk.price.max).toEqual(10);
+
+      // The user has not set a default active state (if they can be active or not).
+      expect(profile.walk.active).toEqual(expect.any(Boolean));
+      expect(profile.walk.active).toEqual(false);
     });
 
     it('Should should be marked as new within the profile if the account is recently created', async () => {

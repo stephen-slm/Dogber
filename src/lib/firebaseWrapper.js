@@ -511,6 +511,7 @@ class FirebaseWrapper {
       photo: user.photoURL || 'https://i.imgur.com/7c0tNV6.png',
       new: true,
       walk: {
+        active: false,
         rating: 0,
         completed: 0,
         balance: 5,
