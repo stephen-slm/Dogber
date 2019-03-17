@@ -53,6 +53,12 @@ npm install -g @vue/cli @vue/cli-service
 npm install -g firebase-tools
 ```
 
+or run:
+
+```
+install.bat
+```
+
 This first command will install all the base requirements for starting up the application.
 The second will install the required components used for helping with using vue as a platform.
 
@@ -60,6 +66,12 @@ This second command will install the tools required to deploy to firebase, this 
 
 ```
 vue ui
+```
+
+or run:
+
+```
+start.bat
 ```
 
 Running "vue ui" will load up a local website that can be used for the helping in the development of the application, this website will look something like the below image. We will use this website UI for building, testing and linting our code. You can follow the below information to understand how to test, run, lint and get the code ready for committing. You might have to specify the directory of dogber.
@@ -117,7 +129,7 @@ If the tests failed you will get a message telling you which failed and why. Fix
 
 <img align="middle" src="https://i.imgur.com/UUzjaKt.png" alt="Vue Test Unit Fail">
 
-## Running the PreCommit Process
+## Running the Precommit Process
 
 Precommit process must be ran (which runs the tests and the linting process) and must pass before you commit code into the project. This is to ensure that the code going in is correct and will function properly.
 
@@ -137,11 +149,13 @@ Precommit process must be ran (which runs the tests and the linting process) and
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/tehstun/dogber/tags).
 
-## Authors
+## Authors / Legend (Current Contributions)
 
-- **Stephen Lineker-Miller** - _Core Infrastructure_ - [tehstun](https://github.com/tehstun)
+- **UP840877** - _Developer_ - [tehstun](https://github.com/tehstun)
+- **UP806612** - _Developer_ - [up806612](https://github.com/up806612)
+- **UP745708** - _Developer_ - [Muklek](https://github.com/Muklek)
 
 ## License
 
