@@ -1,9 +1,9 @@
 <template>
-  <v-app>
+  <v-app :dark="dark">
     <Navigation v-if="this.userAuthenticated" />
     <v-content>
       <v-container>
-        <router-view />
+        <router-view @set-dark="dark = $event" />
       </v-container>
     </v-content>
     <v-footer :inset="true" app>
@@ -26,16 +26,14 @@ import Navigation from '@/components/Navigation.vue';
 export default {
   name: 'App',
 
-  components: {
-    Navigation
-  },
-
   data: function() {
     return {
       // if the user is authenticated, then this can be used for adjusting ui components.
       userAuthenticated: false,
       // the current year that is going to be displayed within the footer.
-      currentYear: new Date().getFullYear()
+      currentYear: new Date().getFullYear(),
+      // dark mode set by the user.
+      dark: false
     };
   },
 
@@ -60,6 +58,20 @@ export default {
         this.$router.push({ name: 'login', params: {} });
       }
     });
+  },
+
+  mounted: function() {
+    if (localStorage.dark) this.dark = localStorage.dark === 'true' ? true : false;
+  },
+
+  watch: {
+    dark: function(newValue) {
+      localStorage.dark = newValue;
+    }
+  },
+
+  components: {
+    Navigation
   }
 };
 </script>
