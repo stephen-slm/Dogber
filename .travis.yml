@@ -1,8 +1,22 @@
 language: node_js
 node_js:
   - '10.15'
-before_script:
-  - npm i
-script:
-  - npm run lint
-  - npm run test:unit
+
+jobs:
+  include:
+    - stage: testing
+      script:
+        - npm run lint
+        - npm run test:unit
+
+    - stage: deployment
+      if: branch = master
+      before_deploy:
+        - NODE_ENV=production
+        - npm run build
+      deploy:
+        skip_cleanup: true
+        provider: firebase
+        token:
+          secure: $FIREBASE_TRAVIS_KEY
+        project: 'dogber2018'
