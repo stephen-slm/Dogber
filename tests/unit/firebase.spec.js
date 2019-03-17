@@ -659,6 +659,29 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
+  describe('addAddress', async () => {
+    it('Should reject if any property is not a string', async () => {});
+    it('Should reject if any property is null or undefined', async () => {});
+    it('Should add a new address if all properties are valid', async () => {});
+  });
+
+  describe('getAddress', async () => {
+    it('Should reject if the address key is not a string', async () => {});
+    it('Should reject if the address key is null or undefined', async () => {});
+    it('Should return a valid address object if a correct id is used', async () => {});
+  });
+
+  describe('removeAddress', async () => {
+    it('Should reject if the address key is not a string', async () => {});
+    it('Should reject if the address key is null or undefined', async () => {});
+    it('Should remove a valid address object if a correct id is used', async () => {});
+  });
+
+  describe('getAddresses', async () => {
+    it('Should return a empty object if no addresses exist', async () => {});
+    it('Should return a valid array of all the existing addresses', async () => {});
+  });
+
   /**
    * Testing the implementation process of the user balance incrementing, this will be used when the
    * user has completed walks, added balance to there account or a new user to the system.
