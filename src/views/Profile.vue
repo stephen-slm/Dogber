@@ -3,16 +3,16 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-text class="subheading text-sm-left gray lighten-1"
-            >Dog Walker Profile: {{ profile.name }}</v-card-text
-          >
+          <v-card-text
+            class="subheading text-sm-left gray lighten-1"
+          >Dog Walker Profile: {{ profile.name }}</v-card-text>
         </v-card>
       </v-flex>
       <v-flex xs12 sm6 md4>
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
-              <img :src="profile.photo" alt="avatar" />
+              <img :src="profile.photo" alt="avatar">
             </v-avatar>
             <div class="core-text">
               <div style="text-align: center; margin-left: -50px;">
@@ -46,10 +46,16 @@
               <v-card-title>Feedback</v-card-title>
               <v-card-text grid-list-xl>
                 <div v-if="feedback.length === 0">No Feedback 😓</div>
-                <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
+                <v-layout
+                  class="feedback-item"
+                  row
+                  wrap
+                  v-for="item in feedback"
+                  :key="item.timestamp"
+                >
                   <v-flex shrink>
                     <v-avatar size="32px">
-                      <img :src="item.feedbacker.photo" alt="Dogber" />
+                      <img :src="item.feedbacker.photo" alt="Dogber">
                     </v-avatar>
                   </v-flex>
                   <v-flex>
@@ -59,44 +65,15 @@
                     </div>
                   </v-flex>
                   <v-flex>
-                    <div class="feedback-time text-sm-right">
-                      {{ new Date(item.timestamp).toLocaleDateString() }}
-                    </div>
+                    <div
+                      class="feedback-time text-sm-right"
+                    >{{ new Date(item.timestamp).toLocaleDateString() }}</div>
                   </v-flex>
                 </v-layout>
               </v-card-text>
 
               <v-card-actions v-if="canGiveFeedback">
-                <v-dialog v-model="showFeedbackBox" max-width="600px">
-                  <v-card>
-                    <v-card-title>
-                      <span class="headline">Feedback</span>
-                    </v-card-title>
-                    <v-card-text>
-                      <v-container grid-list-md>
-                        <v-layout wrap>
-                          <v-flex>
-                            <v-text-field
-                              v-model="feedbackMessage"
-                              :rules="[rules.required, rules.counter]"
-                              clearable
-                              maxlength="100"
-                              counter
-                              label="Message*"
-                              required
-                            ></v-text-field>
-                          </v-flex>
-                        </v-layout>
-                      </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="blue darken-1" flat @click="showFeedbackBox = false">Close</v-btn>
-                      <v-btn color="blue darken-1" flat @click="saveFeedback()">Save</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-                <v-btn flat color="primary" @click="showFeedbackBox = true">Give Feedback</v-btn>
+                <GiveFeedback :submit="saveFeedback.bind(this)"/>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -108,7 +85,9 @@
 
 <script>
 import _ from 'lodash';
+
 import firebaseWrapper from '@/lib/firebaseWrapper.js';
+import GiveFeedback from '@/components/GiveFeedback.vue';
 
 export default {
   name: 'Profile',
@@ -121,14 +100,7 @@ export default {
       distance: '',
       area: '',
       feedback: [],
-      canGiveFeedback: false,
-      showFeedbackBox: false,
-      feedbackMessage: '',
-      rules: {
-        required: (value) => !!value || 'Required.',
-        counter: (value) =>
-          (value.length <= 100 && value.length > 10) || 'Max 100 characters && Greater than 10'
-      }
+      canGiveFeedback: false
     };
   },
 
@@ -184,21 +156,20 @@ export default {
     // saves the feedback for the given user with the given input on the pop up form, this gives a
     // point for users to give feedback to them from there profile directly. Noted that feedback is
     // not related to there rating (which can only be given after a walk)
-    saveFeedback: async function() {
+    saveFeedback: async function(message) {
       // make sure not to accept empty or too large
-      if (this.feedbackMessage.length > 100 || this.feedbackMessage.length < 10) {
-        return;
+      if (message.length > 100 || message.length < 10) {
+        return false;
       }
 
-      await firebaseWrapper.addFeedback(undefined, this.localUserId, this.feedbackMessage);
-
-      // make sure to hide the feedback after the changes have been made.
-      this.showFeedbackBox = false;
-      this.feedbackMessage = '';
+      await firebaseWrapper.addFeedback(undefined, this.localUserId, message);
+      return true;
     }
   },
 
-  components: {}
+  components: {
+    GiveFeedback
+  }
 };
 </script>
 
