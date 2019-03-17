@@ -21,7 +21,7 @@
             <v-select :items="dropdown_priceRange" label="Price Range"></v-select>
           </v-flex>
           <v-flex xs12>
-            <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item" />
+            <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item"/>
           </v-flex>
         </v-layout>
       </v-container>
@@ -56,7 +56,7 @@ export default {
     const currentUserId = firebaseWrapper.getUid();
 
     const userKeys = _.map(users, (value, index) => {
-      if (index !== currentUserId) return index;
+      if (index !== currentUserId && value.profile.walk.active) return index;
     });
 
     // remove all values that are not valid. e.g null, undefined.
