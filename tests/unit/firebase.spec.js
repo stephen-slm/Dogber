@@ -659,6 +659,56 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
+  describe('getFeedback', async () => {
+    // get feedback related error messages, put here to help with cleaner testing code and better
+    // quality of testing.
+    const nullError = new Error('Passed id cannot be null or undefined');
+    const notStringErorr = new Error('Passed id should be of type string');
+
+    it('Should reject if the id is null', async () => {
+      expect.assertions(1);
+
+      // attempt to gather a null feedback should error.
+      await expect(firebaseWrapper.getFeedback(null)).rejects.toEqual(nullError);
+    });
+
+    it('Should reject if the id is not a string', async () => {
+      expect.assertions(3);
+
+      // attempt to gather a non-string feedback should error.
+      await expect(firebaseWrapper.getFeedback(false)).rejects.toEqual(notStringErorr);
+      await expect(firebaseWrapper.getFeedback({ cat: 'dog' })).rejects.toEqual(notStringErorr);
+      await expect(firebaseWrapper.getFeedback(['id'])).rejects.toEqual(notStringErorr);
+    });
+
+    it('Should return the valid feedback by the id', async () => {
+      expect.assertions();
+
+      // first create some feedback for the second user, when we regather we can validate that the
+      // feedback is all correct and what we should expect it ot be.
+      const userTwoFeedback = await firebaseWrapper.getFeedback(userTwoId);
+
+      const feedbackOne = await firebaseWrapper.addFeedback(userOneId, userTwoId, 'feedback one');
+      const feedbackOneUpdate = await firebaseWrapper.getFeedback(userTwoId);
+
+      // validate that the new feedback size has increased and the feedback exists.
+      expect(_.size(feedbackOneUpdate)).toEqual(_.size(userTwoFeedback) + 1);
+      expect(_.isNil(feedbackOneUpdate[feedbackOne])).toBeFalsy();
+
+      // validate that the message and id is what we expect it all to be.
+      expect(feedbackOneUpdate[feedbackOne].message).toEqual('feedback one');
+      expect(feedbackOneUpdate[feedbackOne].feedbacker.id).toEqual(userOneId);
+    });
+  });
+
+  describe('getFeedbackReference', async () => {
+    it('Should return a valid reference to the feedback for the current user', () => {
+      // gather the reference, gather the data, validaste that its not null.
+      const feedbackReference = firebaseWrapper.getFeedbackReference();
+      expect(_.isNil(feedbackReference)).toBeFalsy();
+    });
+  });
+
   /**
    * Testing the implementation process of the user balance incrementing, this will be used when the
    * user has completed walks, added balance to there account or a new user to the system.
