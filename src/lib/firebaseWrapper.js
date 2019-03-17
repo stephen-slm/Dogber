@@ -243,6 +243,24 @@ class FirebaseWrapper {
   }
 
   /**
+   * Adjusts the active state of the walk state of the given user, doing this will allow the user to
+   * join the walk pool, gaining them access to walks.
+   * @param {bool} newActiveState the new state that will replace the current one.
+   */
+  async adjustWalkActiveState(newActiveState) {
+    // knowing that firebase will accept any type value, we must just ensure that the user input
+    // data is actually a boolean we can use as a flag on the users account.
+    if (!_.isBoolean(newActiveState)) {
+      throw new Error('New active state must be a boolean');
+    }
+
+    // return the change being made, due to the way async works, this will still be awaited and the
+    // changes processed before the following actiion has been taken (incase it replies on this
+    // change going through).
+    return this.database.ref(`users/${this.getUid()}/profile/walk/active`).set(newActiveState);
+  }
+
+  /**
    * This will increment the login count on the profile section for a given user, this will allow us
    * to keep track of how many times a given user has authenticated and logged into the page. The
    * downside of this is that it could result in a heavy increase in logins if we just refresh the
