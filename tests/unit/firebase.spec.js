@@ -659,7 +659,7 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
-  describe.only('addAddress', async () => {
+  describe('addAddress', async () => {
     // testing and making sure for all properties of the address, that if anyone of the values are
     // not strings then they should be fully rejected, we dont want any addresses being added if
     // they are not complete strings.
@@ -755,7 +755,7 @@ describe('Firebase Wrapper', async () => {
     });
 
     it('Should add a new address if all properties are valid', async () => {
-      expect.assertions(1);
+      expect.assertions(5);
 
       // create the address for the authenticated user with a basic address, easily testable when we
       // reather the address.
@@ -770,13 +770,12 @@ describe('Firebase Wrapper', async () => {
       // Creating a address gets the address key, we can then regather that address and validate
       // that all the information went in correctly
       const regatheredAddress = await firebaseWrapper.getAddressByKey(createdAddress);
-      console.log('regathered address: ', regatheredAddress);
 
       expect(regatheredAddress.lineOne).toEqual('lineOne');
-      // expect(regatheredAddress.city).toEqual('city');
-      // expect(regatheredAddress.state).toEqual('state');
-      // expect(regatheredAddress.zip).toEqual('zip');
-      // expect(regatheredAddress.country).toEqual('country');
+      expect(regatheredAddress.city).toEqual('city');
+      expect(regatheredAddress.state).toEqual('state');
+      expect(regatheredAddress.zip).toEqual('zip');
+      expect(regatheredAddress.country).toEqual('country');
     });
   });
 
@@ -785,11 +784,42 @@ describe('Firebase Wrapper', async () => {
     // easier to read testing process.
     const nullStringError = new Error('Address key must not be empty and must be a valid string');
 
-    it('Should reject if the address key is not a string', async () => {});
+    it('Should reject if the address key is not a string', async () => {
+      expect.assertions(3);
 
-    it('Should reject if the address key is null or undefined', async () => {});
+      // validate that any other type that can be used for gathering a address is rejected by the
+      // function, we don't want any other invalid data being added into the database.
+      await expect(firebaseWrapper.getAddressByKey(['addressOne'])).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.getAddressByKey(false)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.getAddressByKey({ name: 'empty' })).rejects.toEqual(nullStringError);
+    });
 
-    it('Should return a valid address object if a correct id is used', async () => {});
+    it('Should reject if the address key is null or undefined', async () => {
+      expect.assertions(2);
+
+      // testing both cases that the get address does not accept null or undefined values.
+      await expect(firebaseWrapper.getAddressByKey(null)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.getAddressByKey(undefined)).rejects.toEqual(nullStringError);
+    });
+
+    it('Should return a valid address object if a correct id is used', async () => {
+      expect.assertions(1);
+
+      // first create a new address and gather / validate it correctly exists.
+      const createdAddress = await firebaseWrapper.addAddress({
+        lineOne: 'lineOne',
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      });
+
+      const allAddresses = await firebaseWrapper.getAddresses();
+      const keys = Object.keys(allAddresses);
+
+      // validate that the array of keys of all the addresses contains the created key.
+      expect(keys.includes(createdAddress)).toEqual(true);
+    });
   });
 
   describe('removeAddress', async () => {

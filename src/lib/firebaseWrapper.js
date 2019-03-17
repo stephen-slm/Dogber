@@ -481,7 +481,7 @@ class FirebaseWrapper {
     }
 
     // get the reference / data object for the single address and return its object.
-    const address = await this.database.ref(`users/${this.getUid()}/addresses/${key}`).once('value');
+    const address = await this.database.ref(`users/${this.getUid()}/profile/addresses/${key}`).once('value');
     return address.val();
   }
 
@@ -505,7 +505,7 @@ class FirebaseWrapper {
    * will have keys for the indexes of all the objects in the object.
    */
   async getAddresses() {
-    const addresses = await this.database.ref(`users/${this.getUid()}/addresses`).once('value');
+    const addresses = await this.database.ref(`users/${this.getUid()}/profile/addresses`).once('value');
     return addresses.val();
   }
 
