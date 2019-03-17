@@ -823,14 +823,98 @@ describe('Firebase Wrapper', async () => {
   });
 
   describe('removeAddress', async () => {
-    it('Should reject if the address key is not a string', async () => {});
-    it('Should reject if the address key is null or undefined', async () => {});
-    it('Should remove a valid address object if a correct id is used', async () => {});
+    // the related error to get address, used thoughout the testing process to have a simplier and
+    // easier to read testing process.
+    const nullStringError = new Error('Address key must not be empty and must be a valid string');
+
+    it('Should reject if the address key is not a string', async () => {
+      expect.assertions(3);
+
+      // validate that any other type that can be used for gathering a address is rejected by the
+      // function, we don't want any other invalid data being added into the database.
+      await expect(firebaseWrapper.removeAddress(['addressOne'])).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.removeAddress(false)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.removeAddress({ name: 'empty' })).rejects.toEqual(nullStringError);
+    });
+
+    it('Should reject if the address key is null or undefined', async () => {
+      expect.assertions(2);
+
+      // testing both cases that the get address does not accept null or undefined values.
+      await expect(firebaseWrapper.removeAddress(null)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.removeAddress(undefined)).rejects.toEqual(nullStringError);
+    });
+
+    it('Should remove a valid address object if a correct id is used', async () => {
+      expect.assertions(2);
+
+      // first we must create a address, this address will be the one is removed, but first we will
+      // have to validate that it exists and then validate that the move excatly has removed.
+      // first create a new address and gather / validate it correctly exists.
+      const createdAddress = await firebaseWrapper.addAddress({
+        lineOne: 'lineOne',
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      });
+
+      const allAddresses = await firebaseWrapper.getAddresses();
+      const keys = Object.keys(allAddresses);
+
+      // validate that the array of keys of all the addresses contains the created key.
+      expect(keys.includes(createdAddress)).toEqual(true);
+
+      // now remove the address and validate now that the address has been fully removed.
+      await firebaseWrapper.removeAddress(createdAddress);
+
+      // updated addresses since we have removed the last one.
+      const updatedAddresses = await firebaseWrapper.getAddresses();
+      const updatedKeys = Object.keys(updatedAddresses);
+
+      // validate that its now gone.
+      expect(updatedKeys.includes(createdAddress)).toEqual(false);
+    });
   });
 
   describe('getAddresses', async () => {
-    it('Should return a empty object if no addresses exist', async () => {});
-    it('Should return a valid array of all the existing addresses', async () => {});
+    it('Should return a empty object if no addresses exist', async () => {
+      expect.assertions(2);
+
+      // first lets remove all the current addresses, then we can validate that it returns a empty object.
+      await firebaseWrapper.database.ref(`users/${firebaseWrapper.getUid()}/profile/addresses`).remove();
+
+      // gather all the addresses and validate that its empty.
+      const allEmptyAddresses = await firebaseWrapper.getAddresses();
+      expect(_.size(allEmptyAddresses)).toEqual(0);
+
+      // now add a new address and validate that the address size increases.
+      await firebaseWrapper.addAddress({ lineOne: '', city: '', state: '', zip: '', country: '' });
+      const updatedAddresses = await firebaseWrapper.getAddresses();
+
+      // validate that the size has now increased.
+      expect(_.size(updatedAddresses)).toEqual(1);
+    });
+
+    it('Should return a valid array of all the existing addresses', async () => {
+      expect.assertions(3);
+
+      // get the current addresses and the current size.
+      const allAddresses = await firebaseWrapper.getAddresses();
+      const currentAmount = _.size(allAddresses);
+
+      // add a couple of addresses which we can then use to validate that they exist.
+      const a = await firebaseWrapper.addAddress({ lineOne: '', city: '', state: '', zip: '', country: '' });
+      const b = await firebaseWrapper.addAddress({ lineOne: '', city: '', state: '', zip: '', country: '' });
+
+      // get the updated list so we can validate that they exist.
+      const updatedAddresses = await firebaseWrapper.getAddresses();
+      expect(_.size(updatedAddresses)).toEqual(currentAmount + 2);
+
+      // validate that the size of the addresses has increased by two and that the content is all correct.
+      expect(updatedAddresses[a]).toEqual({ lineOne: '', city: '', state: '', zip: '', country: '' });
+      expect(updatedAddresses[b]).toEqual({ lineOne: '', city: '', state: '', zip: '', country: '' });
+    });
   });
 
   /**

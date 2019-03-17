@@ -497,7 +497,7 @@ class FirebaseWrapper {
     }
 
     // delete the reference to the address and all the address objects.
-    return this.database.ref(`users/${this.getUid()}/addresses/${addressKey}`).remove();
+    return this.database.ref(`users/${this.getUid()}/profile/addresses/${addressKey}`).remove();
   }
 
   /**
