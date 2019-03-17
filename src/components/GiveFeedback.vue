@@ -24,8 +24,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" flat @click="showFeedbackLocal = false">Close</v-btn>
-          <v-btn color="blue darken-1" flat @click="submitLocal()">Save</v-btn>
+          <v-btn id="feedcancel" color="blue darken-1" flat @click="showFeedbackLocal = false">Close</v-btn>
+          <v-btn id="feedsubmit" color="blue darken-1" flat @click="submitLocal()">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -93,5 +93,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
