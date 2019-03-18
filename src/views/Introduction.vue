@@ -363,12 +363,11 @@
         </v-layout>
         
         </v-card>
-
         <v-btn
           color="primary"
-          @click="e1 = 1"
+          @click="updateProfile"
         >
-          Continue
+          Accept & Finish
         </v-btn>
         <v-btn outline color="indigo"
                    @click="e1=3"
@@ -487,7 +486,6 @@ export default {
     contactNumber: null,
     
     // Data from Service (form 2)
-    activeUser: true,  // by default after creating the account the user will be active
     priceRange: ["0 - 5", "5 - 10", "10 - 20", "20+"],
     price:null,
     statusTypes: ["Dog Owner","Dog Walker"],
@@ -634,16 +632,7 @@ export default {
         this.dogInformation=[]
     },
     updateProfile: async function() {
-      let profile = await firebaseWrapper.getProfile(this.localUserId);
-
-      // if for whatever reason we did not get back a valid profile, most likly due to the id that
-      // was given via the url was not a valid url. Then we are going to just get the data for the
-      // current authenticated user.
-      if (_.isNil(profile)) profile = await firebaseWrapper.getProfile();
-
-      this.profile = profile;
-
-      updateProfile.firebaseWrapper
+      await firebaseWrapper.updateProfile({new: false})
     },
   }
 };
