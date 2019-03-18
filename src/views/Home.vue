@@ -72,8 +72,8 @@ export default {
     const profile = await firebaseWrapper.getProfile();
 
     if (!_.isNil(profile) && !_.isNil(user)) {
-      if(profile.new){
-        this.$router.push({ name:'introduction' })
+      if (profile.new) {
+        this.$router.push({ name: 'introduction' });
       }
       this.name = profile.name;
       this.image = user.photoURL;

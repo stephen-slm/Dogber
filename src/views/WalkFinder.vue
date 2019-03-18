@@ -49,16 +49,13 @@ export default {
 
   created: async function() {
     // for preview information, just generating the displaying data for the given user.
+    const profile = await firebaseWrapper.getProfile();
     const usersReference = await firebaseWrapper.database.ref('users').once('value');
     const users = usersReference.val();
 
     // If the account is new redirect to introduction page
-    const user = firebaseWrapper.getCurrentUser();
-    const profile = await firebaseWrapper.getProfile();
-    if(profile.new){
-      this.$router.push({ name:'introduction' })
-    }
-    
+    if (profile.new) this.$router.push({ name: 'introduction' });
+
     // we don't want to add our current self into the list.
     const currentUserId = firebaseWrapper.getUid();
 

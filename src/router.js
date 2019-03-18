@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
+import Introduction from '@/views/Introduction.vue';
 import WalkFinder from '@/views/WalkFinder.vue';
 import FourOFour from '@/views/FourOFour.vue';
 import Settings from '@/views/Settings.vue';
@@ -9,7 +10,6 @@ import SignOut from '@/views/SignOut.vue';
 import Login from '@/views/Login.vue';
 import Walks from '@/views/Walks.vue';
 import Home from '@/views/Home.vue';
-import Introduction from '@/views/Introduction.vue'
 
 Vue.use(Router);
 

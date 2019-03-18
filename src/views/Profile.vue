@@ -128,8 +128,8 @@ export default {
       if (_.isNil(profile)) profile = await firebaseWrapper.getProfile();
 
       // If the account is new redirect to introduction page
-      if(profile.new){
-        this.$router.push({ name:'introduction' })
+      if (profile.new) {
+        this.$router.push({ name: 'introduction' });
       }
       this.profile = profile;
 
