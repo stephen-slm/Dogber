@@ -243,6 +243,24 @@ class FirebaseWrapper {
   }
 
   /**
+   * Adjusts the active state of the walk state of the given user, doing this will allow the user to
+   * join the walk pool, gaining them access to walks.
+   * @param {bool} newActiveState the new state that will replace the current one.
+   */
+  async adjustWalkActiveState(newActiveState) {
+    // knowing that firebase will accept any type value, we must just ensure that the user input
+    // data is actually a boolean we can use as a flag on the users account.
+    if (!_.isBoolean(newActiveState)) {
+      throw new Error('New active state must be a boolean');
+    }
+
+    // return the change being made, due to the way async works, this will still be awaited and the
+    // changes processed before the following actiion has been taken (incase it replies on this
+    // change going through).
+    return this.database.ref(`users/${this.getUid()}/profile/walk/active`).set(newActiveState);
+  }
+
+  /**
    * This will increment the login count on the profile section for a given user, this will allow us
    * to keep track of how many times a given user has authenticated and logged into the page. The
    * downside of this is that it could result in a heavy increase in logins if we just refresh the
@@ -371,6 +389,13 @@ class FirebaseWrapper {
       throw new Error('Feedback message must be a valid string');
     }
 
+    // the user who is giving feedback should not be able to give feedback to themselves, as this
+    // defeats the point of feedback and will give a unrealistc feeling for a given user. who see
+    // there profile.
+    if (feedbackerId === this.getUid() && targetId === this.getUid()) {
+      throw new Error('Feedback cannot be given to youself.');
+    }
+
     // get the profile so we can store a reference for the name.
     const feedbackerProfile = await this.getProfile(feedbackerId);
 
@@ -381,6 +406,7 @@ class FirebaseWrapper {
       message,
       feedbacker: {
         id: feedbackerId,
+        photo: feedbackerProfile.photo,
         name: feedbackerProfile.name || feedbackerProfile.email
       },
       timestamp: Date.now()
@@ -409,6 +435,78 @@ class FirebaseWrapper {
 
     const feedback = await this.database.ref(`users/${id}/feedback`).once('value');
     return feedback.val();
+  }
+
+  /**
+   * Gets the feedback reference that is used for live feedback updates.
+   * @param feedbackId The id of the feedbacker to be listening for.
+   */
+  getFeedbackReference(feedbackId = this.getUid()) {
+    return this.database.ref(`users/${feedbackId}/feedback`);
+  }
+
+  /**
+   * Adds in a new address for the current authenticated user, this will be pushed to a array which
+   * will allow the user to acutally have more addresses than a single address. Reference the
+   * firebaseConstants.PROFILE_ADDRESS object for all required properties within the address object.
+   */
+  async addAddress(addressObject) {
+    const filteredAddress = _.pick(addressObject, firebaseConstants.PROFILE_ADDRESS);
+
+    // validate that all properties are strings and not a empty string.
+    firebaseConstants.PROFILE_ADDRESS.forEach((value) => {
+      if (_.isNil(filteredAddress[value]) || !_.isString(filteredAddress[value])) {
+        throw new Error(`${value} cannot be null, undefined or not a string`);
+      }
+    });
+
+    // the address reference that will be used for inserting the addresses into the database
+    const addressReference = this.database.ref(`users/${this.getUid()}/profile/addresses`);
+
+    // performing the address insert, allowing us to then return the related key to the address for
+    // later on. This could be used for also deleting the addresses.
+    const insertedAddress = await addressReference.push(filteredAddress);
+    return insertedAddress.key;
+  }
+
+  /**
+   * Gathers a single address by the address key for the current authenticated user.
+   * @param {string} key The addresss key that will be used to gather the address.
+   */
+  async getAddressByKey(key) {
+    // keys are all strings and not null or undefined, we must validate this is correct before
+    // attempting to gather the required address by the key.
+    if (_.isNil(key) || !_.isString(key)) {
+      throw new Error('Address key must not be empty and must be a valid string');
+    }
+
+    // get the reference / data object for the single address and return its object.
+    const address = await this.database.ref(`users/${this.getUid()}/profile/addresses/${key}`).once('value');
+    return address.val();
+  }
+
+  /**
+   * Removes a single address by the provided address key for the current authenticated user.
+   * @param {string} addressKey The address key that will be used to remove the address.
+   */
+  async removeAddress(addressKey) {
+    // keys are all strings and not null or undefined, we must validate this is correct before
+    // attempting to gather the required address by the key.
+    if (_.isNil(addressKey) || !_.isString(addressKey)) {
+      throw new Error('Address key must not be empty and must be a valid string');
+    }
+
+    // delete the reference to the address and all the address objects.
+    return this.database.ref(`users/${this.getUid()}/profile/addresses/${addressKey}`).remove();
+  }
+
+  /**
+   * Gets all the addresses for the current authenticated user. This is a object and not a array but
+   * will have keys for the indexes of all the objects in the object.
+   */
+  async getAddresses() {
+    const addresses = await this.database.ref(`users/${this.getUid()}/profile/addresses`).once('value');
+    return addresses.val();
   }
 
   /**
@@ -492,9 +590,12 @@ class FirebaseWrapper {
       name: profile.displayName,
       last_login: Date.now(),
       login_count: 1,
-      photo: user.photoURL || '../assets/placeholder.jpg',
+      photo: user.photoURL || 'https://i.imgur.com/7c0tNV6.png',
+      phone_number: null,
+      addresses: [],
       new: true,
       walk: {
+        active: false,
         rating: 0,
         completed: 0,
         balance: 5,

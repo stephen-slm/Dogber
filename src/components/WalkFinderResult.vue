@@ -25,8 +25,8 @@
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
       <v-flex xs12 sm5>
-        <v-btn :to="profilePath">Profile</v-btn>
-        <v-btn>Check Availability</v-btn>
+        <v-btn flat color="primary" :to="profilePath">Profile</v-btn>
+        <v-btn flat>Check Availability</v-btn>
       </v-flex>
     </v-layout>
   </v-card>
@@ -40,8 +40,8 @@ export default {
   data: function() {
     return {
       userProfile: {
-        name: '',
-        photo: '../assets/placeholder.jpg',
+        name: 'User',
+        photo: '',
         walk: { price: { min: 0, max: 0 }, rating: 0, distance: 0 }
       },
       profilePath: `/profile/${this.id}`
@@ -75,7 +75,7 @@ export default {
      * Gets the curernt profile url for the given users id or the place holder image instead.
      */
     getPhotoUrl() {
-      return this.userProfile.photo || '../assets/placeholder.jpg';
+      return this.userProfile.photo;
     }
   }
 };

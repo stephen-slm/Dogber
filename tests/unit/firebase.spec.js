@@ -60,7 +60,7 @@ describe('Firebase Wrapper', async () => {
    */
   describe('Creating a new user', async () => {
     it('Should create a profile with the basic users details', async () => {
-      expect.assertions(17); // four assertions are taking plac and expected.
+      expect.assertions(19); // four assertions are taking plac and expected.
 
       const profile = await firebaseWrapper.getProfile();
 
@@ -77,7 +77,7 @@ describe('Firebase Wrapper', async () => {
       expect(profile.age).toEqual(0);
 
       // the rating will start off as 0 as the user as no real rating when first starting to use the
-      // application. This will be changed throughout the use of the application.
+      // application. This will be changed throughout the use of th`e application.
       expect(profile.walk.rating).toEqual(expect.any(Number));
       expect(profile.walk.rating).toEqual(0);
 
@@ -96,6 +96,10 @@ describe('Firebase Wrapper', async () => {
       // The user has not set a price so we will default to 5/10
       expect(profile.walk.price.max).toEqual(expect.any(Number));
       expect(profile.walk.price.max).toEqual(10);
+
+      // The user has not set a default active state (if they can be active or not).
+      expect(profile.walk.active).toEqual(expect.any(Boolean));
+      expect(profile.walk.active).toEqual(false);
     });
 
     it('Should should be marked as new within the profile if the account is recently created', async () => {
@@ -180,6 +184,50 @@ describe('Firebase Wrapper', async () => {
 
       // the difference should be greater as this is the old date time.
       expect(difference > updatedDifference).toBeTruthy();
+    });
+  });
+
+  describe('adjustWalkActiveState', async () => {
+    // errors that occure during the adjust walk phase, these are here to help improve testability of the code without repeating it constantly.
+    const notBooleanError = new Error('New active state must be a boolean');
+
+    it('Should reject if the input value is not a boolean', async () => {
+      expect.assertions(5);
+
+      // validate that the core types are not going to be accepted within the function, heavily
+      // reducing the chance of misplaced data types being inserted instead of the correct
+      // responding value.
+      await expect(firebaseWrapper.adjustWalkActiveState('boolean')).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState(8001)).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState(['boolean'])).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState({ active: true })).rejects.toEqual(notBooleanError);
+      await expect(firebaseWrapper.adjustWalkActiveState((x) => x > 5)).rejects.toEqual(notBooleanError);
+    });
+
+    it('Should set the value if a given boolean is used', async () => {
+      expect.assertions(2);
+
+      const profile = await firebaseWrapper.getProfile();
+      const existingState = profile.walk.active;
+
+      // by taking the exsting state, we can reflect the change on the users profile, then
+      // validating that its changed easily (instead of expecting it to always be false).
+      await firebaseWrapper.adjustWalkActiveState(!existingState);
+
+      // get the updated profile, this will be used to validate the changes going through.
+      const updatedProfile = await firebaseWrapper.getProfile();
+      const updatedState = updatedProfile.walk.active;
+
+      expect(updatedState).toEqual(!existingState);
+
+      // now lets confirm that the changes work going backwards as well, we need to make sure
+      // that is a consistant result.
+      await firebaseWrapper.adjustWalkActiveState(existingState);
+
+      const revertedProfile = await firebaseWrapper.getProfile();
+      const revertedState = revertedProfile.walk.active;
+
+      expect(revertedState).toEqual(existingState);
     });
   });
 
@@ -522,6 +570,7 @@ describe('Firebase Wrapper', async () => {
     const feedtargetNull = new Error('Feedback and target id must not be null or undefined');
     const feedtargetString = new Error('Feedback and target id must be of type string');
     const nullNotStringError = new Error('Feedback message must be a valid string');
+    const noSelfFeedbackERror = new Error('Feedback cannot be given to youself.');
 
     it('Should reject if the feedbacker id is null', async () => {
       expect.assertions(1);
@@ -569,6 +618,18 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.addFeedback('id', 'id', () => {})).rejects.toEqual(nullNotStringError);
     });
 
+    it('Should reject adding feedback if you are attempting to add feedback to youself', async () => {
+      expect.assertions(1);
+
+      // the user who is giving feedback should not be able to give feedback to themselves, as this
+      // defeats the point of feedback and will give a unrealistc feeling for a given user. who see
+      // there profile.
+      const selfId = firebaseWrapper.getUid();
+      await expect(firebaseWrapper.addFeedback(selfId, selfId, 'message')).rejects.toEqual(
+        noSelfFeedbackERror
+      );
+    });
+
     it('Should add feedback to the provided id', async () => {
       expect.assertions(5);
 
@@ -595,6 +656,314 @@ describe('Firebase Wrapper', async () => {
       expect(feedbackOneUpdate[feedbackOne].feedbacker.name).toEqual(
         currentProfile.name || currentProfile.email
       );
+    });
+  });
+
+  describe('getFeedback', async () => {
+    // get feedback related error messages, put here to help with cleaner testing code and better
+    // quality of testing.
+    const nullError = new Error('Passed id cannot be null or undefined');
+    const notStringErorr = new Error('Passed id should be of type string');
+
+    it('Should reject if the id is null', async () => {
+      expect.assertions(1);
+
+      // attempt to gather a null feedback should error.
+      await expect(firebaseWrapper.getFeedback(null)).rejects.toEqual(nullError);
+    });
+
+    it('Should reject if the id is not a string', async () => {
+      expect.assertions(3);
+
+      // attempt to gather a non-string feedback should error.
+      await expect(firebaseWrapper.getFeedback(false)).rejects.toEqual(notStringErorr);
+      await expect(firebaseWrapper.getFeedback({ cat: 'dog' })).rejects.toEqual(notStringErorr);
+      await expect(firebaseWrapper.getFeedback(['id'])).rejects.toEqual(notStringErorr);
+    });
+
+    it('Should return the valid feedback by the id', async () => {
+      expect.assertions();
+
+      // first create some feedback for the second user, when we regather we can validate that the
+      // feedback is all correct and what we should expect it ot be.
+      const userTwoFeedback = await firebaseWrapper.getFeedback(userTwoId);
+
+      const feedbackOne = await firebaseWrapper.addFeedback(userOneId, userTwoId, 'feedback one');
+      const feedbackOneUpdate = await firebaseWrapper.getFeedback(userTwoId);
+
+      // validate that the new feedback size has increased and the feedback exists.
+      expect(_.size(feedbackOneUpdate)).toEqual(_.size(userTwoFeedback) + 1);
+      expect(_.isNil(feedbackOneUpdate[feedbackOne])).toBeFalsy();
+
+      // validate that the message and id is what we expect it all to be.
+      expect(feedbackOneUpdate[feedbackOne].message).toEqual('feedback one');
+      expect(feedbackOneUpdate[feedbackOne].feedbacker.id).toEqual(userOneId);
+    });
+  });
+
+  describe('getFeedbackReference', async () => {
+    it('Should return a valid reference to the feedback for the current user', () => {
+      // gather the reference, gather the data, validaste that its not null.
+      const feedbackReference = firebaseWrapper.getFeedbackReference();
+      expect(_.isNil(feedbackReference)).toBeFalsy();
+    });
+  });
+
+  describe('addAddress', async () => {
+    // testing and making sure for all properties of the address, that if anyone of the values are
+    // not strings then they should be fully rejected, we dont want any addresses being added if
+    // they are not complete strings.
+    it('Should reject if any property is not a string', async () => {
+      expect.assertions(5);
+
+      let addressOne = {
+        lineOne: ['lineOne'],
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      };
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`lineOne cannot be null, undefined or not a string`)
+      );
+
+      addressOne.lineOne = 'LineOne';
+      addressOne.city = ['city'];
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`city cannot be null, undefined or not a string`)
+      );
+
+      addressOne.city = 'city';
+      addressOne.state = ['state'];
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`state cannot be null, undefined or not a string`)
+      );
+
+      addressOne.state = 'state';
+      addressOne.zip = ['zip'];
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`zip cannot be null, undefined or not a string`)
+      );
+
+      addressOne.zip = 'zip';
+      addressOne.country = ['country'];
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`country cannot be null, undefined or not a string`)
+      );
+    });
+
+    // testing and making sure for all properties of the address, that if anyone of the values are
+    // not defined then they should be fully rejected, we dont want any addresses being added if
+    // they are not complete defined.
+    it('Should reject if any property is null or undefined', async () => {
+      expect.assertions(5);
+
+      let addressOne = {
+        lineOne: null,
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      };
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`lineOne cannot be null, undefined or not a string`)
+      );
+
+      addressOne.lineOne = 'LineOne';
+      addressOne.city = null;
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`city cannot be null, undefined or not a string`)
+      );
+
+      addressOne.city = 'city';
+      addressOne.state = null;
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`state cannot be null, undefined or not a string`)
+      );
+
+      addressOne.state = 'state';
+      addressOne.zip = null;
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`zip cannot be null, undefined or not a string`)
+      );
+
+      addressOne.zip = 'zip';
+      addressOne.country = null;
+
+      await expect(firebaseWrapper.addAddress(addressOne)).rejects.toEqual(
+        new Error(`country cannot be null, undefined or not a string`)
+      );
+    });
+
+    it('Should add a new address if all properties are valid', async () => {
+      expect.assertions(5);
+
+      // create the address for the authenticated user with a basic address, easily testable when we
+      // reather the address.
+      const createdAddress = await firebaseWrapper.addAddress({
+        lineOne: 'lineOne',
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      });
+
+      // Creating a address gets the address key, we can then regather that address and validate
+      // that all the information went in correctly
+      const regatheredAddress = await firebaseWrapper.getAddressByKey(createdAddress);
+
+      expect(regatheredAddress.lineOne).toEqual('lineOne');
+      expect(regatheredAddress.city).toEqual('city');
+      expect(regatheredAddress.state).toEqual('state');
+      expect(regatheredAddress.zip).toEqual('zip');
+      expect(regatheredAddress.country).toEqual('country');
+    });
+  });
+
+  describe('getAddress', async () => {
+    // the related error to get address, used thoughout the testing process to have a simplier and
+    // easier to read testing process.
+    const nullStringError = new Error('Address key must not be empty and must be a valid string');
+
+    it('Should reject if the address key is not a string', async () => {
+      expect.assertions(3);
+
+      // validate that any other type that can be used for gathering a address is rejected by the
+      // function, we don't want any other invalid data being added into the database.
+      await expect(firebaseWrapper.getAddressByKey(['addressOne'])).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.getAddressByKey(false)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.getAddressByKey({ name: 'empty' })).rejects.toEqual(nullStringError);
+    });
+
+    it('Should reject if the address key is null or undefined', async () => {
+      expect.assertions(2);
+
+      // testing both cases that the get address does not accept null or undefined values.
+      await expect(firebaseWrapper.getAddressByKey(null)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.getAddressByKey(undefined)).rejects.toEqual(nullStringError);
+    });
+
+    it('Should return a valid address object if a correct id is used', async () => {
+      expect.assertions(1);
+
+      // first create a new address and gather / validate it correctly exists.
+      const createdAddress = await firebaseWrapper.addAddress({
+        lineOne: 'lineOne',
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      });
+
+      const allAddresses = await firebaseWrapper.getAddresses();
+      const keys = Object.keys(allAddresses);
+
+      // validate that the array of keys of all the addresses contains the created key.
+      expect(keys.includes(createdAddress)).toEqual(true);
+    });
+  });
+
+  describe('removeAddress', async () => {
+    // the related error to get address, used thoughout the testing process to have a simplier and
+    // easier to read testing process.
+    const nullStringError = new Error('Address key must not be empty and must be a valid string');
+
+    it('Should reject if the address key is not a string', async () => {
+      expect.assertions(3);
+
+      // validate that any other type that can be used for gathering a address is rejected by the
+      // function, we don't want any other invalid data being added into the database.
+      await expect(firebaseWrapper.removeAddress(['addressOne'])).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.removeAddress(false)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.removeAddress({ name: 'empty' })).rejects.toEqual(nullStringError);
+    });
+
+    it('Should reject if the address key is null or undefined', async () => {
+      expect.assertions(2);
+
+      // testing both cases that the get address does not accept null or undefined values.
+      await expect(firebaseWrapper.removeAddress(null)).rejects.toEqual(nullStringError);
+      await expect(firebaseWrapper.removeAddress(undefined)).rejects.toEqual(nullStringError);
+    });
+
+    it('Should remove a valid address object if a correct id is used', async () => {
+      expect.assertions(2);
+
+      // first we must create a address, this address will be the one is removed, but first we will
+      // have to validate that it exists and then validate that the move excatly has removed.
+      // first create a new address and gather / validate it correctly exists.
+      const createdAddress = await firebaseWrapper.addAddress({
+        lineOne: 'lineOne',
+        city: 'city',
+        state: 'state',
+        zip: 'zip',
+        country: 'country'
+      });
+
+      const allAddresses = await firebaseWrapper.getAddresses();
+      const keys = Object.keys(allAddresses);
+
+      // validate that the array of keys of all the addresses contains the created key.
+      expect(keys.includes(createdAddress)).toEqual(true);
+
+      // now remove the address and validate now that the address has been fully removed.
+      await firebaseWrapper.removeAddress(createdAddress);
+
+      // updated addresses since we have removed the last one.
+      const updatedAddresses = await firebaseWrapper.getAddresses();
+      const updatedKeys = Object.keys(updatedAddresses);
+
+      // validate that its now gone.
+      expect(updatedKeys.includes(createdAddress)).toEqual(false);
+    });
+  });
+
+  describe('getAddresses', async () => {
+    it('Should return a empty object if no addresses exist', async () => {
+      expect.assertions(2);
+
+      // first lets remove all the current addresses, then we can validate that it returns a empty object.
+      await firebaseWrapper.database.ref(`users/${firebaseWrapper.getUid()}/profile/addresses`).remove();
+
+      // gather all the addresses and validate that its empty.
+      const allEmptyAddresses = await firebaseWrapper.getAddresses();
+      expect(_.size(allEmptyAddresses)).toEqual(0);
+
+      // now add a new address and validate that the address size increases.
+      await firebaseWrapper.addAddress({ lineOne: '', city: '', state: '', zip: '', country: '' });
+      const updatedAddresses = await firebaseWrapper.getAddresses();
+
+      // validate that the size has now increased.
+      expect(_.size(updatedAddresses)).toEqual(1);
+    });
+
+    it('Should return a valid array of all the existing addresses', async () => {
+      expect.assertions(3);
+
+      // get the current addresses and the current size.
+      const allAddresses = await firebaseWrapper.getAddresses();
+      const currentAmount = _.size(allAddresses);
+
+      // add a couple of addresses which we can then use to validate that they exist.
+      const a = await firebaseWrapper.addAddress({ lineOne: '', city: '', state: '', zip: '', country: '' });
+      const b = await firebaseWrapper.addAddress({ lineOne: '', city: '', state: '', zip: '', country: '' });
+
+      // get the updated list so we can validate that they exist.
+      const updatedAddresses = await firebaseWrapper.getAddresses();
+      expect(_.size(updatedAddresses)).toEqual(currentAmount + 2);
+
+      // validate that the size of the addresses has increased by two and that the content is all correct.
+      expect(updatedAddresses[a]).toEqual({ lineOne: '', city: '', state: '', zip: '', country: '' });
+      expect(updatedAddresses[b]).toEqual({ lineOne: '', city: '', state: '', zip: '', country: '' });
     });
   });
 

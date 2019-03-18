@@ -75,7 +75,7 @@
       <v-btn icon>
         <v-badge overlap>
           <span v-if="notificationCount > 0" slot="badge" small>{{ notificationCount }}</span>
-          <v-icon color="rgba(41, 41, 41, 0.54)">notifications</v-icon>
+          <v-icon class="grey--text">notifications</v-icon>
         </v-badge>
       </v-btn>
       <v-btn icon large>
@@ -108,7 +108,7 @@ export default {
       welcomeMessage: '',
       imageUrl: '',
       name: '',
-      email: '../assets/placeholder.jpg'
+      email: ''
     };
   },
 
