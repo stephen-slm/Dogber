@@ -71,6 +71,11 @@ export default {
     const user = firebaseWrapper.getCurrentUser();
     const profile = await firebaseWrapper.getProfile();
 
+    // if the profile is new redirect to introduction page
+    if(profile.new){
+        this.$router.push({ name:'introduction' })
+    }
+
     if (!_.isNil(profile) && !_.isNil(user)) {
       this.name = profile.name;
       this.image = user.photoURL;
