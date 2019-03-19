@@ -446,6 +446,36 @@ class FirebaseWrapper {
   }
 
   /**
+   * Gets all the active walkers for the current user, generally used when looking for a active
+   * walking dog owner. This will return a object that has filtered out all non-active walkers.
+   */
+  async getActiveWalkers() {
+    // grab the object reference, the reference can then be used to get all current users.
+    const currentUsersReference = await this.database.ref('users').once('value');
+    const users = currentUsersReference.val();
+
+    // we don't want to be getting the current user, so we will make sure to ignore this id if it
+    // occures in the filtering process (which it should, it might not be active though).
+    const currentUserId = this.getUid();
+    const filteredUsers = {};
+
+    // return the filtered amount of users with just the active ones.
+    _.forEach(users, (e, index) => {
+      if (e.profile.walk.active && index !== currentUserId) filteredUsers[index] = e;
+    });
+
+    return filteredUsers;
+  }
+
+  /**
+   * returns the id keys for all current active walkers, based arond the get active walkers method,
+   * filtering down to just the keys.
+   */
+  async getActiveWalkersKeys() {
+    return _.map(await this.getActiveWalkers(), (value, index) => index);
+  }
+
+  /**
    * Adds in a new address for the current authenticated user, this will be pushed to a array which
    * will allow the user to acutally have more addresses than a single address. Reference the
    * firebaseConstants.PROFILE_ADDRESS object for all required properties within the address object.

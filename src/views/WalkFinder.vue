@@ -4,8 +4,23 @@
       <v-container grid-list-md text-xs-center>
         <v-layout row wrap>
           <v-flex xs12>
-            <v-card>
-              <v-card-title primary class="subheading text-sm-left">Walk Finder</v-card-title>
+            <v-card xs6>
+              <v-layout row wrap>
+                <v-flex xs6>
+                  <v-card-title primary class="subheading text-sm-left">Walk Finder</v-card-title>
+                </v-flex>
+                <v-flex xs6 class="text-sm-right">
+                  <v-btn
+                    icon
+                    large
+                    :loading="refreshingWalkers"
+                    :disabled="refreshingWalkers"
+                    @click="refreshWalkers"
+                  >
+                    <v-icon>refresh</v-icon>
+                  </v-btn>
+                </v-flex>
+              </v-layout>
             </v-card>
           </v-flex>
           <v-flex xs12 sm3>
@@ -30,7 +45,6 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import WalkFinderResult from '@/components/WalkFinderResult.vue';
 import firebaseWrapper from '@/lib/firebaseWrapper';
 
@@ -43,24 +57,30 @@ export default {
       dropdown_ratings: ['0 - 1', '1 - 2', '2 - 3', '3 - 4', '4 - 5'],
       dropdown_availability: ['now', 'later'],
       dropdown_priceRange: ['0 - 5', '5 - 10', '10 - 20', '20+'],
-      userKeys: []
+      userKeys: [],
+      refreshingWalkers: false
     };
   },
 
   created: async function() {
-    // for preview information, just generating the displaying data for the given user.
-    const usersReference = await firebaseWrapper.database.ref('users').once('value');
-    const users = usersReference.val();
+    // Get the current active walkers keys.
+    this.userKeys = await firebaseWrapper.getActiveWalkersKeys();
+  },
 
-    // we don't want to add our current self into the list.
-    const currentUserId = firebaseWrapper.getUid();
+  methods: {
+    // reloads the current active walkers on the page, getting the latest walkers to the page.
+    // Giving users refresh feedback.
+    refreshWalkers: async function() {
+      // set the freshing on the refreh button, so get get the correct loading process.
+      this.refreshingWalkers = true;
+      this.userKeys = {};
 
-    const userKeys = _.map(users, (value, index) => {
-      if (index !== currentUserId && value.profile.walk.active) return index;
-    });
+      // update the keys, vue will auto refresh the displaying content.
+      this.userKeys = await firebaseWrapper.getActiveWalkersKeys();
 
-    // remove all values that are not valid. e.g null, undefined.
-    this.userKeys = _.compact(userKeys);
+      // make sure to set the button back again otherwise it will be stuck refreshing.
+      this.refreshingWalkers = false;
+    }
   },
 
   components: {
