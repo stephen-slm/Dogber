@@ -709,6 +709,52 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
+  describe('getActiveWalkers', async () => {
+    it('should return a object of all active users', async () => {
+      expect.assertions(3);
+
+      // the current users id.
+      const currentUserId = firebaseWrapper.getUid();
+
+      // gather the current active and validate that the current user does not exist in this list.
+      const curerntActive = await firebaseWrapper.getActiveWalkers();
+
+      // validate that the active exists but the current user is null
+      expect(_.isNil(curerntActive)).toBeFalsy();
+      expect(_.isNil(curerntActive[currentUserId])).toBeTruthy();
+
+      let allActive = true;
+
+      _.forEach(curerntActive, (e) => {
+        if (!e.profile.walk.active) allActive = false;
+      });
+
+      // valiate all are active.
+      expect(allActive).toBeTruthy();
+    });
+  });
+
+  describe('getActiveWalkersKeys', async () => {
+    it('Should return a valid list of all active users keys', async () => {
+      expect.assertions(1);
+
+      // get the current active walkers list
+      const activeWalkers = await firebaseWrapper.getActiveWalkers();
+
+      // now we can get the active walkers keys, validating that all the active keys exist in the
+      // active walkers list. Both tests go hand in hand to make sure that they are all valid.
+      const activeWalkersKeys = await firebaseWrapper.getActiveWalkersKeys();
+      let validKeys = true;
+
+      _.forEach(activeWalkersKeys, (key) => {
+        if (_.isNil(activeWalkers[key])) validKeys = false;
+      });
+
+      // if all keys exist, then it should be true and not false.
+      expect(validKeys).toBeTruthy();
+    });
+  });
+
   describe('addDog', async () => {
     // tests for Mukluk.
   });

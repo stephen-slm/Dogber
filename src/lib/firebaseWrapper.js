@@ -452,7 +452,7 @@ class FirebaseWrapper {
   async getActiveWalkers() {
     // grab the object reference, the reference can then be used to get all current users.
     const currentUsersReference = await this.database.ref('users').once('value');
-    const users = currentUsersReference.val();
+    const users = currentUsersReference.val() || {};
 
     // we don't want to be getting the current user, so we will make sure to ignore this id if it
     // occures in the filtering process (which it should, it might not be active though).
