@@ -126,12 +126,12 @@ export default {
       // was given via the url was not a valid url. Then we are going to just get the data for the
       // current authenticated user.
       if (_.isNil(profile)) profile = await firebaseWrapper.getProfile();
-      
+
       // If the account is new redirect to introduction page
-      if(profile.new){
-        this.$router.push({ name:'introduction' })
+      if (profile.new) {
+        this.$router.push({ name: 'introduction' });
       }
-      
+
       this.profile = profile;
 
       this.distance = 0;

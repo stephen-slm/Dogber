@@ -53,10 +53,9 @@ export default {
     const users = usersReference.val();
 
     // If the account is new redirect to introduction page
-    const user = firebaseWrapper.getCurrentUser();
     const profile = await firebaseWrapper.getProfile();
-    if(profile.new){
-      this.$router.push({ name:'introduction' })
+    if (profile.new) {
+      this.$router.push({ name: 'introduction' });
     }
 
     // we don't want to add our current self into the list.
