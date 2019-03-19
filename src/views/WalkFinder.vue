@@ -21,7 +21,7 @@
             <v-select :items="dropdown_priceRange" label="Price Range"></v-select>
           </v-flex>
           <v-flex xs12>
-            <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item" />
+            <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item"/>
           </v-flex>
         </v-layout>
       </v-container>
@@ -52,9 +52,6 @@ export default {
     const profile = await firebaseWrapper.getProfile();
     const usersReference = await firebaseWrapper.database.ref('users').once('value');
     const users = usersReference.val();
-
-    // If the account is new redirect to introduction page
-    if (profile.new) this.$router.push({ name: 'introduction' });
 
     // we don't want to add our current self into the list.
     const currentUserId = firebaseWrapper.getUid();

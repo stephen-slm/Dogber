@@ -85,12 +85,8 @@
           </v-layout>
         </v-card>
 
-        <v-btn color="primary" @click="submit1">
-          Continue
-        </v-btn>
-        <v-btn color="warning" @click="resetForm_1()">
-          Reset
-        </v-btn>
+        <v-btn color="primary" @click="submit1">Continue</v-btn>
+        <v-btn color="warning" @click="resetForm_1()">Reset</v-btn>
       </v-stepper-content>
 
       <v-stepper-content step="2">
@@ -129,15 +125,9 @@
           </v-layout>
         </v-card>
 
-        <v-btn color="primary" @click="submit2">
-          Continue
-        </v-btn>
-        <v-btn outline color="indigo" @click="e1 = 1">
-          Back
-        </v-btn>
-        <v-btn color="warning" @click="resetForm_2()">
-          Reset
-        </v-btn>
+        <v-btn color="primary" @click="submit2">Continue</v-btn>
+        <v-btn outline color="indigo" @click="e1 = 1">Back</v-btn>
+        <v-btn color="warning" @click="resetForm_2()">Reset</v-btn>
       </v-stepper-content>
 
       <v-stepper-content step="3">
@@ -148,9 +138,9 @@
                 <div>Add Dogs (optional)</div>
               </template>
               <v-card>
-                <p style="text-align:center">
-                  This part is optional, if you have any dogs and would like to add them in your profile
-                </p>
+                <p
+                  style="text-align:center"
+                >This part is optional, if you have any dogs and would like to add them in your profile</p>
                 <v-container grid-list-md text-xs-center>
                   <v-layout row wrap>
                     <v-flex xs6>
@@ -216,7 +206,7 @@
                               <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-slide-x-reverse-transition>
-                                  <v-tooltip v-if="formHasErrors" left> </v-tooltip>
+                                  <v-tooltip v-if="formHasErrors" left></v-tooltip>
                                 </v-slide-x-reverse-transition>
                                 <v-btn color="primary" flat @click="add">Add</v-btn>
                               </v-card-actions>
@@ -251,13 +241,11 @@
                                   </v-flex>
                                 </v-layout>
                                 <v-divider light></v-divider>
-                                <v-card-actions class="pa-2">
-                                  Toy:
+                                <v-card-actions class="pa-2">Toy:
                                   <v-spacer></v-spacer>
                                   <p>{{ dog.dogFavoriteToy }}</p>
                                 </v-card-actions>
-                                <v-card-actions class="pa-2">
-                                  Food:
+                                <v-card-actions class="pa-2">Food:
                                   <v-spacer></v-spacer>
                                   <p>{{ dog.dogFavoriteFood }}</p>
                                 </v-card-actions>
@@ -278,12 +266,8 @@
           </v-expansion-panel>
         </v-card>
 
-        <v-btn color="primary" @click="e1 = 4">
-          Continue
-        </v-btn>
-        <v-btn outline color="indigo" @click="e1 = 2">
-          Back
-        </v-btn>
+        <v-btn color="primary" @click="e1 = 4">Continue</v-btn>
+        <v-btn outline color="indigo" @click="e1 = 2">Back</v-btn>
       </v-stepper-content>
       <v-stepper-content step="4">
         <v-card class="mb-5" height="auto">
@@ -306,12 +290,8 @@
             </v-flex>
           </v-layout>
         </v-card>
-        <v-btn color="primary" @click="updateProfile">
-          Accept & Finish
-        </v-btn>
-        <v-btn outline color="indigo" @click="e1 = 3">
-          Back
-        </v-btn>
+        <v-btn color="primary" @click="updateProfile">Accept & Finish</v-btn>
+        <v-btn outline color="indigo" @click="e1 = 3">Back</v-btn>
       </v-stepper-content>
     </v-stepper-items>
   </v-stepper>
