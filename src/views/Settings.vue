@@ -8,6 +8,7 @@
         <div class="text-sm-left gray lighten-1">Account Related</div>
         <v-divider />
         <v-switch v-model="activeWalker" label="Active Walker"></v-switch>
+        <DeleteAccountAgreement />
       </form>
     </v-card>
   </v-container>
@@ -15,6 +16,7 @@
 
 <script>
 import firebaseWrapper from '@/lib/firebaseWrapper';
+import DeleteAccountAgreement from '@/components/DeleteAccountAgreement.vue';
 
 export default {
   name: 'Settings',
@@ -22,7 +24,7 @@ export default {
   data: function() {
     return {
       dark: false,
-      activeWalker: true
+      activeWalker: false
     };
   },
 
@@ -51,6 +53,10 @@ export default {
     activeWalker: async function(newValue) {
       await firebaseWrapper.adjustWalkActiveState(newValue);
     }
+  },
+
+  components: {
+    DeleteAccountAgreement
   }
 };
 </script>

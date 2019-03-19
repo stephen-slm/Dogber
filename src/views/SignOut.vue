@@ -19,7 +19,7 @@ export default {
       return await firebaseWrapper.authentication.signOut();
     }
 
-    this.$router.push({ name: 'home' });
+    this.$router.push({ name: 'login' });
   }
 };
 </script>

@@ -8,22 +8,22 @@
     />
 
     <v-card elevation="elevation-2" class="login-card">
-      <img width="65" height="65" class="avatar" src="../assets/logo.png" alt="Dogber">
+      <img width="65" height="65" class="avatar" src="../assets/logo.png" alt="Dogber" />
 
       <div class="text-capitalize subheading">dogber</div>
       <div class="subheading">Intelligent Dog Scheduling</div>
 
-      <Loading v-if="loading" :message="loadingMessage"/>
+      <Loading v-if="loading" :message="loadingMessage" />
 
       <div v-if="!loading" class="loginContainer">
         <a @click="loginWithFacebook" class="facebook">
           <i class="fab fa-facebook"></i>
         </a>
-        
+
         <a @click="loginWithGithub" class="github">
           <i class="fab fa-github"></i>
         </a>
-        
+
         <a @click="loginWithGoogle" class="google">
           <i class="fab fa-google"></i>
         </a>
