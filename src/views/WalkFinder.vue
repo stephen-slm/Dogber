@@ -21,7 +21,7 @@
             <v-select :items="dropdown_priceRange" label="Price Range"></v-select>
           </v-flex>
           <v-flex xs12>
-            <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item"/>
+            <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item" />
           </v-flex>
         </v-layout>
       </v-container>
@@ -49,7 +49,6 @@ export default {
 
   created: async function() {
     // for preview information, just generating the displaying data for the given user.
-    const profile = await firebaseWrapper.getProfile();
     const usersReference = await firebaseWrapper.database.ref('users').once('value');
     const users = usersReference.val();
 

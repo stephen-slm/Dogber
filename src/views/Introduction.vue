@@ -138,9 +138,9 @@
                 <div>Add Dogs (optional)</div>
               </template>
               <v-card>
-                <p
-                  style="text-align:center"
-                >This part is optional, if you have any dogs and would like to add them in your profile</p>
+                <p style="text-align:center">
+                  This part is optional, if you have any dogs and would like to add them in your profile
+                </p>
                 <v-container grid-list-md text-xs-center>
                   <v-layout row wrap>
                     <v-flex xs6>
@@ -241,11 +241,13 @@
                                   </v-flex>
                                 </v-layout>
                                 <v-divider light></v-divider>
-                                <v-card-actions class="pa-2">Toy:
+                                <v-card-actions class="pa-2"
+                                  >Toy:
                                   <v-spacer></v-spacer>
                                   <p>{{ dog.dogFavoriteToy }}</p>
                                 </v-card-actions>
-                                <v-card-actions class="pa-2">Food:
+                                <v-card-actions class="pa-2"
+                                  >Food:
                                   <v-spacer></v-spacer>
                                   <p>{{ dog.dogFavoriteFood }}</p>
                                 </v-card-actions>
