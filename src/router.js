@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
+import Introduction from '@/views/Introduction.vue';
 import WalkFinder from '@/views/WalkFinder.vue';
 import FourOFour from '@/views/FourOFour.vue';
 import Settings from '@/views/Settings.vue';
@@ -47,6 +48,11 @@ const routes = [
     path: '/signout',
     name: 'signout',
     component: SignOut
+  },
+  {
+    path: '/introduction',
+    name: 'introduction',
+    component: Introduction
   },
   {
     path: '*',
