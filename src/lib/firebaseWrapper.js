@@ -172,7 +172,7 @@ class FirebaseWrapper {
    */
   async getNotifications() {
     const notifications = await this.database.ref(`users/${this.getUid()}/notifications`).once('value');
-    return notifications.val();
+    return notifications.val() || {};
   }
 
   /**
@@ -506,7 +506,7 @@ class FirebaseWrapper {
    */
   async getAddresses() {
     const addresses = await this.database.ref(`users/${this.getUid()}/profile/addresses`).once('value');
-    return addresses.val();
+    return addresses.val() || {};
   }
 
   /**
@@ -619,6 +619,67 @@ class FirebaseWrapper {
       favoriteFood: dogFavoriteFood
     });
     return newDog.key;
+  }
+
+  /**
+   * Gathers all the dogs for a given user.
+   * @param {string} dogOwnerId The dog owner id of the persons dogs being gathered.
+   */
+  async getAllDogs(dogOwnerId = this.getUid()) {
+    if (_.isNil(dogOwnerId) || !_.isString(dogOwnerId) || dogOwnerId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog owner id cannot be a valid non-empty string');
+    }
+
+    // gather the reference to the dogs and return it.
+    const dogs = await this.database.ref(`users/${dogOwnerId}/dogs`).once('value');
+    return dogs.val() || {};
+  }
+
+  /**
+   * Gets a single dog that is related to a owner, by its id.
+   * @param {string} dogOwnerId The dog owners id (will default to the current dog owner).
+   * @param {string} dogId The id of the dog that is getting gathered.
+   */
+  async getSingleDog(dogOwnerId = this.getUid(), dogId) {
+    if (_.isNil(dogOwnerId) || !_.isString(dogOwnerId) || dogOwnerId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog owner id cannot be a valid non-empty string');
+    }
+
+    if (_.isNil(dogId) || !_.isString(dogId) || dogId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog id cannot be a valid non-empty string');
+    }
+
+    // gather the reference to the dog and return it.
+    const dog = await this.database.ref(`users/${dogOwnerId}/dogs/${dogId}`).once('value');
+    return dog.val();
+  }
+
+  /**
+   * Removes a single dog by the provided dog id and the dog owner id.
+   * @param {string} dogOwnerId The dog owner, who owns the dog being removed.
+   * @param {string} dogId The dog id of the dog being removed.
+   */
+  async removeDog(dogOwnerId = this.getUid(), dogId) {
+    if (_.isNil(dogOwnerId) || !_.isString(dogOwnerId) || dogOwnerId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog owner id cannot be a valid non-empty string');
+    }
+
+    if (_.isNil(dogId) || !_.isString(dogId) || dogId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog id cannot be a valid non-empty string');
+    }
+
+    // return the async method call of removing that dog by the dog owner and the dog id.
+    return this.database.ref(`users/${dogOwnerId}/dogs/${dogId}`).remove();
   }
 
   /**

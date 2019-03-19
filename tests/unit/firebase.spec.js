@@ -709,6 +709,205 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
+  describe('addDog', async () => {
+    // tests for Mukluk.
+  });
+
+  describe('getAllDogs', async () => {
+    // get all dogs related error messages for help with writting cleaner test code.
+    const dogOwnerIdError = new Error('Dog owner id cannot be a valid non-empty string');
+
+    it('Should reject if the dogOwnerId is not a valid string', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing non string related dogOwnerIds.
+      await expect(firebaseWrapper.getAllDogs({ dog: 1 })).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.getAllDogs(false)).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.getAllDogs(['dog'])).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.getAllDogs(() => false)).rejects.toEqual(dogOwnerIdError);
+    });
+
+    it('Should reject if the dogOwnerId is null', async () => {
+      expect.assertions(1);
+
+      // we should not be allowing undefined values.
+      await expect(firebaseWrapper.getAllDogs(null)).rejects.toEqual(dogOwnerIdError);
+    });
+
+    it('Should return a valid list of dogs when called with a valid dog owner id', async () => {
+      expect.assertions(3);
+
+      // first we need to add a couple of dogs, get those dogs ids and validate that they correctly
+      // exist within the newly gathered list of dogs.
+      const beforeDogs = await firebaseWrapper.getAllDogs(userOneId);
+      const beforeDogsCount = _.size(beforeDogs);
+
+      // add two dogs, these ids will be used to validate that they exist in the regathered list of
+      // dogs. If they don't exist it will fail, and it will fail if the count is not correct.
+      const dogOne = await firebaseWrapper.addDog('name', 5, 'race', 'toy', 'food');
+      const dogTwo = await firebaseWrapper.addDog('name', 5, 'race', 'toy', 'food');
+
+      // get the updated amount of dogs and count.
+      const afterDogs = await firebaseWrapper.getAllDogs(userOneId);
+      const afterDogsCount = _.size(afterDogs);
+
+      // get the keys, so we can validate that they exist.
+      const afterKeys = Object.keys(afterDogs);
+
+      // validate the dog coutn is correct and the dogs exist.
+      expect(afterDogsCount).toEqual(beforeDogsCount + 2);
+      expect(afterKeys.includes(dogOne)).toBeTruthy();
+      expect(afterKeys.includes(dogTwo)).toBeTruthy();
+    });
+  });
+
+  describe('getSingleDog', async () => {
+    // get single dog related error messages for help with writting cleaner test code.
+    const dogOwnerIdError = new Error('Dog owner id cannot be a valid non-empty string');
+    const dogIdError = new Error('Dog id cannot be a valid non-empty string');
+
+    it('Should reject if the dogOwnerId is not a valid string', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing non string related dogOwnerIds.
+      await expect(firebaseWrapper.getSingleDog({ dog: 1 }, 'dogid')).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.getSingleDog(false, 'dogid')).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.getSingleDog(['dog'], 'dogid')).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.getSingleDog(() => false, 'dogid')).rejects.toEqual(dogOwnerIdError);
+    });
+
+    it('Should reject if the dogOwnerId is null', async () => {
+      expect.assertions(1);
+
+      // we should not be allowing undefined values.
+      await expect(firebaseWrapper.getSingleDog(null, 'dogid')).rejects.toEqual(dogOwnerIdError);
+    });
+
+    it('Should reject if the dogId is not a valid string', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing non string related dogIds.
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', { dog: 1 })).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', false)).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', ['dog'])).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', () => false)).rejects.toEqual(dogIdError);
+    });
+
+    it('Should reject if the dogId is undefined, null or empty', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing undefined values.
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', undefined)).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', null)).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', '')).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.getSingleDog('dogOwnerId', '  ')).rejects.toEqual(dogIdError);
+    });
+
+    it('Should return a valid dog when called with a valid dog owner id and dog id', async () => {
+      expect.assertions(4);
+
+      // first lets add this dog, we can then use the id of the created dog to regather and validate that the dog correctly exists.
+      const dogObject = {
+        name: 'name',
+        age: 10,
+        race: 'doggy',
+        favoriteToy: 'toy',
+        favoriteFood: 'food'
+      };
+
+      // create the dog.
+      const createdDog = await firebaseWrapper.addDog(
+        dogObject.name,
+        dogObject.age,
+        dogObject.race,
+        dogObject.favoriteToy,
+        dogObject.favoriteFood
+      );
+
+      // validate that the created dog object is not null. Should be a valid string
+      expect(_.isNil(createdDog)).toBeFalsy();
+      expect(_.isString(createdDog)).toBeTruthy();
+
+      // lets validate that we can now regather that dog and it matches correctly.
+      const regatheredDog = await firebaseWrapper.getSingleDog(userOneId, createdDog);
+
+      expect(_.isNil(regatheredDog)).toBeFalsy();
+      expect(regatheredDog).toEqual(dogObject);
+    });
+  });
+
+  describe('removeDog', async () => {
+    // get single dog related error messages for help with writting cleaner test code.
+    const dogOwnerIdError = new Error('Dog owner id cannot be a valid non-empty string');
+    const dogIdError = new Error('Dog id cannot be a valid non-empty string');
+
+    it('Should reject if the dogOwnerId is not a valid string', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing non string related dogOwnerIds.
+      await expect(firebaseWrapper.removeDog({ dog: 1 }, 'dogid')).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.removeDog(false, 'dogid')).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.removeDog(['dog'], 'dogid')).rejects.toEqual(dogOwnerIdError);
+      await expect(firebaseWrapper.removeDog(() => false, 'dogid')).rejects.toEqual(dogOwnerIdError);
+    });
+
+    it('Should reject if the dogOwnerId is null', async () => {
+      expect.assertions(1);
+
+      // we should not be allowing null values.
+      await expect(firebaseWrapper.removeDog(null, 'dogid')).rejects.toEqual(dogOwnerIdError);
+    });
+
+    it('Should reject if the dogId is not a valid string', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing non string related dogIds.
+      await expect(firebaseWrapper.removeDog('dogOwnerId', { dog: 1 })).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.removeDog('dogOwnerId', false)).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.removeDog('dogOwnerId', ['dog'])).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.removeDog('dogOwnerId', () => false)).rejects.toEqual(dogIdError);
+    });
+
+    it('Should reject if the dogId is undefined, null or empty', async () => {
+      expect.assertions(4);
+
+      // we should not be allowing undefined values.
+      await expect(firebaseWrapper.removeDog('dogOwnerId', undefined)).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.removeDog('dogOwnerId', null)).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.removeDog('dogOwnerId', '')).rejects.toEqual(dogIdError);
+      await expect(firebaseWrapper.removeDog('dogOwnerId', '  ')).rejects.toEqual(dogIdError);
+    });
+
+    it('Should remove a valid dog when called with a valid dog owner id and dog id', async () => {
+      expect.assertions(5);
+
+      const dogOne = await firebaseWrapper.addDog('name', 5, 'race', 'toy', 'food');
+      const dogTwo = await firebaseWrapper.addDog('name', 5, 'race', 'toy', 'food');
+
+      const beforeDogs = await firebaseWrapper.getAllDogs(userOneId);
+      const beforeDogsCount = _.size(beforeDogs);
+
+      expect(Object.keys(beforeDogs).includes(dogOne)).toBeTruthy();
+      expect(Object.keys(beforeDogs).includes(dogTwo)).toBeTruthy();
+
+      // lets remove the two dogs.
+      await firebaseWrapper.removeDog(userOneId, dogOne);
+      await firebaseWrapper.removeDog(userOneId, dogTwo);
+
+      // get the updated amount of dogs and count.
+      const afterDogs = await firebaseWrapper.getAllDogs(userOneId);
+      const afterDogsCount = _.size(afterDogs);
+
+      // get the keys, so we can validate that they exist.
+      const afterKeys = Object.keys(afterDogs);
+
+      // validate the dog coutn is correct and the dogs exist.
+      expect(afterDogsCount).toEqual(beforeDogsCount - 2);
+      expect(afterKeys.includes(dogOne)).toBeFalsy();
+      expect(afterKeys.includes(dogTwo)).toBeFalsy();
+    });
+  });
+
   describe('addAddress', async () => {
     // testing and making sure for all properties of the address, that if anyone of the values are
     // not strings then they should be fully rejected, we dont want any addresses being added if
