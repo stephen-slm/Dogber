@@ -1319,20 +1319,54 @@ describe('Firebase Wrapper', async () => {
     // the error message that could error when testing the types and values for a given insert for a
     // given notification. Its easier to have them defined before all the tests start than have them
     // repeatedly typed out constantly. Reducing chance of errors being typed in the tests.
+    const targetError = new Error('targetId cannot be null or empty or not a string');
     const titleError = new Error('title cannot be null or empty or not a string');
     const messageError = new Error('message cannot be null or empty or not a string');
     const actionTypeError = new Error('actionType cannoot be empty or not a string');
     const actionLinkError = new Error('actionLink cannoot be empty or not a string');
+
+    it('Should reject if the target id is a empty string', async () => {
+      expect.assertions(1);
+
+      // target ids are required for where the id should be inserted, if its a empty string we
+      // should reject as there will be no user with a empty id that can insert this kind of data.
+      await expect(firebaseWrapper.createNotification('', null, null, null, null)).rejects.toEqual(
+        targetError
+      );
+    });
+
+    it('Should reject if the target id is null', async () => {
+      expect.assertions(1);
+
+      // target ids are required for where the id should be inserted, if its null we should reject
+      // as there will be no user with a empty id that can insert this kind of data.
+      await expect(firebaseWrapper.createNotification(null, null, null, null, null)).rejects.toEqual(
+        targetError
+      );
+    });
+
+    it('Should reject if the target id is not a string', async () => {
+      expect.assertions(3);
+
+      // shorthand used for better formatted testing.
+      const fire = firebaseWrapper;
+      const id = { id: 'id' };
+
+      await expect(fire.createNotification(['id'], null, null, null, null)).rejects.toEqual(targetError);
+      await expect(fire.createNotification(id, null, null, null, null)).rejects.toEqual(targetError);
+      await expect(fire.createNotification(false, null, null, null, null)).rejects.toEqual(targetError);
+    });
 
     /**
      * Test that we are not going to be putting anything but a string within the database for the
      * title. This allows for better parsing of the notifications on the client side later.
      */
     it('Should reject the title if its a empty string', async () => {
-      expect.assertions(2);
+      expect.assertions(1);
 
-      await expect(firebaseWrapper.createNotification('', null, null, null)).rejects.toEqual(titleError);
-      await expect(firebaseWrapper.createNotification(' ', null, null, null)).rejects.toEqual(titleError);
+      await expect(firebaseWrapper.createNotification(undefined, '', null, null, null)).rejects.toEqual(
+        titleError
+      );
     });
 
     /**
@@ -1341,10 +1375,12 @@ describe('Firebase Wrapper', async () => {
     it('Should reject the title if its null or undefined', async () => {
       expect.assertions(2);
 
-      await expect(firebaseWrapper.createNotification(null, null, null, null)).rejects.toEqual(titleError);
-      await expect(firebaseWrapper.createNotification(undefined, null, null, null)).rejects.toEqual(
+      await expect(firebaseWrapper.createNotification(undefined, null, null, null, null)).rejects.toEqual(
         titleError
       );
+      await expect(
+        firebaseWrapper.createNotification(undefined, undefined, null, null, null)
+      ).rejects.toEqual(titleError);
     });
 
     /**
@@ -1353,7 +1389,7 @@ describe('Firebase Wrapper', async () => {
     it('Should reject the title if its not a string', async () => {
       expect.assertions(1);
 
-      const notification = firebaseWrapper.createNotification(['testing'], null, null, null);
+      const notification = firebaseWrapper.createNotification(undefined, ['testing'], null, null, null);
       await expect(notification).rejects.toEqual(titleError);
     });
 
@@ -1364,10 +1400,10 @@ describe('Firebase Wrapper', async () => {
     it('Should reject the message if its a empty string', async () => {
       expect.assertions(2);
 
-      const notification = firebaseWrapper.createNotification('title', ' ', null, null);
+      const notification = firebaseWrapper.createNotification(undefined, 'title', ' ', null, null);
       await expect(notification).rejects.toEqual(messageError);
 
-      const notificationSpace = firebaseWrapper.createNotification('title', '', null, null);
+      const notificationSpace = firebaseWrapper.createNotification(undefined, 'title', '', null, null);
       await expect(notificationSpace).rejects.toEqual(messageError);
     });
 
@@ -1377,10 +1413,16 @@ describe('Firebase Wrapper', async () => {
     it('Should reject the message if its null or undefined', async () => {
       expect.assertions(2);
 
-      const notification = firebaseWrapper.createNotification('title', null, null, null);
+      const notification = firebaseWrapper.createNotification(undefined, 'title', null, null, null);
       await expect(notification).rejects.toEqual(messageError);
 
-      const notificationUndefined = firebaseWrapper.createNotification('title', undefined, null, null);
+      const notificationUndefined = firebaseWrapper.createNotification(
+        undefined,
+        'title',
+        undefined,
+        null,
+        null
+      );
       await expect(notificationUndefined).rejects.toEqual(messageError);
     });
 
@@ -1389,7 +1431,7 @@ describe('Firebase Wrapper', async () => {
      */
     it('Should reject the message if its not a string', async () => {
       expect.assertions(1);
-      const notification = firebaseWrapper.createNotification('title', ['testing'], null, null);
+      const notification = firebaseWrapper.createNotification(undefined, 'title', ['testing'], null, null);
       await expect(notification).rejects.toEqual(messageError);
     });
 
@@ -1399,10 +1441,10 @@ describe('Firebase Wrapper', async () => {
      */
     it('Should reject the actionType if its not null and if its a empty string', async () => {
       expect.assertions(2);
-      const notification = firebaseWrapper.createNotification('title', 'message', '', null);
+      const notification = firebaseWrapper.createNotification(undefined, 'title', 'message', '', null);
       await expect(notification).rejects.toEqual(actionTypeError);
 
-      const notificationSpace = firebaseWrapper.createNotification('title', 'message', ' ', null);
+      const notificationSpace = firebaseWrapper.createNotification(undefined, 'title', 'message', ' ', null);
       await expect(notificationSpace).rejects.toEqual(actionTypeError);
     });
 
@@ -1412,7 +1454,13 @@ describe('Firebase Wrapper', async () => {
      */
     it('Should reject the actionType if its not null and if its not a string', async () => {
       expect.assertions(1);
-      const notification = firebaseWrapper.createNotification('title', 'message', ['testing'], null);
+      const notification = firebaseWrapper.createNotification(
+        undefined,
+        'title',
+        'message',
+        ['testing'],
+        null
+      );
       await expect(notification).rejects.toEqual(actionTypeError);
     });
 
@@ -1422,10 +1470,22 @@ describe('Firebase Wrapper', async () => {
      */
     it('Should reject the actionLink if its not null and if its a empty string', async () => {
       expect.assertions(2);
-      const notification = firebaseWrapper.createNotification('title', 'message', 'actionType', '');
+      const notification = firebaseWrapper.createNotification(
+        undefined,
+        'title',
+        'message',
+        'actionType',
+        ''
+      );
       await expect(notification).rejects.toEqual(actionLinkError);
 
-      const notificationSpace = firebaseWrapper.createNotification('title', 'message', 'actionType', ' ');
+      const notificationSpace = firebaseWrapper.createNotification(
+        undefined,
+        'title',
+        'message',
+        'actionType',
+        ' '
+      );
       await expect(notificationSpace).rejects.toEqual(actionLinkError);
     });
 
@@ -1435,7 +1495,9 @@ describe('Firebase Wrapper', async () => {
      */
     it('Should reject the actionLink if its not null and if its not a string', async () => {
       expect.assertions(1);
-      const notification = firebaseWrapper.createNotification('title', 'message', 'actionType', ['testing']);
+      const notification = firebaseWrapper.createNotification(undefined, 'title', 'message', 'actionType', [
+        'testing'
+      ]);
       await expect(notification).rejects.toEqual(actionLinkError);
     });
 
@@ -1447,7 +1509,13 @@ describe('Firebase Wrapper', async () => {
     it('Should should return the notification key if the notification has been created', async () => {
       expect.assertions(1);
 
-      const notification = await firebaseWrapper.createNotification('title', 'message', null, null);
+      const notification = await firebaseWrapper.createNotification(
+        undefined,
+        'title',
+        'message',
+        null,
+        null
+      );
       expect(typeof notification).toBe('string');
     });
 
@@ -1460,7 +1528,13 @@ describe('Firebase Wrapper', async () => {
 
       const nontificationSize = _.size(await firebaseWrapper.getNotifications());
 
-      const notification = await firebaseWrapper.createNotification('title-2', 'message-2', null, null);
+      const notification = await firebaseWrapper.createNotification(
+        undefined,
+        'title-2',
+        'message-2',
+        null,
+        null
+      );
       const regathered = await firebaseWrapper.getNotificationByKey(notification);
 
       // test that the given notification actually exists within the database with the correct
@@ -1470,6 +1544,7 @@ describe('Firebase Wrapper', async () => {
       expect(!_.isNil(regathered.timestamp)).toBeTruthy();
 
       const notificationFull = await firebaseWrapper.createNotification(
+        undefined,
         'title-3',
         'message-3',
         'actiontype-3',
@@ -1504,9 +1579,9 @@ describe('Firebase Wrapper', async () => {
       const currentNotifications = await firebaseWrapper.getNotifications();
       const sizeOfCurrent = _.size(currentNotifications);
 
-      const key = await firebaseWrapper.createNotification('title', 'message');
-      const key2 = await firebaseWrapper.createNotification('title2', 'message3');
-      const key3 = await firebaseWrapper.createNotification('title3', 'message3');
+      const key = await firebaseWrapper.createNotification(undefined, 'title', 'message');
+      const key2 = await firebaseWrapper.createNotification(undefined, 'title2', 'message3');
+      const key3 = await firebaseWrapper.createNotification(undefined, 'title3', 'message3');
 
       let updatedNotifications = await firebaseWrapper.getNotifications();
 
