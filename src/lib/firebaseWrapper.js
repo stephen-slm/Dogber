@@ -622,6 +622,45 @@ class FirebaseWrapper {
   }
 
   /**
+   * Gathers all the dogs for a given user.
+   * @param {string} dogOwnerId The dog owner id of the persons dogs being gathered.
+   */
+  async getAllDogs(dogOwnerId = this.getUid()) {
+    if (_.isNil(dogOwnerId) || !_.isString(dogOwnerId) || dogOwnerId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog owner id cannot be a valid non-empty string');
+    }
+
+    // gather the reference to the dogs and return it.
+    const dogs = await this.database.ref(`users/${dogOwnerId}/dogs`).once('value');
+    return dogs.val();
+  }
+
+  /**
+   * Gets a single dog that is related to a owner, by its id.
+   * @param {string} dogOwnerId The dog owners id (will default to the current dog owner).
+   * @param {string} dogId The id of the dog that is getting gathered.
+   */
+  async getSingleDog(dogOwnerId = this.getUid(), dogId) {
+    if (_.isNil(dogOwnerId) || !_.isString(dogOwnerId) || dogOwnerId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog owner id cannot be a valid non-empty string');
+    }
+
+    if (_.isNil(dogId) || !_.isString(dogId) || dogId.trim() === '') {
+      // we must validate that a id of the dog owner is not null, or a non-valid / empty string,
+      // this is due to all firebase related ids all being a stirng.
+      throw new Error('Dog id cannot be a valid non-empty string');
+    }
+
+    // gather the reference to the dog and return it.
+    const dog = await this.database.ref(`users/${dogOwnerId}/dogs/${dogId}`).once('value');
+    return dog.val();
+  }
+
+  /**
    * creates a new user for which is called when a new sign in user happens.
    * @returns {firebase.Promise.<*>}
    */
