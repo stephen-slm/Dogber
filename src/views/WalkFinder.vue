@@ -63,11 +63,16 @@ export default {
   },
 
   created: async function() {
+    // If the account is new redirect to introduction page
     const profile = await firebaseWrapper.getProfile();
 
     if (profile.new) {
       this.$router.push({ name: 'introduction' });
     }
+
+    // for preview information, just generating the displaying data for the given user.
+    const usersReference = await firebaseWrapper.database.ref('users').once('value');
+    const users = usersReference.val();
 
     // Get the current active walkers keys.
     this.userKeys = await firebaseWrapper.getActiveWalkersKeys();
