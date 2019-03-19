@@ -2,15 +2,19 @@
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">{{
+        <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">
+          {{
           getPendingWalkCount()
-        }}</GenericPanel>
+          }}
+        </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">{{
+        <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">
+          {{
           getConfirmedWalks()
-        }}</GenericPanel>
+          }}
+        </GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
@@ -26,7 +30,11 @@
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
-        <GenericPanel bottom-text="Completed Walks" top-text-color="green" :top-text="completedWalks">
+        <GenericPanel
+          bottom-text="Completed Walks"
+          top-text-color="green"
+          :top-text="completedWalks"
+        >
           <v-icon>check</v-icon>
         </GenericPanel>
       </v-flex>
@@ -38,7 +46,7 @@
       </v-flex>
 
       <v-flex xs12 class="calendar-wrapper">
-        <Calendar />
+        <Calendar/>
       </v-flex>
     </v-layout>
   </v-container>
@@ -74,18 +82,25 @@ export default {
     const profile = await firebaseWrapper.getProfile();
     this.walks = await firebaseWrapper.getAllWalks();
 
-    this.name = profile.name;
-    this.image = user.photoURL;
+    // if the profile is new redirect to introduction page
+    if (profile.new) {
+      this.$router.push({ name: 'introduction' });
+    }
 
-    // set all the required data fields on the home page for displaying.
-    this.currentRating = profile.walk.rating / profile.walk.completed;
-    this.completedWalks = profile.walk.completed;
-    this.availableIncome = `£${profile.walk.balance}`;
-    this.milesWalked = profile.walk.miles;
+    if (!_.isNil(profile) && !_.isNil(user)) {
+      this.name = profile.name;
+      this.image = user.photoURL;
 
-    // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
-    // is true then we are just just to set the value back to 0
-    if (_.isNaN(this.currentRating)) this.currentRating = 0;
+      // set all the required data fields on the home page for displaying.
+      this.currentRating = profile.walk.rating / profile.walk.completed;
+      this.completedWalks = profile.walk.completed;
+      this.availableIncome = `£${profile.walk.balance}`;
+      this.milesWalked = profile.walk.miles;
+
+      // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
+      // is true then we are just just to set the value back to 0
+      if (_.isNaN(this.currentRating)) this.currentRating = 0;
+    }
   },
 
   methods: {

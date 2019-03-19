@@ -30,7 +30,12 @@
             <v-select :items="dropdown_date" label="Date"></v-select>
           </v-flex>
           <v-flex xs12>
-            <SingleWalkResult v-for="(item, index) in walks" :key="index" class="walk-history" :id="item" />
+            <SingleWalkResult
+              v-for="(item, index) in walks"
+              :key="index"
+              class="walk-history"
+              :id="item"
+            />
           </v-flex>
         </v-layout>
       </v-container>
@@ -54,6 +59,14 @@ export default {
   },
 
   created: async function() {
+    // get the currenlty authenticated user.
+    const profile = await firebaseWrapper.getProfile();
+
+    // If the profile is new redirect to introduction
+    if (profile.new) {
+      this.$router.push({ name: 'introduction' });
+    }
+
     this.walks = await firebaseWrapper.getAllWalkKeys();
   },
 
