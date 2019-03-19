@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-md text-xs-center>
+  <v-container grid-list-md>
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
@@ -44,7 +44,7 @@
           <v-flex d-flex>
             <v-card>
               <v-card-title>Feedback</v-card-title>
-              <v-card-text grid-list-xl>
+              <v-card-text>
                 <div v-if="feedback.length === 0">No Feedback 😓</div>
                 <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
                   <v-flex shrink>
@@ -66,7 +66,7 @@
                 </v-layout>
               </v-card-text>
 
-              <v-card-actions v-if="canGiveFeedback">
+              <v-card-actions class="text-sm-left" v-if="canGiveFeedback">
                 <GiveFeedback :submit="saveFeedback.bind(this)" />
               </v-card-actions>
             </v-card>
