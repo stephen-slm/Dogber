@@ -97,19 +97,26 @@ class FirebaseWrapper {
 
   /**
    * Gets the notification reference that is used for live notification updates.
+   * @param {string} targetId The target id to gather the notifications reference for.
    */
-  getNotificationReference() {
-    return this.database.ref(`users/${this.getUid()}/notifications`);
+  getNotificationReference(targetId = this.getUid()) {
+    return this.database.ref(`users/${targetId}/notifications`);
   }
 
   /**
    * Adds a new notification to the users data.
+   * @param {string} targetId The id of the given user who will be getting the notification.
    * @param {string} title The title that will be displayed for the given notification.
    * @param {string} message The message that will be getting displayed for the user for the notification.
    * @param {string} actionType The kind of action type. e.g link internal, external etc.
    * @param {string} actionLink If its a link then the action link.
    */
-  async createNotification(title, message, actionType, actionLink) {
+  async createNotification(targetId = this.getUid(), title, message, actionType, actionLink) {
+    // validate target id is not null and a string
+    if (_.isNil(targetId) || !_.isString(targetId) || targetId.trim() === '') {
+      throw new Error('targetId cannot be null or empty or not a string');
+    }
+
     // validate that the passed title is a string, not empty and is not a empty string.
     if (_.isNil(title) || typeof title !== 'string' || title.trim() === '') {
       throw new Error('title cannot be null or empty or not a string');
@@ -130,7 +137,7 @@ class FirebaseWrapper {
       throw new Error('actionLink cannoot be empty or not a string');
     }
 
-    const notificaionsReference = this.getNotificationReference();
+    const notificaionsReference = this.getNotificationReference(targetId);
     const notification = { message, title, timestamp: Date.now() };
 
     // make sure to append the action type and link if they are not null. Otherwise we can just
@@ -159,6 +166,7 @@ class FirebaseWrapper {
       throw new Error('User must be new to have a welcome notification');
 
     return this.createNotification(
+      this.getUid(),
       `Welcome ${this.authentication.currentUser.displayName || 'User'}!`,
       `Welcome to Dogber! Currently in Alpha at version ${
         packageJson.version
@@ -398,6 +406,7 @@ class FirebaseWrapper {
 
     // get the profile so we can store a reference for the name.
     const feedbackerProfile = await this.getProfile(feedbackerId);
+    const feedbackerName = feedbackerProfile.name || feedbackerProfile.email;
 
     // inserts the new feedback for the given target person with the message and reference, we will
     // also store the given name of the feedbacker, this will allow us to have a proper reference
@@ -407,10 +416,22 @@ class FirebaseWrapper {
       feedbacker: {
         id: feedbackerId,
         photo: feedbackerProfile.photo,
-        name: feedbackerProfile.name || feedbackerProfile.email
+        name: feedbackerName
       },
       timestamp: Date.now()
     });
+
+    // lets add the user notification in so that the target id now gets a new notification. This
+    // will have a navigation action to allow the user to quickly navigate to there profile when the
+    // notification comes in, if they are on the profile page then they will see the feedback
+    // instantly.
+    await this.createNotification(
+      targetId,
+      'Feedback 🎉',
+      `${feedbackerName} has left you feedback on your profile!`,
+      'navigation',
+      '/profile/me'
+    );
 
     // returns the related feedback id that was created in insert.
     return feedback.key;

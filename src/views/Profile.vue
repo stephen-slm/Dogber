@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-md text-xs-center>
+  <v-container grid-list-md>
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
@@ -44,7 +44,7 @@
           <v-flex d-flex>
             <v-card>
               <v-card-title>Feedback</v-card-title>
-              <v-card-text grid-list-xl>
+              <v-card-text>
                 <div v-if="feedback.length === 0">No Feedback 😓</div>
                 <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
                   <v-flex shrink>
@@ -66,7 +66,7 @@
                 </v-layout>
               </v-card-text>
 
-              <v-card-actions v-if="canGiveFeedback">
+              <v-card-actions class="text-sm-left" v-if="canGiveFeedback">
                 <GiveFeedback :submit="saveFeedback.bind(this)" />
               </v-card-actions>
             </v-card>
@@ -87,7 +87,7 @@ export default {
   name: 'Profile',
   data: function() {
     return {
-      localUserId: this.$route.params.id || '',
+      localUserId: '',
       profile: {
         walk: { rating: 0, price: { min: 0, max: 0 } }
       },
@@ -101,22 +101,34 @@ export default {
   // on the creation and loading of the profile page, we load the profile and feedback of the given
   // page.
   created: async function() {
-    // if no id was given via the param of the url then we will just fall to setting it as the id of
-    // the current authenticated user, this will lead to always having somethigng being displayed.
-    if (_.isNil(this.localUserId) || this.localUserId === 'me') {
-      this.localUserId = firebaseWrapper.getUid();
-    }
+    return this.initalizePage();
+  },
 
-    // the user should only be able to give feedback to a person who is not themselves
-    if (this.localUserId !== firebaseWrapper.getUid()) {
-      this.canGiveFeedback = true;
-    }
-
-    await this.loadProfile();
-    await this.loadFeedback();
+  watch: {
+    // call again the method if the route changes
+    $route: 'initalizePage'
   },
 
   methods: {
+    initalizePage: async function() {
+      this.localUserId = this.$route.params.id || '';
+      console.log(this.$route.params.id);
+
+      // if no id was given via the param of the url then we will just fall to setting it as the id of
+      // the current authenticated user, this will lead to always having somethigng being displayed.
+      if (_.isNil(this.localUserId) || this.localUserId === 'me') {
+        this.localUserId = firebaseWrapper.getUid();
+      }
+
+      // the user should only be able to give feedback to a person who is not themselves
+      if (this.localUserId !== firebaseWrapper.getUid()) {
+        this.canGiveFeedback = true;
+      }
+
+      await this.loadProfile();
+      await this.loadFeedback();
+    },
+
     // Loads the current profile into the page, this allows us display the related information. This
     // will be used for loading a profile by a given id in the future.
     loadProfile: async function() {
@@ -135,7 +147,7 @@ export default {
 
     // Loads all the feedback for the current authenticated user into the page.
     loadFeedback: async function() {
-      const feedback = await firebaseWrapper.getFeedback();
+      const feedback = await firebaseWrapper.getFeedback(this.localUserId);
 
       if (!_.isNil(feedback)) this.feedback = feedback;
 
