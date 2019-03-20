@@ -86,7 +86,7 @@
               v-for="(item, index) in notifications"
               :notification="item"
               :key="index"
-              :index="index"
+              :index="item.index"
             />
             <NotificationItemNone v-if="notificationCount === 0" />
           </v-list>
@@ -145,7 +145,12 @@ export default {
       // If we are authenticated, then when a new notification is added we will automatically update
       // the ui to display the new notification count.
       notificationReference.on('value', (snapshot) => {
-        this.notifications = _.reverse(_.sortBy(snapshot.val(), (e) => e.timestamp));
+        const notifications = _.map(snapshot.val(), (notification, index) => {
+          notification.index = index;
+          return notification;
+        });
+
+        this.notifications = _.reverse(_.sortBy(notifications, (e) => e.timestamp));
         this.notificationCount = _.size(this.notifications);
       });
     }

@@ -22,9 +22,9 @@
               <v-icon color="blue lighten-2">arrow_forward</v-icon>
             </v-badge>
           </v-btn>
-          <v-btn icon flat @click="dismissNotification">
+          <v-btn icon flat>
             <v-badge>
-              <v-icon color="lighten">clear</v-icon>
+              <v-icon color="lighten" @click="dismissNotification">clear</v-icon>
             </v-badge>
           </v-btn>
         </div>
