@@ -1,5 +1,8 @@
 {
   "rules": {
+    "countries": {
+      ".read": "true"
+    },
     "users": {
       ".read": "true",
       "$userid": {
