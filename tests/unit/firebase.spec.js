@@ -1,5 +1,4 @@
 import _ from 'lodash';
-
 import firebaseWrapper from '../../src/lib/firebaseWrapper';
 
 describe('Firebase Wrapper', async () => {
@@ -1211,6 +1210,20 @@ describe('Firebase Wrapper', async () => {
       expect(updatedAddresses[b]).toEqual({ lineOne: '', city: '', state: '', zip: '', country: '' });
     });
   });
+
+  describe('createWalkRequest', () => {});
+
+  describe('acceptWalkRequest', () => {});
+
+  describe('rejectWalkRequest', () => {});
+
+  describe('completeWalkRequest', () => {});
+
+  describe('getWalkByKey', () => {});
+
+  describe('getAllWalks', () => {});
+
+  describe('getAllWalkKeys', () => {});
 
   /**
    * Testing the implementation process of the user balance incrementing, this will be used when the
