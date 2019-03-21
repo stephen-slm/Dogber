@@ -15,7 +15,7 @@
             <v-select :items="dropdown_date" label="Date"></v-select>
           </v-flex>
           <v-flex xs12>
-            <WalkHistory v-for="item in userKeys" :key="item" class="walk-history" :id="item" />
+            <SingleWalkResult v-for="(item, index) in walks" :key="index" class="walk-history" :id="item" />
           </v-flex>
         </v-layout>
       </v-container>
@@ -24,21 +24,20 @@
 </template>
 
 <script>
-import WalkHistory from '@/components/WalkHistory.vue';
-import firebaseWrapper from '@/lib/firebaseWrapper';
+import SingleWalkResult from '@/components/SingleWalkResult.vue';
 
 export default {
   name: 'Walks',
   data: function() {
     return {
-      localUserId: firebaseWrapper.getUid(),
       dropdown_walkCompleted: ['Yes', 'No'],
-      dropdown_date: ['Ascending', 'Descending']
+      dropdown_date: ['Ascending', 'Descending'],
+      walks: {}
     };
   },
 
   components: {
-    WalkHistory
+    SingleWalkResult
   }
 };
 </script>
