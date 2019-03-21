@@ -59,9 +59,7 @@
                     </div>
                   </v-flex>
                   <v-flex>
-                    <div class="feedback-time text-sm-right">
-                      {{ new Date(item.timestamp).toLocaleDateString() }}
-                    </div>
+                    <div class="feedback-time text-sm-right">{{ getTimeSince(item.timestamp) }}</div>
                   </v-flex>
                 </v-layout>
               </v-card-text>
@@ -79,6 +77,7 @@
 
 <script>
 import _ from 'lodash';
+import * as moment from 'moment';
 
 import firebaseWrapper from '../lib/firebaseWrapper';
 import GiveFeedback from '@/components/GiveFeedback.vue';
@@ -112,7 +111,6 @@ export default {
   methods: {
     initalizePage: async function() {
       this.localUserId = this.$route.params.id || '';
-      console.log(this.$route.params.id);
 
       // if no id was given via the param of the url then we will just fall to setting it as the id of
       // the current authenticated user, this will lead to always having somethigng being displayed.
@@ -170,6 +168,15 @@ export default {
 
       await firebaseWrapper.addFeedback(undefined, this.localUserId, message);
       return true;
+    },
+
+    /**
+     * Gets the notification style time since, this will go for minutes, then days and then months.
+     * Allows the user to always know when a notification occured on the system.
+     * @param {number} timestamp unix time stamp of when it was added.
+     */
+    getTimeSince: function(timestemp) {
+      return moment(timestemp).fromNow();
     }
   },
 
