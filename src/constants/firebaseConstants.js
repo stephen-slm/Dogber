@@ -7,3 +7,12 @@ export const PROFILE_UPDATE_SELECT = ['email', 'name', 'new', 'age', 'phone_numb
 // when a user has a address they will require the below information, anything missing will throw a
 // error and anything more will be filtered out.
 export const PROFILE_ADDRESS = ['lineOne', 'city', 'state', 'zip', 'country'];
+
+// walk state related to a single walk, this will be used to indicate the current process.
+export const WALK_STATUS = {
+  PENDING: 0,
+  ACTIVE: 1,
+  CANCELLED: 2,
+  COMPLETE: 3,
+  REJECTED: 4
+};
