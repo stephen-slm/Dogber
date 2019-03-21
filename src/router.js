@@ -10,6 +10,7 @@ import SignOut from '@/views/SignOut.vue';
 import Login from '@/views/Login.vue';
 import Walks from '@/views/Walks.vue';
 import Home from '@/views/Home.vue';
+import Walk from '@/views/Walk.vue';
 
 Vue.use(Router);
 
@@ -38,6 +39,11 @@ const routes = [
     path: '/walks',
     name: 'walkfinder',
     component: WalkFinder
+  },
+  {
+    path: '/walks/:id',
+    name: 'singlewalk',
+    component: Walk
   },
   {
     path: '/settings',
