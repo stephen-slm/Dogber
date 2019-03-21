@@ -5,10 +5,10 @@
       <v-card>
         <v-card-title class="headline">Delete your account {{ name }}?</v-card-title>
         <v-progress-circular v-if="deleting" indeterminate color="primary"></v-progress-circular>
-        <v-card-text v-if="!deleting"
-          >Deleting your account will remove all records and information Dogber as currently about you. You
-          will no longer exist at all in the system.</v-card-text
-        >
+        <v-card-text v-if="!deleting">
+          Deleting your account will remove all records and information Dogber as currently about you. You
+          will no longer exist at all in the system.
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
 
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import firebaseWrapper from '@/lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper';
 
 export default {
   props: {
