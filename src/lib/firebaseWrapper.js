@@ -165,12 +165,13 @@ class FirebaseWrapper {
     if (!_.isNil(profile.new) && !profile.new)
       throw new Error('User must be new to have a welcome notification');
 
+    const currentVersion = packageJson.version;
+    const displayName = profile.name || profile.email;
+
     return this.createNotification(
       this.getUid(),
-      `Welcome ${this.authentication.currentUser.displayName ||
-        'User'}!``Welcome to Dogber! Currently in Alpha at version ${
-        packageJson.version
-      }, if you have any problems please send feedback via the menu.`
+      `Welcome ${displayName}!`,
+      `Welcome to Dogber! Currently in Alpha at version ${currentVersion}, if you have any problems please send feedback via the menu.`
     );
   }
 
