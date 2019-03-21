@@ -80,7 +80,7 @@
 <script>
 import _ from 'lodash';
 
-import firebaseWrapper from '@/lib/firebaseWrapper.js';
+import firebaseWrapper from '../lib/firebaseWrapper';
 import GiveFeedback from '@/components/GiveFeedback.vue';
 
 export default {
