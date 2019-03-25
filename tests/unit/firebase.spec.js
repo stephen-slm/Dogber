@@ -1452,7 +1452,56 @@ describe('Firebase Wrapper', async () => {
 
   describe('completeWalkRequest', async () => {});
 
-  describe('getWalkByKey', async () => {});
+  describe('getWalkByKey', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+
+    it('Should return the related work with all properties for a given walk key', async () => {
+      // to be consistant, we would first need to properly go and create the given walk, this id of
+      // the given walk will then be used to regather it and validate that its content is what we
+      // are expecting it ot all be.
+      expect.assertions(7);
+
+      const walkId = await createWalk(userTwoId, userOneId, ['d'], new Date(), new Date(), 'Port', 'N/A');
+      const regatheredWalk = await firebaseWrapper.getWalkByKey(walkId);
+
+      // first validate that the regathered walk is not null or undefined.
+      expect(_.isNil(regatheredWalk)).toEqual(false);
+
+      // validating that all the properties we are expecting exists.
+      expect(regatheredWalk.walker).toEqual(userTwoId);
+      expect(regatheredWalk.owner).toEqual(userOneId);
+      expect(regatheredWalk.dogs).toEqual(['d']);
+      expect(regatheredWalk.location).toEqual('Port');
+      expect(regatheredWalk.notes.includes('N/A')).toEqual(true);
+      expect(regatheredWalk.status).toEqual(firebaseConstants.WALK_STATUS.PENDING);
+    });
+
+    it('Should return null if a non-existing walk id is passed', async () => {
+      expect.assertions(1);
+
+      // first lets attempt to gather the walk by the non existing id and then validate that the
+      // value is expected to be null.
+      const nullWalk = await firebaseWrapper.getWalkByKey('notexistingid');
+      await expect(nullWalk).toEqual(null);
+    });
+
+    it('Should reject if the provided id is not a valid string', async () => {
+      // using a single build error message, we can use this to validate all possible cases that can
+      // occure when passing in a invalid related id.
+      expect.assertions(6);
+
+      const invalidIdError = new Error('walk id cannot be null or a invalid/empty string');
+
+      // validate the common cases related to invalid value inputs.
+      await expect(firebaseWrapper.getWalkByKey(null)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getWalkByKey(undefined)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getWalkByKey(['value'])).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getWalkByKey(false)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getWalkByKey(5)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getWalkByKey('    ')).rejects.toEqual(invalidIdError);
+    });
+  });
 
   describe('getAllWalks', async () => {
     // short hand create walk for smaller tests for easier readablility.
@@ -1481,6 +1530,23 @@ describe('Firebase Wrapper', async () => {
 
       expect(!_.isNil(_.find(updatedWalks, (e) => e.id === walkOneId))).toEqual(true);
       expect(!_.isNil(_.find(updatedWalks, (e) => e.id === walkTwoId))).toEqual(true);
+    });
+
+    it('Should reject if the provided id is not a valid string', async () => {
+      // using a single build error message, we can use this to validate all possible cases that can
+      // occure when passing in a invalid related id.
+      expect.assertions(5);
+
+      const invalidIdError = new Error('user id cannot be null or a invalid/empty string');
+
+      // validate the common cases related to invalid value inputs. In this case the undefined will
+      // not be taken into consideration. This is down to the default current authenicated user
+      // being used as a default value if no value is passed
+      await expect(firebaseWrapper.getAllWalks(null)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getAllWalks(['value'])).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getAllWalks(false)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getAllWalks(5)).rejects.toEqual(invalidIdError);
+      await expect(firebaseWrapper.getAllWalks('    ')).rejects.toEqual(invalidIdError);
     });
   });
 
