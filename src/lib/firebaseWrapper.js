@@ -259,6 +259,15 @@ class FirebaseWrapper {
     const ownersProfile = await this.getProfile(ownerId);
     const walkerProfile = await this.getProfile(walkerId);
 
+    const history = [
+      `${ownersProfile.name || ownersProfile.email} has requested a walk to ${walkerProfile.name ||
+        walkerProfile.email}`
+    ];
+
+    if (!_.isNil(notes)) {
+      history.push(`${ownersProfile.name || ownersProfile.email} added notes to the walk!`);
+    }
+
     const newWalkRequest = await this.database.ref(`walks`).push({
       walker: walkerId,
       owner: ownerId,
@@ -266,11 +275,7 @@ class FirebaseWrapper {
       location,
       status: firebaseConstants.WALK_STATUS.PENDING,
       notes: [notes],
-      history: [
-        `${ownersProfile.name || ownersProfile.email} has requested a walk to ${walkerProfile.name ||
-          walkerProfile.email}`,
-        `${ownersProfile.name || ownersProfile.email} added notes to the walk!`
-      ]
+      history
     });
 
     // pull the key from the new walk to be used as the id.

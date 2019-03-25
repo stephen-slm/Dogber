@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import firebaseWrapper from '../../src/lib/firebaseWrapper';
+import * as firebaseConstants from '../../src/constants/firebaseConstants.js';
 
 describe('Firebase Wrapper', async () => {
   // generate a random apendix so that two tests running at any given time will not be clashing when
@@ -1220,7 +1221,7 @@ describe('Firebase Wrapper', async () => {
 
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
-    
+
     it('Should reject if the walk id is null or undefined', async () => {
       expect.assertions(2);
 
@@ -1405,18 +1406,46 @@ describe('Firebase Wrapper', async () => {
       // the given id. This is done instead of keeping two copies for any user.  We must validate
       // that the id exists for both users and that the content of the walk request that was
       // generated matches the parameters that was specified.
-      expect.assertions(2);
+      expect.assertions(8);
 
       // current date used for the date properties for the testing process.
-      const walkRequestId = await createWalk(userTwoId, userOneId, [], new Date(), new Date(), 'Port', 'N/A');
+      const insertD = new Date();
+      const walkRequestId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
 
       // lets first validate the the walkRequestId back is valid, this should at least show that the
       // id was created within firebase.
       expect(_.isNil(walkRequestId)).toEqual(false);
       expect(_.isString(walkRequestId)).toEqual(true);
+
+      // regather the walk object, this will then be used to validate that all the properties have
+      // been created correctly.
+      const walkObject = await firebaseWrapper.getWalkByKey(walkRequestId);
+
+      // validating that all the properties we are expecting exists.
+      expect(walkObject.walker).toEqual(userTwoId);
+      expect(walkObject.owner).toEqual(userOneId);
+      expect(walkObject.dogs).toEqual(['d']);
+      expect(walkObject.location).toEqual('Port');
+      expect(walkObject.notes.includes('N/A')).toEqual(true);
+      expect(walkObject.status).toEqual(firebaseConstants.WALK_STATUS.PENDING);
     });
 
-    it('Should create a notification related to walks for the given walker when a request is created', async () => {});
+    it('Should push the related walk id for the given walker and owner', async () => {
+      // first the creation process needs to take place to get the related id, this id will be used
+      // to validate that the id exists within the  two users. Both users need to have a reference
+      // to this id otherwise there is no way for each user to see there owned and walking walks.
+      const insertD = new Date();
+      const walkRequestId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+
+      const ownerKeys = await firebaseWrapper.getAllWalkKeys(userTwoId);
+      const walkerKeys = await firebaseWrapper.getAllWalkKeys(userOneId);
+
+      debugger;
+
+      // both walker and owner should have references to the walk objects
+      expect(Object.values(ownerKeys).includes(walkRequestId)).toEqual(true);
+      expect(Object.values(walkerKeys).includes(walkRequestId)).toEqual(true);
+    });
   });
 
   describe('acceptWalkRequest', async () => {});
