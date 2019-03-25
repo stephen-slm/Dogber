@@ -1446,11 +1446,149 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
-  describe('acceptWalkRequest', async () => {});
+  describe('acceptWalkRequest', async () => {
+    it('Should reject if the accepter or walk request ids are not valid', async () => {
+      expect.assertions(11);
 
-  describe('rejectWalkRequest', async () => {});
+      // the two possible related errors that can occure if the request or accepter id is not valid.
+      const requestError = new Error('walk request id cannot be null or a invalid/empty string');
+      const accepterError = new Error('accepter id cannot be null or a invalid/empty string');
 
-  describe('completeWalkRequest', async () => {});
+      // short hand accept for cleaner testing.
+      const accept = firebaseWrapper.acceptWalkRequest.bind(firebaseWrapper);
+
+      // validate the common cases related to invalid value inputs.
+      // accepter id does not validate for undefined due to it being replaced with the current
+      // authenticated user if the value is undefined (using default params).
+      await expect(accept(null, 'reqid', 'notes')).rejects.toEqual(accepterError);
+      await expect(accept(['value'], 'reqid', 'notes')).rejects.toEqual(accepterError);
+      await expect(accept(false, 'reqid', 'notes')).rejects.toEqual(accepterError);
+      await expect(accept(5, 'reqid', 'notes')).rejects.toEqual(accepterError);
+      await expect(accept('    ', 'reqid', 'notes')).rejects.toEqual(accepterError);
+
+      await expect(accept('acept', null, 'notes')).rejects.toEqual(requestError);
+      await expect(accept('acept', undefined, 'notes')).rejects.toEqual(requestError);
+      await expect(accept('acept', ['value'], 'notes')).rejects.toEqual(requestError);
+      await expect(accept('acept', false, 'notes')).rejects.toEqual(requestError);
+      await expect(accept('acept', 5, 'notes')).rejects.toEqual(requestError);
+      await expect(accept('acept', '    ', 'notes')).rejects.toEqual(requestError);
+    });
+
+    it('Should reject if notes are set that they are not null, invalid or not a string', async () => {
+      expect.assertions(3);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const accept = firebaseWrapper.acceptWalkRequest.bind(firebaseWrapper);
+
+      // validation and checking that the notes parameter is correctly rejected.
+      const notesAcceptArray = accept('acept', 'walkId', ['notes']);
+      const notesAcceptBool = accept('acept', 'walkId', false);
+      const notesAcceptNum = accept('acept', 'walkId', 5);
+
+      await expect(notesAcceptArray).rejects.toEqual(noteError);
+      await expect(notesAcceptBool).rejects.toEqual(noteError);
+      await expect(notesAcceptNum).rejects.toEqual(noteError);
+    });
+  });
+
+  describe('rejectWalkRequest', async () => {
+    it('Should reject if the rejector or walk request ids are not valid', async () => {
+      expect.assertions(11);
+
+      // the two possible related errors that can occure if the request or accepter id is not valid.
+      const requestError = new Error('walk request id cannot be null or a invalid/empty string');
+      const rejecterError = new Error('rejector id cannot be null or a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const reject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
+
+      // validate the common cases related to invalid value inputs.
+      // accepter id does not validate for undefined due to it being replaced with the current
+      // authenticated user if the value is undefined (using default params).
+      await expect(reject(null, 'reqid', 'notes')).rejects.toEqual(rejecterError);
+      await expect(reject(['value'], 'reqid', 'notes')).rejects.toEqual(rejecterError);
+      await expect(reject(false, 'reqid', 'notes')).rejects.toEqual(rejecterError);
+      await expect(reject(5, 'reqid', 'notes')).rejects.toEqual(rejecterError);
+      await expect(reject('    ', 'reqid', 'notes')).rejects.toEqual(rejecterError);
+
+      await expect(reject('reject', null, 'notes')).rejects.toEqual(requestError);
+      await expect(reject('reject', undefined, 'notes')).rejects.toEqual(requestError);
+      await expect(reject('reject', ['value'], 'notes')).rejects.toEqual(requestError);
+      await expect(reject('reject', false, 'notes')).rejects.toEqual(requestError);
+      await expect(reject('reject', 5, 'notes')).rejects.toEqual(requestError);
+      await expect(reject('reject', '    ', 'notes')).rejects.toEqual(requestError);
+    });
+
+    it('Should reject if notes are set that they are not null, invalid or not a string', async () => {
+      expect.assertions(3);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const reject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
+
+      // validation and checking that the notes parameter is correctly rejected.
+      const notesRejectArray = reject('acept', 'walkId', ['notes']);
+      const notesRejectBool = reject('acept', 'walkId', false);
+      const notesRejectNum = reject('acept', 'walkId', 5);
+
+      await expect(notesRejectArray).rejects.toEqual(noteError);
+      await expect(notesRejectBool).rejects.toEqual(noteError);
+      await expect(notesRejectNum).rejects.toEqual(noteError);
+    });
+  });
+
+  describe('completeWalkRequest', async () => {
+    it('Should reject if the completer or walk request ids are not valid', async () => {
+      expect.assertions(11);
+
+      // the two possible related errors that can occure if the request or accepter id is not valid.
+      const requestError = new Error('walk request id cannot be null or a invalid/empty string');
+      const completeError = new Error('completer id cannot be null or a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const complete = firebaseWrapper.completeWalkRequest.bind(firebaseWrapper);
+
+      // validate the common cases related to invalid value inputs.
+      // accepter id does not validate for undefined due to it being replaced with the current
+      // authenticated user if the value is undefined (using default params).
+      await expect(complete(null, 'reqid', 'notes')).rejects.toEqual(completeError);
+      await expect(complete(['value'], 'reqid', 'notes')).rejects.toEqual(completeError);
+      await expect(complete(false, 'reqid', 'notes')).rejects.toEqual(completeError);
+      await expect(complete(5, 'reqid', 'notes')).rejects.toEqual(completeError);
+      await expect(complete('    ', 'reqid', 'notes')).rejects.toEqual(completeError);
+
+      await expect(complete('complete', null, 'notes')).rejects.toEqual(requestError);
+      await expect(complete('complete', undefined, 'notes')).rejects.toEqual(requestError);
+      await expect(complete('complete', ['value'], 'notes')).rejects.toEqual(requestError);
+      await expect(complete('complete', false, 'notes')).rejects.toEqual(requestError);
+      await expect(complete('complete', 5, 'notes')).rejects.toEqual(requestError);
+      await expect(complete('complete', '    ', 'notes')).rejects.toEqual(requestError);
+    });
+
+    it('Should reject if notes are set that they are not null, invalid or not a string', async () => {
+      expect.assertions(3);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const complete = firebaseWrapper.completeWalkRequest.bind(firebaseWrapper);
+
+      // validation and checking that the notes parameter is correctly rejected.
+      const notesCompleteArray = complete('complete', 'walkId', ['notes']);
+      const notesCompleteBool = complete('complete', 'walkId', false);
+      const notesCompleteNum = complete('complete', 'walkId', 5);
+
+      await expect(notesCompleteArray).rejects.toEqual(noteError);
+      await expect(notesCompleteBool).rejects.toEqual(noteError);
+      await expect(notesCompleteNum).rejects.toEqual(noteError);
+    });
+  });
 
   describe('getWalkByKey', async () => {
     // short hand create walk for smaller tests for easier readablility.

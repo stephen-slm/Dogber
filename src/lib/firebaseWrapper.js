@@ -409,7 +409,7 @@ class FirebaseWrapper {
    * @param {string} notes Any additional notes that are given when rejecting a walk.
    * @memberof FirebaseWrapper
    */
-  async completeWalkRequest(completerId, walkRequestId, notes) {
+  async completeWalkRequest(completerId = this.getUid(), walkRequestId, notes) {
     // ids are required and must be valid otherwise we cannot ensure that we are gathering the
     // correct related walk by a given id.
     if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
