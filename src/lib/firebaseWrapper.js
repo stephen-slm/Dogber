@@ -282,7 +282,7 @@ class FirebaseWrapper {
     this.createNotification(
       walkerId,
       'Walk Request 🏃',
-      `${ownersProfile.name || ownersProfile.email} has request ed a walk from you!`,
+      `${ownersProfile.name || ownersProfile.email} has requested a walk from you!`,
       'navigation',
       `/walks/${newWalkRequestId}`
     );
