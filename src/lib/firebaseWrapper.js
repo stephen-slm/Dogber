@@ -219,7 +219,20 @@ class FirebaseWrapper {
     // the walker, owner and owner dog ids are all related ids that will be set by firebase within
     // the database, these must all not be null, empty or invalid strings. If they are anything but
     // a valid string they will have to be rejected and the creation process stopped.
-    _.forEach([walkerId, ownerId, ownerDogIds], (value) => {
+    _.forEach([walkerId, ownerId], (value) => {
+      if (_.isNil(value) || !_.isString(value) || value.trim() === '') {
+        throw new Error('required ids cannot be null or a invalid/empty string');
+      }
+    });
+
+    // owner dog ids must be a valid array to be used correctly.
+    if (!_.isArray(ownerDogIds)) {
+      throw new Error('owner dog ids must be a valid array');
+    }
+
+    // owner dog ids are arrays of ids and not just a id, so we must validate each entry of the id
+    // to make sure that its properly validating each dog that is being walked.
+    _.forEach(ownerDogIds, (value) => {
       if (_.isNil(value) || !_.isString(value) || value.trim() === '') {
         throw new Error('required ids cannot be null or a invalid/empty string');
       }

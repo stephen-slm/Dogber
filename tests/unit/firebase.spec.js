@@ -1211,19 +1211,128 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
-  describe('createWalkRequest', () => {});
+  describe.only('createWalkRequest', async () => {
+    // the generic error related for the create walk request, this error can and will occure when
+    // the ids are not valid for firebase, making sure that they are valid firebase ids are
+    // required.
+    const createWalKIdError = new Error('required ids cannot be null or a invalid/empty string');
+    const createWalkValidArray = new Error('owner dog ids must be a valid array');
 
-  describe('acceptWalkRequest', () => {});
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest;
 
-  describe('rejectWalkRequest', () => {});
+    it('Should reject if the walk id is null or undefined', async () => {
+      expect.assertions(2);
 
-  describe('completeWalkRequest', () => {});
+      // the two possible requests for null and undefined (not awaited so it will just return a promise)
+      const nullRequest = createWalk(null, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const undefinedRequest = createWalk(undefined, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
 
-  describe('getWalkByKey', () => {});
+      await expect(nullRequest).rejects.toEqual(createWalKIdError);
+      await expect(undefinedRequest).rejects.toEqual(createWalKIdError);
+    });
 
-  describe('getAllWalks', () => {});
+    it('Should reject if the walk id is not a string', async () => {
+      expect.assertions(4);
 
-  describe('getAllWalkKeys', () => {});
+      // the four possible requests for non string values (not awaited so it will just return a promise)
+      const requestArray = createWalk([], 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestBool = createWalk(false, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestObject = createWalk({ walk: 5 }, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestNum = createWalk(5, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+
+      await expect(requestArray).rejects.toEqual(createWalKIdError);
+      await expect(requestBool).rejects.toEqual(createWalKIdError);
+      await expect(requestObject).rejects.toEqual(createWalKIdError);
+      await expect(requestNum).rejects.toEqual(createWalKIdError);
+    });
+
+    it('Should reject if the walk id is a empty string', async () => {
+      expect.assertions(1);
+
+      // the single possible requests for a non empty string (not awaited so it will just return a promise)
+      const requestNotEmpty = createWalk('    ', 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
+    });
+
+    it('Should reject if the owner id is null or undefined', async () => {
+      expect.assertions(2);
+
+      // the two possible requests for null and undefined (not awaited so it will just return a promise)
+      const nullRequest = createWalk('walk', null, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const undefinedRequest = createWalk('walk', undefined, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+
+      await expect(nullRequest).rejects.toEqual(createWalKIdError);
+      await expect(undefinedRequest).rejects.toEqual(createWalKIdError);
+    });
+
+    it('Should reject if the owner id is not a string', async () => {
+      expect.assertions(4);
+
+      // the four possible requests for non string values (not awaited so it will just return a promise)
+      const requestArray = createWalk('walk', [], ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestBool = createWalk('walk', false, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestObject = createWalk('walk', { walk: 5 }, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestNum = createWalk('walk', 5, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+
+      await expect(requestArray).rejects.toEqual(createWalKIdError);
+      await expect(requestBool).rejects.toEqual(createWalKIdError);
+      await expect(requestObject).rejects.toEqual(createWalKIdError);
+      await expect(requestNum).rejects.toEqual(createWalKIdError);
+    });
+
+    it('Should reject if the owner id is a empty string', async () => {
+      expect.assertions(1);
+
+      // the single possible requests for a non empty string (not awaited so it will just return a promise)
+      const requestNotEmpty = createWalk('walk', '    ', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
+    });
+
+    it('Should reject if the owner dog ids is null or undefined', async () => {
+      expect.assertions(2);
+
+      // the two possible requests for null and undefined (not awaited so it will just return a promise)
+      const nullRequest = createWalk('walk', 'owner', null, Date.UTC, Date.UTC, 'loc', 'notes');
+      const undefinedRequest = createWalk('walk', 'owner', undefined, Date.UTC, Date.UTC, 'loc', 'notes');
+
+      await expect(nullRequest).rejects.toEqual(createWalkValidArray);
+      await expect(undefinedRequest).rejects.toEqual(createWalkValidArray);
+    });
+
+    it('Should reject if the owner dog ids is not a string', async () => {
+      expect.assertions(3);
+
+      // the three possible requests for non string values (not awaited so it will just return a promise)
+      const requestBool = createWalk('walk', 'owner', false, Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestObject = createWalk('walk', 'owner', { walk: 5 }, Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestNum = createWalk('walk', 'owner', 5, Date.UTC, Date.UTC, 'loc', 'notes');
+
+      await expect(requestBool).rejects.toEqual(createWalkValidArray);
+      await expect(requestObject).rejects.toEqual(createWalkValidArray);
+      await expect(requestNum).rejects.toEqual(createWalkValidArray);
+    });
+
+    it('Should reject if the owner dog ids is not a valid array of strings', async () => {
+      expect.assertions(1);
+
+      // the single possible requests for a non empty string (not awaited so it will just return a promise)
+      const requestNotEmpty = createWalk('w', 'o', ['dog', null], Date.UTC, Date.UTC, 'loc', 'notes');
+      await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
+    });
+  });
+
+  describe('acceptWalkRequest', async () => {});
+
+  describe('rejectWalkRequest', async () => {});
+
+  describe('completeWalkRequest', async () => {});
+
+  describe('getWalkByKey', async () => {});
+
+  describe('getAllWalks', async () => {});
+
+  describe('getAllWalkKeys', async () => {});
 
   /**
    * Testing the implementation process of the user balance incrementing, this will be used when the
