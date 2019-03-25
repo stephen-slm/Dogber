@@ -240,7 +240,7 @@ class FirebaseWrapper {
 
     // The walk requests rely alot on the date time objects, if they have not been set or are not
     // correct then the full process should be rejected and the creation process stopped / halted.
-    if (!_.isDate(startDateTime) || !_.isDate(endDateTime)) {
+    if (!(startDateTime instanceof Date) || !(endDateTime instanceof Date)) {
       throw new Error('start date time and end date time must be date time objects.');
     }
 
@@ -282,7 +282,7 @@ class FirebaseWrapper {
     this.createNotification(
       walkerId,
       'Walk Request 🏃',
-      `${ownersProfile.name || ownersProfile.email} has requested a walk from you!`,
+      `${ownersProfile.name || ownersProfile.email} has request ed a walk from you!`,
       'navigation',
       `/walks/${newWalkRequestId}`
     );

@@ -1225,8 +1225,16 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(2);
 
       // the two possible requests for null and undefined (not awaited so it will just return a promise)
-      const nullRequest = createWalk(null, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const undefinedRequest = createWalk(undefined, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const nullRequest = createWalk(null, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const undefinedRequest = createWalk(
+        undefined,
+        'owner',
+        ['dog'],
+        new Date(),
+        new Date(),
+        'loc',
+        'notes'
+      );
 
       await expect(nullRequest).rejects.toEqual(createWalKIdError);
       await expect(undefinedRequest).rejects.toEqual(createWalKIdError);
@@ -1236,10 +1244,10 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(4);
 
       // the four possible requests for non string values (not awaited so it will just return a promise)
-      const requestArray = createWalk([], 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestBool = createWalk(false, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestObject = createWalk({ walk: 5 }, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestNum = createWalk(5, 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestArray = createWalk([], 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestBool = createWalk(false, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestObject = createWalk({ walk: 5 }, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestNum = createWalk(5, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
 
       await expect(requestArray).rejects.toEqual(createWalKIdError);
       await expect(requestBool).rejects.toEqual(createWalKIdError);
@@ -1251,7 +1259,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the single possible requests for a non empty string (not awaited so it will just return a promise)
-      const requestNotEmpty = createWalk('    ', 'owner', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestNotEmpty = createWalk('    ', 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
       await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
     });
 
@@ -1259,8 +1267,8 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(2);
 
       // the two possible requests for null and undefined (not awaited so it will just return a promise)
-      const nullRequest = createWalk('walk', null, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const undefinedRequest = createWalk('walk', undefined, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const nullRequest = createWalk('walk', null, ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const undefinedRequest = createWalk('walk', undefined, ['dog'], new Date(), new Date(), 'loc', 'notes');
 
       await expect(nullRequest).rejects.toEqual(createWalKIdError);
       await expect(undefinedRequest).rejects.toEqual(createWalKIdError);
@@ -1270,10 +1278,10 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(4);
 
       // the four possible requests for non string values (not awaited so it will just return a promise)
-      const requestArray = createWalk('walk', [], ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestBool = createWalk('walk', false, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestObject = createWalk('walk', { walk: 5 }, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestNum = createWalk('walk', 5, ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestArray = createWalk('walk', [], ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestBool = createWalk('walk', false, ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestObject = createWalk('walk', { walk: 5 }, ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestNum = createWalk('walk', 5, ['dog'], new Date(), new Date(), 'loc', 'notes');
 
       await expect(requestArray).rejects.toEqual(createWalKIdError);
       await expect(requestBool).rejects.toEqual(createWalKIdError);
@@ -1285,7 +1293,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the single possible requests for a non empty string (not awaited so it will just return a promise)
-      const requestNotEmpty = createWalk('walk', '    ', ['dog'], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestNotEmpty = createWalk('walk', '    ', ['dog'], new Date(), new Date(), 'loc', 'notes');
       await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
     });
 
@@ -1293,8 +1301,8 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(2);
 
       // the two possible requests for null and undefined (not awaited so it will just return a promise)
-      const nullRequest = createWalk('walk', 'owner', null, Date.UTC, Date.UTC, 'loc', 'notes');
-      const undefinedRequest = createWalk('walk', 'owner', undefined, Date.UTC, Date.UTC, 'loc', 'notes');
+      const nullRequest = createWalk('walk', 'owner', null, new Date(), new Date(), 'loc', 'notes');
+      const undefinedRequest = createWalk('walk', 'owner', undefined, new Date(), new Date(), 'loc', 'notes');
 
       await expect(nullRequest).rejects.toEqual(createWalkValidArray);
       await expect(undefinedRequest).rejects.toEqual(createWalkValidArray);
@@ -1304,9 +1312,9 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(3);
 
       // the three possible requests for non string values (not awaited so it will just return a promise)
-      const requestBool = createWalk('walk', 'owner', false, Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestObject = createWalk('walk', 'owner', { walk: 5 }, Date.UTC, Date.UTC, 'loc', 'notes');
-      const requestNum = createWalk('walk', 'owner', 5, Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestBool = createWalk('walk', 'owner', false, new Date(), new Date(), 'loc', 'notes');
+      const requestObject = createWalk('walk', 'owner', { walk: 5 }, new Date(), new Date(), 'loc', 'notes');
+      const requestNum = createWalk('walk', 'owner', 5, new Date(), new Date(), 'loc', 'notes');
 
       await expect(requestBool).rejects.toEqual(createWalkValidArray);
       await expect(requestObject).rejects.toEqual(createWalkValidArray);
@@ -1317,8 +1325,78 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the single possible requests for a non empty string (not awaited so it will just return a promise)
-      const requestNotEmpty = createWalk('w', 'o', ['dog', null], Date.UTC, Date.UTC, 'loc', 'notes');
+      const requestNotEmpty = createWalk('w', 'o', ['dog', null], new Date(), new Date(), 'loc', 'notes');
       await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
+    });
+
+    it('Should reject if the start date time is not a date time value', async () => {
+      expect.assertions(1);
+
+      // validate that if and when the datetime inputs are not a correct date time input,then it should be fully rejected.
+      const dateTimeError = new Error('start date time and end date time must be date time objects.');
+      const dateTimeRequest = createWalk('walk', 'owner', ['dog'], 'date', new Date(), 'loc', 'notes');
+      await expect(dateTimeRequest).rejects.toEqual(dateTimeError);
+    });
+
+    it('Should reject if the end date time is not a date time value', async () => {
+      expect.assertions(1);
+
+      // validate that if and when the datetime inputs are not a correct date time input,then it should be fully rejected.
+      const dateTimeError = new Error('start date time and end date time must be date time objects.');
+      const dateTimeRequest = createWalk('walk', 'owner', ['dog'], new Date(), 'date', 'loc', 'notes');
+      await expect(dateTimeRequest).rejects.toEqual(dateTimeError);
+    });
+
+    it('Should reject if the location is a non empty string', async () => {
+      expect.assertions(1);
+
+      // the related error expected to be thrown when the method is called badly.
+      const locationError = new Error('location cannot be null or a invalid/empty string');
+
+      // validation and checking that the location parameter is correctly rejected.
+      const locationRequest = createWalk('w', 'o', ['dog'], new Date(), new Date(), '     ', 'notes');
+      await expect(locationRequest).rejects.toEqual(locationError);
+    });
+
+    it('Should reject if the location is not a string', async () => {
+      expect.assertions(2);
+
+      // the related error expected to be thrown when the method is called badly.
+      const locationError = new Error('location cannot be null or a invalid/empty string');
+
+      // validation and checking that the location parameter is correctly rejected.
+      const locationRequestBool = createWalk('w', 'o', ['dog'], new Date(), new Date(), false, 'notes');
+      const locationRequestArray = createWalk('w', 'o', ['dog'], new Date(), new Date(), ['string'], 'notes');
+
+      await expect(locationRequestBool).rejects.toEqual(locationError);
+      await expect(locationRequestArray).rejects.toEqual(locationError);
+    });
+
+    it('Should reject non string note if notes are set', async () => {
+      expect.assertions(3);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // validation and checking that the notes parameter is correctly rejected.
+      const notesRequestArray = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', ['notes']);
+      const notesRequestBool = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', false);
+      const notesRequestNum = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', 5);
+
+      await expect(notesRequestArray).rejects.toEqual(noteError);
+      await expect(notesRequestBool).rejects.toEqual(noteError);
+      await expect(notesRequestNum).rejects.toEqual(noteError);
+    });
+
+    it('Should reject empty string notes', async () => {
+      expect.assertions(1);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // validation and checking that the notes parameter is correctly rejected.
+      const notesRequest = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', '   ');
+      await expect(notesRequest).rejects.toEqual(noteError);
     });
   });
 
