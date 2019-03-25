@@ -479,22 +479,19 @@ class FirebaseWrapper {
     }
 
     // first we must get all the keys for the given user and then go and gather all the related walks.
-    const relatedKeys = await this.getAllWalkKeys(userId);
+    const relatedKeys = Object.values(await this.getAllWalkKeys(userId));
 
-    // the array of related walks that is going to be returned once they are all gathered.
-    const relatedWalks = [];
-
-    debugger;
-    
     // iterate through all the keys and gather a walk for each key. This would be faster than
     // gathering them all then applying a filter.
-    _.forEach(Object.values(relatedKeys), async (key) => {
+    const relatedWalks = [];
+
+    for (const keyValue of relatedKeys) {
       relatedWalks.push(
-        await Object.assign(await this.getWalkByKey(key), {
-          id: key
+        Object.assign(await this.getWalkByKey(keyValue), {
+          id: keyValue
         })
       );
-    });
+    }
 
     return relatedWalks;
   }

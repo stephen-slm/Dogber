@@ -1440,8 +1440,6 @@ describe('Firebase Wrapper', async () => {
       const ownerKeys = await firebaseWrapper.getAllWalkKeys(userTwoId);
       const walkerKeys = await firebaseWrapper.getAllWalkKeys(userOneId);
 
-      debugger;
-
       // both walker and owner should have references to the walk objects
       expect(Object.values(ownerKeys).includes(walkRequestId)).toEqual(true);
       expect(Object.values(walkerKeys).includes(walkRequestId)).toEqual(true);
@@ -1456,7 +1454,7 @@ describe('Firebase Wrapper', async () => {
 
   describe('getWalkByKey', async () => {});
 
-  describe.only('getAllWalks', async () => {
+  describe('getAllWalks', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
 
@@ -1466,24 +1464,20 @@ describe('Firebase Wrapper', async () => {
       // all walks gathered.
       expect.assertions(4);
 
-      const currentWalks = await firebaseWrapper.getAllWalks(userOneId);
+      const currentWalks = await firebaseWrapper.getAllWalks(userTwoId);
 
       // create the two walks
       const insertD = new Date();
       const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
       const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
 
-      debugger;
-      
       // assert that new ids dont exist within the old set of walks before regathering the most
       // recent walks.
       expect(!_.isNil(_.find(currentWalks, (e) => e.id === walkOneId))).toEqual(false);
       expect(!_.isNil(_.find(currentWalks, (e) => e.id === walkTwoId))).toEqual(false);
 
       // regather the updated walks to validate that they do now exist.
-      const updatedWalks = await firebaseWrapper.getAllWalks(userOneId);
-
-      debugger;
+      const updatedWalks = await firebaseWrapper.getAllWalks(userTwoId);
 
       expect(!_.isNil(_.find(updatedWalks, (e) => e.id === walkOneId))).toEqual(true);
       expect(!_.isNil(_.find(updatedWalks, (e) => e.id === walkTwoId))).toEqual(true);
