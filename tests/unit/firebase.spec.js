@@ -1219,8 +1219,8 @@ describe('Firebase Wrapper', async () => {
     const createWalkValidArray = new Error('owner dog ids must be a valid array');
 
     // short hand create walk for smaller tests for easier readablility.
-    const createWalk = firebaseWrapper.createWalkRequest;
-
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    
     it('Should reject if the walk id is null or undefined', async () => {
       expect.assertions(2);
 
@@ -1398,6 +1398,25 @@ describe('Firebase Wrapper', async () => {
       const notesRequest = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', '   ');
       await expect(notesRequest).rejects.toEqual(noteError);
     });
+
+    it('Should create a valid walk request for a given user if all properties are correct', async () => {
+      // when the rquest process is complete, both users should have a reference to the walk request
+      // inserted into the users walk section, directing them to a walk request object related to
+      // the given id. This is done instead of keeping two copies for any user.  We must validate
+      // that the id exists for both users and that the content of the walk request that was
+      // generated matches the parameters that was specified.
+      expect.assertions(2);
+
+      // current date used for the date properties for the testing process.
+      const walkRequestId = await createWalk(userTwoId, userOneId, [], new Date(), new Date(), 'Port', 'N/A');
+
+      // lets first validate the the walkRequestId back is valid, this should at least show that the
+      // id was created within firebase.
+      expect(_.isNil(walkRequestId)).toEqual(false);
+      expect(_.isString(walkRequestId)).toEqual(true);
+    });
+
+    it('Should create a notification related to walks for the given walker when a request is created', async () => {});
   });
 
   describe('acceptWalkRequest', async () => {});

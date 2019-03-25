@@ -255,10 +255,11 @@ class FirebaseWrapper {
 
     // first lets push the new walk request onto the walk section of the database and push the walks
     // onto the two users.
+
     const ownersProfile = await this.getProfile(ownerId);
     const walkerProfile = await this.getProfile(walkerId);
 
-    const newWalkRequestId = await this.database.ref(`walks`).push({
+    const newWalkRequest = await this.database.ref(`walks`).push({
       walker: walkerId,
       owner: ownerId,
       dogs: ownerDogIds,
@@ -272,6 +273,9 @@ class FirebaseWrapper {
       ]
     });
 
+    // pull the key from the new walk to be used as the id.
+    const newWalkRequestId = newWalkRequest.key;
+
     // since we now have the walk id we can push the walk id onto each user, making sure that they
     // have a reference to there related walk. This will be followed by letting the other user know
     // that someone has requested a walk for them.
@@ -279,13 +283,15 @@ class FirebaseWrapper {
     await this.database.ref(`users/${walkerId}/walks`).push(newWalkRequestId);
 
     // create the notification for the walker.
-    this.createNotification(
+    await this.createNotification(
       walkerId,
       'Walk Request 🏃',
       `${ownersProfile.name || ownersProfile.email} has requested a walk from you!`,
       'navigation',
       `/walks/${newWalkRequestId}`
     );
+
+    return newWalkRequestId;
   }
 
   /**
