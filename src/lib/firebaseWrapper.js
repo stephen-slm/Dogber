@@ -508,7 +508,7 @@ class FirebaseWrapper {
 
     // grab the reference to the keys section of the given user and return all the keys.
     const keys = await this.database.ref(`users/${userId}/walks`).once('value');
-    return keys.val();
+    return keys.val() || {};
   }
 
   /**

@@ -1212,7 +1212,7 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
-  describe.only('createWalkRequest', async () => {
+  describe('createWalkRequest', async () => {
     // the generic error related for the create walk request, this error can and will occure when
     // the ids are not valid for firebase, making sure that they are valid firebase ids are
     // required.
@@ -1458,7 +1458,36 @@ describe('Firebase Wrapper', async () => {
 
   describe('getAllWalks', async () => {});
 
-  describe('getAllWalkKeys', async () => {});
+  describe.only('getAllWalkKeys', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+
+    it('Should return all walk ids for a given user', async () => {
+      // first we must create the at least two given walks, these ids then can be used to validate
+      // that they exist within the all keys after the keys have been gathered. But first gather the
+      // current ids that we can validate that the newly created ones dont exist before the creation
+      // process.
+      expect.assertions(4);
+
+      const currentKeys = await firebaseWrapper.getAllWalkKeys(userOneId);
+
+      // create the two walks
+      const insertD = new Date();
+      const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+      const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+
+      // assert that new ids dont exist within the old set of keys before regathering the most
+      // recent keys.
+      expect(Object.values(currentKeys).includes(walkOneId)).toEqual(false);
+      expect(Object.values(currentKeys).includes(walkTwoId)).toEqual(false);
+
+      // regather the updated keys to validate that they do now exist.
+      const updatedKeys = await firebaseWrapper.getAllWalkKeys(userOneId);
+
+      expect(Object.values(updatedKeys).includes(walkOneId)).toEqual(true);
+      expect(Object.values(updatedKeys).includes(walkTwoId)).toEqual(true);
+    });
+  });
 
   /**
    * Testing the implementation process of the user balance incrementing, this will be used when the
