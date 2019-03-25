@@ -1456,9 +1456,41 @@ describe('Firebase Wrapper', async () => {
 
   describe('getWalkByKey', async () => {});
 
-  describe('getAllWalks', async () => {});
+  describe.only('getAllWalks', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
 
-  describe.only('getAllWalkKeys', async () => {
+    it('Should return all walks for a given user', async () => {
+      // first we must create a  couple of walks (validating that they don't exist before hand)
+      // These walk related ids will then be used to validate that they correctly exist within the
+      // all walks gathered.
+      expect.assertions(4);
+
+      const currentWalks = await firebaseWrapper.getAllWalks(userOneId);
+
+      // create the two walks
+      const insertD = new Date();
+      const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+      const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+
+      debugger;
+      
+      // assert that new ids dont exist within the old set of walks before regathering the most
+      // recent walks.
+      expect(!_.isNil(_.find(currentWalks, (e) => e.id === walkOneId))).toEqual(false);
+      expect(!_.isNil(_.find(currentWalks, (e) => e.id === walkTwoId))).toEqual(false);
+
+      // regather the updated walks to validate that they do now exist.
+      const updatedWalks = await firebaseWrapper.getAllWalks(userOneId);
+
+      debugger;
+
+      expect(!_.isNil(_.find(updatedWalks, (e) => e.id === walkOneId))).toEqual(true);
+      expect(!_.isNil(_.find(updatedWalks, (e) => e.id === walkTwoId))).toEqual(true);
+    });
+  });
+
+  describe('getAllWalkKeys', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
 

@@ -484,10 +484,16 @@ class FirebaseWrapper {
     // the array of related walks that is going to be returned once they are all gathered.
     const relatedWalks = [];
 
+    debugger;
+    
     // iterate through all the keys and gather a walk for each key. This would be faster than
     // gathering them all then applying a filter.
-    _.forEach(relatedKeys, async (key) => {
-      relatedWalks.push(await this.getWalkByKey(key));
+    _.forEach(Object.values(relatedKeys), async (key) => {
+      relatedWalks.push(
+        await Object.assign(await this.getWalkByKey(key), {
+          id: key
+        })
+      );
     });
 
     return relatedWalks;
