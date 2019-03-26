@@ -44,6 +44,17 @@ describe('Firebase Wrapper', async () => {
    * system. This will run no matter if the tests fail or pass.
    */
   afterAll(async (done) => {
+    const currentWalkKeys = Object.values(await firebaseWrapper.getAllWalkKeys());
+
+    // making sure to clean up and remove all current walks created by the given/authenticated
+    // users. This is required as they are referenced by keys for the users and not stored locally.
+    for (const key of currentWalkKeys) {
+      await firebaseWrapper.database
+        .ref(`walks/${key}`)
+        .remove()
+        .catch(/* do nothing */);
+    }
+
     await firebaseWrapper.deleteAccount();
 
     // authentication as the old account and delete the account as we have two accounts.
