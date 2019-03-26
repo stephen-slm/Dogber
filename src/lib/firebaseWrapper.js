@@ -981,7 +981,8 @@ class FirebaseWrapper {
       age: dogAge,
       race: dogRace,
       favoriteToy: dogFavoriteToy,
-      favoriteFood: dogFavoriteFood
+      favoriteFood: dogFavoriteFood,
+      timestamp: Date.now()
     });
     return newDog.key;
   }
@@ -1045,6 +1046,18 @@ class FirebaseWrapper {
 
     // return the async method call of removing that dog by the dog owner and the dog id.
     return this.database.ref(`users/${dogOwnerId}/dogs/${dogId}`).remove();
+  }
+
+  /**
+   * Gets the dog reference for the dog owner id (defaulting to the current authenticated users
+   * dogs). This can be used to listen to changes, or make direct changes to the users dog section.
+   *
+   * @param {string} [dogOwnerId=this.getUid()] The id of the dog owner who's reference will be gathered.
+   * @returns Database reference.
+   * @memberof FirebaseWrapper
+   */
+  getDogsReference(dogOwnerId = this.getUid()) {
+    return this.database.ref(`users/${dogOwnerId}/dogs`);
   }
 
   /**
