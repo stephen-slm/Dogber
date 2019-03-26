@@ -1458,6 +1458,9 @@ describe('Firebase Wrapper', async () => {
   });
 
   describe('acceptWalkRequest', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+
     it('Should reject if the accepter or walk request ids are not valid', async () => {
       expect.assertions(11);
 
@@ -1503,9 +1506,49 @@ describe('Firebase Wrapper', async () => {
       await expect(notesAcceptBool).rejects.toEqual(noteError);
       await expect(notesAcceptNum).rejects.toEqual(noteError);
     });
+
+    it('Should reject if the accepter is the same as the owner', async () => {
+      expect.assertions(1);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its not being accepted due to the ownership limitation.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+
+      // the error that is expected to occure when accepting a walk as the given owner of the dog.
+      const ownerError = new Error('You cannot accept a walk if you are the owner.');
+
+      // short hand accept for cleaner testing.
+      const accept = firebaseWrapper.acceptWalkRequest.bind(firebaseWrapper);
+      await expect(accept(userOneId, acceptWalk, 'notes')).rejects.toEqual(ownerError);
+    });
+
+    it('Should accept the walk if all required properties are correctly set', async () => {
+      expect.assertions(2);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its beging accepted.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+
+      // short hand accept for cleaner testing. lets accept the walk, the accepting process does
+      // not return anything so we should have to regather the walk object and validate that the
+      // status and history object has been updated.
+      const accept = firebaseWrapper.acceptWalkRequest.bind(firebaseWrapper);
+      await accept(userTwoId, acceptWalk, 'notes');
+
+      // rgathered walk since the accepting process has gone through.
+      const updatedWalk = await firebaseWrapper.getWalkByKey(acceptWalk);
+
+      expect(!_.isNil(updatedWalk)).toEqual(true);
+      expect(updatedWalk.status).toEqual(firebaseConstants.WALK_STATUS.ACTIVE);
+    });
   });
 
   describe('rejectWalkRequest', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+
     it('Should reject if the rejector or walk request ids are not valid', async () => {
       expect.assertions(11);
 
@@ -1551,9 +1594,49 @@ describe('Firebase Wrapper', async () => {
       await expect(notesRejectBool).rejects.toEqual(noteError);
       await expect(notesRejectNum).rejects.toEqual(noteError);
     });
+
+    it('Should reject if the rejector is the same as the owner', async () => {
+      expect.assertions(1);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its not being accepted due to the ownership limitation.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+
+      // the error that is expected to occure when accepting a walk as the given owner of the dog.
+      const ownerError = new Error('You cannot reject a walk if you are the owner, cancel the walk instead');
+
+      // short hand accept for cleaner testing.
+      const reeject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
+      await expect(reeject(userOneId, acceptWalk, 'notes')).rejects.toEqual(ownerError);
+    });
+
+    it('Should reject the walk if all required properties are correctly set', async () => {
+      expect.assertions(2);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its beging accepted.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+
+      // short hand reject for cleaner testing. lets reject the walk, the rejecting process does
+      // not return anything so we should have to regather the walk object and validate that the
+      // status and history object has been updated.
+      const reject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
+      await reject(userTwoId, acceptWalk, 'notes');
+
+      // rgathered walk since the accepting process has gone through.
+      const updatedWalk = await firebaseWrapper.getWalkByKey(acceptWalk);
+
+      expect(!_.isNil(updatedWalk)).toEqual(true);
+      expect(updatedWalk.status).toEqual(firebaseConstants.WALK_STATUS.REJECTED);
+    });
   });
 
   describe('completeWalkRequest', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+
     it('Should reject if the completer or walk request ids are not valid', async () => {
       expect.assertions(11);
 
@@ -1598,6 +1681,27 @@ describe('Firebase Wrapper', async () => {
       await expect(notesCompleteArray).rejects.toEqual(noteError);
       await expect(notesCompleteBool).rejects.toEqual(noteError);
       await expect(notesCompleteNum).rejects.toEqual(noteError);
+    });
+
+    it('Should complete the walk if all required properties are correctly set', async () => {
+      expect.assertions(2);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its beging accepted.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+
+      // short hand complete for cleaner testing. lets complete the walk, the completeing process does
+      // not return anything so we should have to regather the walk object and validate that the
+      // status and history object has been updated.
+      const complete = firebaseWrapper.completeWalkRequest.bind(firebaseWrapper);
+      await complete(userTwoId, acceptWalk, 'notes');
+
+      // rgathered walk since the accepting process has gone through.
+      const updatedWalk = await firebaseWrapper.getWalkByKey(acceptWalk);
+
+      expect(!_.isNil(updatedWalk)).toEqual(true);
+      expect(updatedWalk.status).toEqual(firebaseConstants.WALK_STATUS.COMPLETE);
     });
   });
 
