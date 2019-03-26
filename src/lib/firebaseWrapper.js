@@ -165,12 +165,13 @@ class FirebaseWrapper {
     if (!_.isNil(profile.new) && !profile.new)
       throw new Error('User must be new to have a welcome notification');
 
+    const currentVersion = packageJson.version;
+    const displayName = profile.name || profile.email;
+
     return this.createNotification(
       this.getUid(),
-      `Welcome ${this.authentication.currentUser.displayName || 'User'}!`,
-      `Welcome to Dogber! Currently in Alpha at version ${
-        packageJson.version
-      }, if you have any problems please send feedback via the menu.`
+      `Welcome ${displayName}!`,
+      `Welcome to Dogber! Currently in Alpha at version ${currentVersion}, if you have any problems please send feedback via the menu.`
     );
   }
 
@@ -198,6 +199,319 @@ class FirebaseWrapper {
   async getNotificationByKey(key) {
     const notification = await this.database.ref(`users/${this.getUid()}/notifications/${key}`).once('value');
     return notification.val();
+  }
+
+  /**
+   * Creates a new walk request for the ownerId, requesting the walk with the given walkerId, this
+   * walk will lead to the user walker being able to accept, reject the walk and then complete the
+   * walk once the given time span has actually passed.
+   *
+   * @param {string} walkerId The id of the person who is being requested to perfrom the walk.
+   * @param {string} ownerId The owner of the dog / walk id.
+   * @param {string[]} ownerDogIds The owners dogs that are being walked, array of dog ids.
+   * @param {dateTime} startDateTime The start time of the walk.
+   * @param {dateTime} endDateTime The end time of the walk.
+   * @param {string} location The location the walk will be taking place.
+   * @param {string} notes Any additional information that is taken place for the walk
+   * @memberof FirebaseWrapper
+   */
+  async createWalkRequest(walkerId, ownerId, ownerDogIds, startDateTime, endDateTime, location, notes) {
+    // the walker, owner and owner dog ids are all related ids that will be set by firebase within
+    // the database, these must all not be null, empty or invalid strings. If they are anything but
+    // a valid string they will have to be rejected and the creation process stopped.
+    _.forEach([walkerId, ownerId], (value) => {
+      if (_.isNil(value) || !_.isString(value) || value.trim() === '') {
+        throw new Error('required ids cannot be null or a invalid/empty string');
+      }
+    });
+
+    // owner dog ids must be a valid array to be used correctly.
+    if (!_.isArray(ownerDogIds)) {
+      throw new Error('owner dog ids must be a valid array');
+    }
+
+    // owner dog ids are arrays of ids and not just a id, so we must validate each entry of the id
+    // to make sure that its properly validating each dog that is being walked.
+    _.forEach(ownerDogIds, (value) => {
+      if (_.isNil(value) || !_.isString(value) || value.trim() === '') {
+        throw new Error('required ids cannot be null or a invalid/empty string');
+      }
+    });
+
+    // The walk requests rely alot on the date time objects, if they have not been set or are not
+    // correct then the full process should be rejected and the creation process stopped / halted.
+    if (!(startDateTime instanceof Date) || !(endDateTime instanceof Date)) {
+      throw new Error('start date time and end date time must be date time objects.');
+    }
+
+    // location being a required property must be valid but we only need to validate that the notes
+    // are correct if and only if they are set. If they are null then they just will be ingored
+    // during the creation process.
+    if (_.isNil(location) || !_.isString(location) || location.trim() === '') {
+      throw new Error('location cannot be null or a invalid/empty string');
+    } else if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+      throw new Error('if notes are set, they cannot be a invalid/empty string');
+    }
+
+    // first lets push the new walk request onto the walk section of the database and push the walks
+    // onto the two users.
+
+    const ownersProfile = await this.getProfile(ownerId);
+    const walkerProfile = await this.getProfile(walkerId);
+
+    const history = [
+      `${ownersProfile.name || ownersProfile.email} has requested a walk to ${walkerProfile.name ||
+        walkerProfile.email}`
+    ];
+
+    if (!_.isNil(notes)) {
+      history.push(`${ownersProfile.name || ownersProfile.email} added notes to the walk!`);
+    }
+
+    const newWalkRequest = await this.database.ref(`walks`).push({
+      walker: walkerId,
+      owner: ownerId,
+      dogs: ownerDogIds,
+      location,
+      status: firebaseConstants.WALK_STATUS.PENDING,
+      notes: [notes],
+      history
+    });
+
+    // pull the key from the new walk to be used as the id.
+    const newWalkRequestId = newWalkRequest.key;
+
+    // since we now have the walk id we can push the walk id onto each user, making sure that they
+    // have a reference to there related walk. This will be followed by letting the other user know
+    // that someone has requested a walk for them.
+    await this.database.ref(`users/${ownerId}/walks`).push(newWalkRequestId);
+    await this.database.ref(`users/${walkerId}/walks`).push(newWalkRequestId);
+
+    // create the notification for the walker.
+    await this.createNotification(
+      walkerId,
+      'Walk Request 🏃',
+      `${ownersProfile.name || ownersProfile.email} has requested a walk from you!`,
+      'navigation',
+      `/walks/${newWalkRequestId}`
+    );
+
+    return newWalkRequestId;
+  }
+
+  /**
+   * Accepts the given walk, giving notifications for each user that the notification has been
+   * accepted.
+   *
+   * @param {string} accepterId The person accepting the walk.
+   * @param {string} walkRequestId The walk id of the walk that is being accepted.
+   * @param {string} notes Any additional notes that are given when accepting a walk.
+   * @memberof FirebaseWrapper
+   */
+  async acceptWalkRequest(accepterId = this.getUid(), walkRequestId, notes) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
+      throw new Error('walk request id cannot be null or a invalid/empty string');
+    } else if (_.isNil(accepterId) || !_.isString(accepterId) || accepterId.trim() === '') {
+      throw new Error('accepter id cannot be null or a invalid/empty string');
+    }
+
+    // validate that the notes are correct if and only if they are set. If they are null then they
+    // just will be ingored during the creation process.
+    if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+      throw new Error('if notes are set, they cannot be a invalid/empty string');
+    }
+
+    // gather the related walk so we can give the owner of the dogs a notification about that the
+    // walker has gone and accepted the walk.
+    const walkObject = await this.getWalkByKey(walkRequestId);
+
+    // you cannot accept the walk if you are not the walker.
+    if (walkObject.owner === accepterId) {
+      throw new Error('You cannot accept a walk if you are the owner.');
+    }
+
+    const walkerProfile = await this.getProfile(walkObject.walker);
+    const walkerName = walkerProfile.name || walkerProfile.email;
+
+    // update the walk request as now active, and push to the history object that the walk has accepted the walk.
+    await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.ACTIVE);
+    await this.database.ref(`walks/${walkRequestId}/history`).push(`${walkerName} has accepted the walk.`);
+
+    // create the notification for the walker.
+    this.createNotification(
+      walkObject.owner,
+      'Walk Update 🏃',
+      `${walkerName} has accepted your walk request!`,
+      'navigation',
+      `/walks/${walkRequestId}`
+    );
+  }
+
+  /**
+   * Rejects the given walk, giving notifications the owner that the walk was rejected and could not
+   * be processed.
+   *
+   * @param {string} rejecterId The person rejecting the walk.
+   * @param {string} walkRequestId The walk id of the walk that is being rejected.
+   * @param {string} notes Any additional notes that are given when rejecting a walk.
+   * @memberof FirebaseWrapper
+   */
+
+  async rejectWalkRequest(rejecterId = this.getUid(), walkRequestId, notes) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
+      throw new Error('walk request id cannot be null or a invalid/empty string');
+    } else if (_.isNil(rejecterId) || !_.isString(rejecterId) || rejecterId.trim() === '') {
+      throw new Error('rejector id cannot be null or a invalid/empty string');
+    }
+
+    // validate that the notes are correct if and only if they are set. If they are null then they
+    // just will be ingored during the creation process.
+    if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+      throw new Error('if notes are set, they cannot be a invalid/empty string');
+    }
+
+    // gather the related walk so we can give the owner of the dogs a notification about that the
+    // walker has gone and rejected the walk.
+    const walkObject = await this.getWalkByKey(walkRequestId);
+
+    // you cannot reject the walk if you are not the walker, you have to go through the cancel
+    // process if you are the owner.
+    if (walkObject.owner === rejecterId) {
+      throw new Error('You cannot reject a walk if you are the owner, cancel the walk instead');
+    }
+
+    const walkerProfile = await this.getProfile(walkObject.walker);
+    const walkerName = walkerProfile.name || walkerProfile.email;
+
+    // update the walk request as now active, and push to the history object that the walk has accepted the walk.
+    await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.REJECTED);
+    await this.database.ref(`walks/${walkRequestId}/history`).push(`${walkerName} has rejected the walk.`);
+
+    // create the notification for the walker.
+    this.createNotification(
+      walkObject.owner,
+      'Walk Update 🏃',
+      `${walkerName} has rejected your walk request!`,
+      'navigation',
+      `/walks/${walkRequestId}`
+    );
+  }
+
+  /**
+   * Completes a walk.
+   *
+   * @param {string} completerId The person rejecting the walk.
+   * @param {string} walkRequestId The walk id of the walk that is being completed.
+   * @param {string} notes Any additional notes that are given when rejecting a walk.
+   * @memberof FirebaseWrapper
+   */
+  async completeWalkRequest(completerId = this.getUid(), walkRequestId, notes) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
+      throw new Error('walk request id cannot be null or a invalid/empty string');
+    } else if (_.isNil(completerId) || !_.isString(completerId) || completerId.trim() === '') {
+      throw new Error('completer id cannot be null or a invalid/empty string');
+    }
+
+    // validate that the notes are correct if and only if they are set. If they are null then they
+    // just will be ingored during the creation process.
+    if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+      throw new Error('if notes are set, they cannot be a invalid/empty string');
+    }
+
+    // we gather the walk object so that we can determine who should get the notification about the
+    // update. So that we don't have to send a notification to both parties.
+    const walkObject = await this.getWalkByKey(walkRequestId);
+
+    const completerProfile = await this.getProfile(completerId);
+    const comName = completerProfile.name || completerProfile.email;
+
+    // determine who should be getting the notification related to the walk request going through.
+    let whoGetsNotification = completerId === walkObject.owner ? walkObject.walker : walkObject.owner;
+
+    // update the walk request as now active, and push to the history object that the walk has accepted the walk.
+    await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.COMPLETE);
+    await this.database.ref(`walks/${walkRequestId}/history`).push(`${comName} has completed the walk.`);
+
+    // create the notification for the walker.
+    this.createNotification(
+      whoGetsNotification,
+      'Walk Update 🏃',
+      `${comName} has completed your walk!`,
+      'navigation',
+      `/walks/${walkRequestId}`
+    );
+  }
+
+  /**
+   * Gets a single walk by the id of the wak.
+   *
+   * @param {*} walkId The id of the walk being gathered.
+   * @memberof FirebaseWrapper
+   */
+  async getWalkByKey(walkId) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(walkId) || !_.isString(walkId) || walkId.trim() === '') {
+      throw new Error('walk id cannot be null or a invalid/empty string');
+    }
+
+    const walkObject = await this.database.ref(`walks/${walkId}`).once('value');
+    return walkObject.val();
+  }
+
+  /**
+   * Gets all the related walks for a given user.
+   *
+   * @param {string} userId the current user to who to get all the walk for.
+   * @memberof FirebaseWrapper
+   */
+  async getAllWalks(userId = this.getUid()) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(userId) || !_.isString(userId) || userId.trim() === '') {
+      throw new Error('user id cannot be null or a invalid/empty string');
+    }
+
+    // first we must get all the keys for the given user and then go and gather all the related walks.
+    const relatedKeys = Object.values(await this.getAllWalkKeys(userId));
+
+    // iterate through all the keys and gather a walk for each key. This would be faster than
+    // gathering them all then applying a filter.
+    const relatedWalks = [];
+
+    for (const keyValue of relatedKeys) {
+      relatedWalks.push(
+        Object.assign(await this.getWalkByKey(keyValue), {
+          id: keyValue
+        })
+      );
+    }
+
+    return relatedWalks;
+  }
+
+  /**
+   * Gets all the related walk keys for a given user.
+   *
+   * @param {string} userId the current user to who to get all the walk keys for.
+   * @memberof FirebaseWrapper
+   */
+  async getAllWalkKeys(userId = this.getUid()) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(userId) || !_.isString(userId) || userId.trim() === '') {
+      throw new Error('user id cannot be null or a invalid/empty string');
+    }
+
+    // grab the reference to the keys section of the given user and return all the keys.
+    const keys = await this.database.ref(`users/${userId}/walks`).once('value');
+    return keys.val() || {};
   }
 
   /**
