@@ -3,13 +3,13 @@
     <v-card elevation="0" color="transparent">
       <v-card-title class="subheading text-sm-left">
         {{ profile.name }}'s Dogs
-        <AddDogDialog :show-adding-dog="canAdd"/>
+        <AddDogDialog :show-adding-dog="canAdd" />
       </v-card-title>
       <v-card-text>
         <div v-if="dogs == null">No Dogs 😓</div>
         <v-layout text-xs-center row wrap style="float: left;">
           <v-flex v-for="(item, index) in dogs" :key="item.timestamp">
-            <DogProfile class="dogs-item" :owner-id="ownerId" :id="index" :dog="item"/>
+            <DogProfile class="dogs-item" :owner-id="ownerId" :id="index" :dog="item" />
           </v-flex>
         </v-layout>
       </v-card-text>

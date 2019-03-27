@@ -9,7 +9,7 @@
                 >Dog Walker Profile: {{ profile.name }}</v-card-title
               >
             </v-flex>
-            <v-flex xs6 class="text-sm-right" v-if="!isCurrentUser">
+            <v-flex xs6 class="text-sm-right" v-if="!isCurrentUser" style="margin: auto">
               <RequestWalkDialog
                 :owner-id="authenticatedUserId"
                 :walker-id="localUserId"
