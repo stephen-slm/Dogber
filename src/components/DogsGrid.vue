@@ -6,6 +6,7 @@
         <AddDogDialog :show-adding-dog="canAdd" />
       </v-card-title>
       <v-card-text>
+        <div v-if="dogs == null">No Dogs 😓</div>
         <v-layout text-xs-center row wrap>
           <v-flex v-for="(item, index) in dogs" :key="item.timestamp">
             <DogProfile class="dogs-item" :owner-id="ownerId" :id="index" :dog="item" />

@@ -885,8 +885,10 @@ describe('Firebase Wrapper', async () => {
       expect(_.isNil(createdDog)).toBeFalsy();
       expect(_.isString(createdDog)).toBeTruthy();
 
-      // lets validate that we can now regather that dog and it matches correctly.
+      // lets validate that we can now regather that dog and it matches correctly. Also deleting any
+      // timestamp so it does a equal compare with the content and not including the time stamp.
       const regatheredDog = await firebaseWrapper.getSingleDog(userOneId, createdDog);
+      delete regatheredDog.timestamp;
 
       expect(_.isNil(regatheredDog)).toBeFalsy();
       expect(regatheredDog).toEqual(dogObject);

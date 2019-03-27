@@ -6,17 +6,30 @@
         <v-card-title class="headline">Adding a new dog?</v-card-title>
         <v-card-text>
           <v-container>
-            <v-layout wrap>
-              <v-flex>
-                <v-text-field label="Name" required></v-text-field>
-              </v-flex>
-              <v-flex>
-                <v-text-field label="Age" required></v-text-field>
-              </v-flex>
-              <v-flex>
-                <v-text-field label="Race" required></v-text-field>
-              </v-flex>
-            </v-layout>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-layout wrap>
+                <v-flex>
+                  <v-text-field ref="name" :rules="requiredRules" label="Name" required></v-text-field>
+                </v-flex>
+                <v-flex>
+                  <v-text-field ref="age" :rules="numberRules" label="Age" required></v-text-field>
+                </v-flex>
+                <v-flex>
+                  <v-text-field ref="race" :rules="requiredRules" label="Race" required></v-text-field>
+                </v-flex>
+                <v-flex>
+                  <v-text-field ref="toy" :rules="requiredRules" label="Favorite Toy" required></v-text-field>
+                </v-flex>
+                <v-flex>
+                  <v-text-field
+                    ref="food"
+                    :rules="requiredRules"
+                    label="Favorite Food"
+                    required
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-form>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -31,7 +44,8 @@
 </template>
 
 <script>
-// import firebaseWrapper from '../lib/firebaseWrapper';
+import _ from 'lodash';
+import firebaseWrapper from '../lib/firebaseWrapper';
 
 export default {
   props: {
@@ -47,7 +61,13 @@ export default {
   data: function() {
     return {
       canAdd: false,
-      addingDog: false
+      addingDog: false,
+      valid: true,
+      requiredRules: [(v) => !!v || 'Field is required'],
+      numberRules: [
+        (v) => !!v || 'Field is required',
+        (v) => !_.isNaN(Number(v)) || 'Field must be a number.'
+      ]
     };
   },
 
@@ -58,10 +78,25 @@ export default {
   methods: {
     // adds the new dog from the current authenticated user. This is used when the adding
     // button is pressed.
-    addNewDog: async function() {}
+    addNewDog: async function() {
+      if (this.$refs.form.validate()) {
+        await firebaseWrapper.addDog(
+          this.$refs.name.lazyValue.trim(),
+          Number(this.$refs.age.lazyValue.trim()),
+          this.$refs.race.lazyValue.trim(),
+          this.$refs.toy.lazyValue.trim(),
+          this.$refs.food.lazyValue.trim()
+        );
+
+        this.$refs.form.reset();
+        this.addingDog = false;
+      }
+    }
   },
 
   watch: {
+    // if the props change, we must update the local value to refresh the props (its bad pratice to
+    // do it directly).
     showAddingDog: function(newValue) {
       this.canAdd = newValue;
     }

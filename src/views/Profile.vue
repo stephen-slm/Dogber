@@ -45,7 +45,7 @@
             <v-card>
               <v-card-title>Feedback</v-card-title>
               <v-card-text>
-                <div v-if="feedback.length === 0">No Feedback 😓</div>
+                <div v-if="feedback == null">No Feedback 😓</div>
                 <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
                   <v-flex shrink>
                     <v-avatar size="32px">
@@ -160,8 +160,7 @@ export default {
 
       // if and when new dogs are added, reflect this one the page.
       dogsReference.on('value', (snapshot) => {
-        const dogs = snapshot.val();
-        if (!_.isNil(dogs)) this.dogs = dogs;
+        if (!_.isNil(snapshot)) this.dogs = snapshot.val();
       });
     },
 
@@ -175,8 +174,7 @@ export default {
       const feedbackReference = await firebaseWrapper.getFeedbackReference(this.localUserId);
 
       feedbackReference.on('value', (snapshot) => {
-        const feedback = snapshot.val();
-        if (!_.isNil(feedback)) this.feedback = feedback;
+        if (!_.isNil(snapshot)) this.feedback = snapshot.val();
       });
     },
 

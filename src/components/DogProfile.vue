@@ -9,8 +9,8 @@
         <div class="caption grey--text">{{ dog.race }}</div>
 
         <div class="caption">
-          {{ dog.name }} loves to play with his {{ dog.favoriteFood }} and then rest eating
-          {{ dog.favoriteToy }}
+          {{ dog.name }} loves to play with his {{ dog.favoriteToy }} and then rest eating
+          {{ dog.favoriteFood }}
         </div>
       </div>
     </v-card-text>
