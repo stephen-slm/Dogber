@@ -1,7 +1,7 @@
 <template>
   <v-layout class="request-walk">
     <v-btn v-if="canRequest" @click="requestingWalk = true" flat>Request Walk</v-btn>
-    <v-dialog v-model="requestingWalk" max-width="350">
+    <v-dialog v-model="requestingWalk" max-width="450" :fullscreen="isMobile">
       <v-card>
         <v-card-title class="headline text-sm-center"
           >Walk request to {{ walker.name || walker.email }}</v-card-title
@@ -99,6 +99,23 @@
                     ></v-time-picker>
                   </v-menu>
                 </v-flex>
+                <v-flex>
+                  <v-card-text>Drag the pointer to the location of the walk.</v-card-text>
+                  <GmapMap
+                    ref="mapRef"
+                    :center="location"
+                    :zoom="14"
+                    :options="googleMapsSettings"
+                    class="maps-style"
+                  >
+                    <GmapMarker
+                      :position="location"
+                      :clickable="true"
+                      :draggable="true"
+                      @click="center = location"
+                    />
+                  </GmapMap>
+                </v-flex>
               </v-layout>
             </v-form>
           </v-container>
@@ -176,6 +193,20 @@ export default {
       models: {
         startDate: false,
         startTime: false
+      },
+      // This will be set as the current loading location of the given user. Allows for quickly
+      // jumping to the users location to help with finding a walking location (as generally it will
+      // be related around the user).
+      location: { lat: 1, lng: 1 },
+      // Cleans up the google maps controls to better allow for selecting a location for the user.
+      googleMapsSettings: {
+        zoomControl: true,
+        mapTypeControl: false,
+        scaleControl: true,
+        streetViewControl: false,
+        rotateControl: true,
+        fullscreenControl: false,
+        disableDefaultUi: true
       }
     };
   },
@@ -187,6 +218,15 @@ export default {
     // be the values that are getting displayed on the screen.
     this.walker = await firebaseWrapper.getProfile(this.walkerId);
     this.owner = await firebaseWrapper.getProfile(this.ownerId);
+
+    // load in the current location for the user
+    this.currentLocation();
+  },
+
+  mounted: function() {
+    this.$refs.mapRef.$mapPromise.then((map) => {
+      map.panTo(this.location);
+    });
   },
 
   methods: {
@@ -200,12 +240,24 @@ export default {
         this.$refs.form.reset();
         this.requestingWalk = false;
       }
+    },
+    // sets the current location for the current user based on the geolocation of the device. Used
+    // for helping to select the correc position for the given user on the map.
+    currentLocation() {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.location.lat = position.coords.latitude;
+        this.location.lng = position.coords.longitude;
+      });
     }
   },
 
   computed: {
     computedStartDate() {
       return this.walk.startDate ? moment(this.walk.startDate).format('dddd, MMMM Do YYYY') : '';
+    },
+    // returns true if and only if the display is a mobile device.
+    isMobile: function() {
+      return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     }
   },
 
@@ -224,5 +276,11 @@ export default {
 <style scoped>
 .request-walk {
   float: right;
+}
+
+.maps-style {
+  max-width: 450px;
+  min-width: 250px;
+  min-height: 250px;
 }
 </style>
