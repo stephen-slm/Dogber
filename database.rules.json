@@ -1,5 +1,12 @@
 {
   "rules": {
+    "countries": {
+      ".read": "true"
+    },
+    "walks": {
+      ".read": "true",
+      ".write": "true"
+    },
     "users": {
       ".read": "true",
       "$userid": {

@@ -4,7 +4,7 @@
 
 <script>
 import _ from 'lodash';
-import firebaseWrapper from '@/lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper';
 
 export default {
   name: 'SignOut',
@@ -19,7 +19,7 @@ export default {
       return await firebaseWrapper.authentication.signOut();
     }
 
-    this.$router.push({ name: 'home' });
+    this.$router.push({ name: 'login' });
   }
 };
 </script>

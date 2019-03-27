@@ -34,7 +34,7 @@
 
 <script>
 import _ from 'lodash';
-import firebaseWrapper from '@/lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper';
 
 import Snackbar from '@/components/Snackbar.vue';
 import Loading from '@/components/Loading.vue';
@@ -107,7 +107,7 @@ export default {
       if (_.isNil(login)) return;
 
       const name = _.isNil(login.displayName) ? '' : login.displayName;
-      this.loadingMessage = `Authenticating user${name}`;
+      this.loadingMessage = `Authenticating user ${name}`;
 
       if (reauth || !login.additionalUserInfo.isNewUser) {
         await firebaseWrapper.incrementUsersLoginAcount();

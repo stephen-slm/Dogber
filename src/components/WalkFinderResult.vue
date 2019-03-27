@@ -25,8 +25,8 @@
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
       <v-flex xs12 sm5>
-        <v-btn flat color="primary" :to="profilePath">Profile</v-btn>
-        <v-btn flat>Check Availability</v-btn>
+        <v-btn depressed color="primary" :to="profilePath">Profile</v-btn>
+        <v-btn depressed>Check Availability</v-btn>
       </v-flex>
     </v-layout>
   </v-card>
@@ -34,7 +34,7 @@
 
 <script>
 import _ from 'lodash';
-import firebaseWrapper from '@/lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper';
 
 export default {
   data: function() {

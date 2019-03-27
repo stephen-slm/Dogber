@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-md text-xs-center>
+  <v-container grid-list-md>
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
@@ -44,8 +44,8 @@
           <v-flex d-flex>
             <v-card>
               <v-card-title>Feedback</v-card-title>
-              <v-card-text grid-list-xl>
-                <div v-if="feedback.length === 0">No Feedback 😓</div>
+              <v-card-text>
+                <div v-if="feedback == null">No Feedback 😓</div>
                 <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
                   <v-flex shrink>
                     <v-avatar size="32px">
@@ -59,38 +59,40 @@
                     </div>
                   </v-flex>
                   <v-flex>
-                    <div class="feedback-time text-sm-right">
-                      {{ new Date(item.timestamp).toLocaleDateString() }}
-                    </div>
+                    <div class="feedback-time text-sm-right">{{ getTimeSince(item.timestamp) }}</div>
                   </v-flex>
                 </v-layout>
               </v-card-text>
 
-              <v-card-actions v-if="canGiveFeedback">
+              <v-card-actions class="text-sm-left" v-if="canGiveFeedback">
                 <GiveFeedback :submit="saveFeedback.bind(this)" />
               </v-card-actions>
             </v-card>
           </v-flex>
         </v-layout>
       </v-flex>
+      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId" />
     </v-layout>
   </v-container>
 </template>
 
 <script>
 import _ from 'lodash';
+import * as moment from 'moment';
 
-import firebaseWrapper from '@/lib/firebaseWrapper.js';
+import firebaseWrapper from '../lib/firebaseWrapper';
 import GiveFeedback from '@/components/GiveFeedback.vue';
+import DogsGrid from '@/components/DogsGrid.vue';
 
 export default {
   name: 'Profile',
   data: function() {
     return {
-      localUserId: this.$route.params.id || '',
+      localUserId: '',
       profile: {
         walk: { rating: 0, price: { min: 0, max: 0 } }
       },
+      dogs: {},
       distance: '',
       area: '',
       feedback: [],
@@ -101,22 +103,34 @@ export default {
   // on the creation and loading of the profile page, we load the profile and feedback of the given
   // page.
   created: async function() {
-    // if no id was given via the param of the url then we will just fall to setting it as the id of
-    // the current authenticated user, this will lead to always having somethigng being displayed.
-    if (_.isNil(this.localUserId) || this.localUserId === 'me') {
-      this.localUserId = firebaseWrapper.getUid();
-    }
+    return this.initalizePage();
+  },
 
-    // the user should only be able to give feedback to a person who is not themselves
-    if (this.localUserId !== firebaseWrapper.getUid()) {
-      this.canGiveFeedback = true;
-    }
-
-    await this.loadProfile();
-    await this.loadFeedback();
+  watch: {
+    // call again the method if the route changes
+    $route: 'initalizePage'
   },
 
   methods: {
+    initalizePage: async function() {
+      this.localUserId = this.$route.params.id || '';
+
+      // if no id was given via the param of the url then we will just fall to setting it as the id of
+      // the current authenticated user, this will lead to always having somethigng being displayed.
+      if (_.isNil(this.localUserId) || this.localUserId === 'me') {
+        this.localUserId = firebaseWrapper.getUid();
+      }
+
+      // the user should only be able to give feedback to a person who is not themselves
+      if (this.localUserId !== firebaseWrapper.getUid()) {
+        this.canGiveFeedback = true;
+      }
+
+      await this.loadProfile();
+      await this.loadFeedback();
+      await this.loadProfileDogs();
+    },
+
     // Loads the current profile into the page, this allows us display the related information. This
     // will be used for loading a profile by a given id in the future.
     loadProfile: async function() {
@@ -133,17 +147,34 @@ export default {
       this.area = 'Portsmouth';
     },
 
+    // gets and gathers all the related dogs for the current authenticated user or users profile
+    // page which is being gathered, based on the url path (but this will default to the
+    // authenticated users dogs).
+    loadProfileDogs: async function() {
+      const dogs = await firebaseWrapper.getAllDogs(this.localUserId);
+      if (_.isNil(dogs)) this.dogs = dogs;
+
+      // gathering the reference to the users dogs will allow us to update the displayings dogs when
+      // a new dog is added for the current user.
+      const dogsReference = await firebaseWrapper.getDogsReference(this.localUserId);
+
+      // if and when new dogs are added, reflect this one the page.
+      dogsReference.on('value', (snapshot) => {
+        if (!_.isNil(snapshot)) this.dogs = snapshot.val();
+      });
+    },
+
     // Loads all the feedback for the current authenticated user into the page.
     loadFeedback: async function() {
-      const feedback = await firebaseWrapper.getFeedback();
+      const feedback = await firebaseWrapper.getFeedback(this.localUserId);
 
       if (!_.isNil(feedback)) this.feedback = feedback;
 
       // setup a feedback reference for live updating feedback as the feedback is added.
       const feedbackReference = await firebaseWrapper.getFeedbackReference(this.localUserId);
+
       feedbackReference.on('value', (snapshot) => {
-        const feedback = snapshot.val();
-        if (!_.isNil(feedback)) this.feedback = feedback;
+        if (!_.isNil(snapshot)) this.feedback = snapshot.val();
       });
     },
 
@@ -158,11 +189,21 @@ export default {
 
       await firebaseWrapper.addFeedback(undefined, this.localUserId, message);
       return true;
+    },
+
+    /**
+     * Gets the notification style time since, this will go for minutes, then days and then months.
+     * Allows the user to always know when a notification occured on the system.
+     * @param {number} timestamp unix time stamp of when it was added.
+     */
+    getTimeSince: function(timestemp) {
+      return moment(timestemp).fromNow();
     }
   },
 
   components: {
-    GiveFeedback
+    GiveFeedback,
+    DogsGrid
   }
 };
 </script>
