@@ -1,7 +1,7 @@
 <template>
   <v-card width="200" height="200" class="dog-profile-card">
     <v-card-title class="dog-profile-title">
-      <v-img width="50" height="50" src="https://dogber.co.uk/img/logo.001118af.png" contain/>
+      <v-img width="50" height="50" src="https://dogber.co.uk/img/logo.001118af.png" contain />
     </v-card-title>
     <v-card-text class="dog-profile-text">
       <div>

@@ -71,18 +71,7 @@
           </v-flex>
         </v-layout>
       </v-flex>
-      <v-flex>
-        <v-card elevation="0" color="transparent">
-          <v-card-title class="subheading text-sm-left">{{ profile.name }}'s Dogs</v-card-title>
-          <v-card-text>
-            <v-layout text-xs-center row wrap>
-              <v-flex v-for="(item, index) in dogs" :key="item.timestamp">
-                <DogProfile class="dogs-item" :owner-id="localUserId" :id="index" :dog="item" />
-              </v-flex>
-            </v-layout>
-          </v-card-text>
-        </v-card>
-      </v-flex>
+      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId" />
     </v-layout>
   </v-container>
 </template>
@@ -93,7 +82,7 @@ import * as moment from 'moment';
 
 import firebaseWrapper from '../lib/firebaseWrapper';
 import GiveFeedback from '@/components/GiveFeedback.vue';
-import DogProfile from '@/components/DogProfile.vue';
+import DogsGrid from '@/components/DogsGrid.vue';
 
 export default {
   name: 'Profile',
@@ -136,8 +125,6 @@ export default {
       if (this.localUserId !== firebaseWrapper.getUid()) {
         this.canGiveFeedback = true;
       }
-
-      debugger;
 
       await this.loadProfile();
       await this.loadFeedback();
@@ -218,7 +205,7 @@ export default {
 
   components: {
     GiveFeedback,
-    DogProfile
+    DogsGrid
   }
 };
 </script>
