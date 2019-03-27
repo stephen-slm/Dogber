@@ -45,7 +45,7 @@
             <v-card>
               <v-card-title>Feedback</v-card-title>
               <v-card-text>
-                <div v-if="feedback.length === 0">No Feedback 😓</div>
+                <div v-if="feedback == null">No Feedback 😓</div>
                 <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
                   <v-flex shrink>
                     <v-avatar size="32px">
@@ -71,6 +71,7 @@
           </v-flex>
         </v-layout>
       </v-flex>
+      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId" />
     </v-layout>
   </v-container>
 </template>
@@ -81,6 +82,7 @@ import * as moment from 'moment';
 
 import firebaseWrapper from '../lib/firebaseWrapper';
 import GiveFeedback from '@/components/GiveFeedback.vue';
+import DogsGrid from '@/components/DogsGrid.vue';
 
 export default {
   name: 'Profile',
@@ -90,6 +92,7 @@ export default {
       profile: {
         walk: { rating: 0, price: { min: 0, max: 0 } }
       },
+      dogs: {},
       distance: '',
       area: '',
       feedback: [],
@@ -125,6 +128,7 @@ export default {
 
       await this.loadProfile();
       await this.loadFeedback();
+      await this.loadProfileDogs();
     },
 
     // Loads the current profile into the page, this allows us display the related information. This
@@ -143,6 +147,23 @@ export default {
       this.area = 'Portsmouth';
     },
 
+    // gets and gathers all the related dogs for the current authenticated user or users profile
+    // page which is being gathered, based on the url path (but this will default to the
+    // authenticated users dogs).
+    loadProfileDogs: async function() {
+      const dogs = await firebaseWrapper.getAllDogs(this.localUserId);
+      if (_.isNil(dogs)) this.dogs = dogs;
+
+      // gathering the reference to the users dogs will allow us to update the displayings dogs when
+      // a new dog is added for the current user.
+      const dogsReference = await firebaseWrapper.getDogsReference(this.localUserId);
+
+      // if and when new dogs are added, reflect this one the page.
+      dogsReference.on('value', (snapshot) => {
+        if (!_.isNil(snapshot)) this.dogs = snapshot.val();
+      });
+    },
+
     // Loads all the feedback for the current authenticated user into the page.
     loadFeedback: async function() {
       const feedback = await firebaseWrapper.getFeedback(this.localUserId);
@@ -151,9 +172,9 @@ export default {
 
       // setup a feedback reference for live updating feedback as the feedback is added.
       const feedbackReference = await firebaseWrapper.getFeedbackReference(this.localUserId);
+
       feedbackReference.on('value', (snapshot) => {
-        const feedback = snapshot.val();
-        if (!_.isNil(feedback)) this.feedback = feedback;
+        if (!_.isNil(snapshot)) this.feedback = snapshot.val();
       });
     },
 
@@ -181,7 +202,8 @@ export default {
   },
 
   components: {
-    GiveFeedback
+    GiveFeedback,
+    DogsGrid
   }
 };
 </script>
