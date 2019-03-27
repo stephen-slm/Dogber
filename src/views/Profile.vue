@@ -3,16 +3,27 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-text class="subheading text-sm-left gray lighten-1"
-            >Dog Walker Profile: {{ profile.name }}</v-card-text
-          >
+          <v-layout row wrap>
+            <v-flex xs6>
+              <v-card-title
+                primary
+                class="subheading text-sm-left"
+              >Dog Walker Profile: {{ profile.name }}</v-card-title>
+            </v-flex>
+            <v-flex xs6 class="text-sm-right" v-if="!isCurrentUser">
+              <v-btn flat @click="showRequestWalkDialog">
+                <span>Request Walk</span>
+              </v-btn>
+            </v-flex>
+          </v-layout>
         </v-card>
       </v-flex>
-      <v-flex xs12 sm6 md4>
+
+      <v-flex xs12 sm6 md4 row wrap>
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
-              <img :src="profile.photo" alt="avatar" />
+              <img :src="profile.photo" alt="avatar">
             </v-avatar>
             <div class="core-text">
               <div style="text-align: center; margin-left: -50px;">
@@ -46,10 +57,16 @@
               <v-card-title>Feedback</v-card-title>
               <v-card-text>
                 <div v-if="feedback == null">No Feedback 😓</div>
-                <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
+                <v-layout
+                  class="feedback-item"
+                  row
+                  wrap
+                  v-for="item in feedback"
+                  :key="item.timestamp"
+                >
                   <v-flex shrink>
                     <v-avatar size="32px">
-                      <img :src="item.feedbacker.photo" alt="Dogber" />
+                      <img :src="item.feedbacker.photo" alt="Dogber">
                     </v-avatar>
                   </v-flex>
                   <v-flex>
@@ -64,14 +81,14 @@
                 </v-layout>
               </v-card-text>
 
-              <v-card-actions class="text-sm-left" v-if="canGiveFeedback">
-                <GiveFeedback :submit="saveFeedback.bind(this)" />
+              <v-card-actions class="text-sm-left" v-if="!isCurrentUser">
+                <GiveFeedback :submit="saveFeedback.bind(this)"/>
               </v-card-actions>
             </v-card>
           </v-flex>
         </v-layout>
       </v-flex>
-      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId" />
+      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId"/>
     </v-layout>
   </v-container>
 </template>
@@ -96,7 +113,7 @@ export default {
       distance: '',
       area: '',
       feedback: [],
-      canGiveFeedback: false
+      isCurrentUser: false
     };
   },
 
@@ -122,8 +139,8 @@ export default {
       }
 
       // the user should only be able to give feedback to a person who is not themselves
-      if (this.localUserId !== firebaseWrapper.getUid()) {
-        this.canGiveFeedback = true;
+      if (this.localUserId === firebaseWrapper.getUid()) {
+        this.isCurrentUser = true;
       }
 
       await this.loadProfile();
