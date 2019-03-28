@@ -767,7 +767,58 @@ describe('Firebase Wrapper', async () => {
   });
 
   describe('addDog', async () => {
-    // tests for Mukluk.
+    // Get all add dog related errors messages for help with writting cleaner test code.
+    const errorDogName = new Error("Dog name cannot be empty and must be a string");
+    const errorDogAge = new Error('Dog age cannot be empty and must be a number');
+    const errorDogRace = new Error('Dog race cannot be empty and must be a string');
+    const errorDogFavoriteToy = new Error('Dogs favorite toy cannot be empty and must be a string');
+    const errorDogFavoriteFood = new Error('Dogs favorite food cannot be empty and must be a string');
+
+    it('Should reject if the name of dog is invalid', async()=>{
+      expect.assertions(4);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogName)
+      await expect(firebaseWrapper.addDog(1,1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(true,1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(0.1,1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(["Maria"],1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
+    });
+
+    it('Shoud reject if the age of dog is invalid', async()=>{
+      expect.assertions(3);
+
+      // It should reject all non-numeric values passed to the function addDog (parameter: dogAge)
+      await expect(firebaseWrapper.addDog("Lara","1","Doberman","Ball","Pizza")).rejects.toEqual(errorDogAge);
+      await expect(firebaseWrapper.addDog("Lara",[1],"Doberman","Ball","Pizza")).rejects.toEqual(errorDogAge);
+      await expect(firebaseWrapper.addDog("Lara",false,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogAge);
+    });
+
+    it('Shoud reject if the race of dog is invalid', async()=>{
+      expect.assertions(3);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogRace)
+      await expect(firebaseWrapper.addDog("Lara",1,5,"Ball","Pizza")).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog("Lara",1,false,"Ball","Pizza")).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog("Lara",1,["Doberman"],"Ball","Pizza")).rejects.toEqual(errorDogRace);
+    });
+
+    it('Shoud reject if the favorite toy of dog is invalid', async()=>{
+      expect.assertions(3);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogFavoriteToy)
+      await expect(firebaseWrapper.addDog("Lara",1,"Doberman",["Ball"],"Pizza")).rejects.toEqual(errorDogFavoriteToy);
+      await expect(firebaseWrapper.addDog("Lara",1,"Doberman",false,"Pizza")).rejects.toEqual(errorDogFavoriteToy);
+      await expect(firebaseWrapper.addDog("Lara",1,"Doberman",9,"Pizza")).rejects.toEqual(errorDogFavoriteToy);
+    });
+
+    it('Shoud reject if the favorite toy of dog is invalid', async()=>{
+      expect.assertions(3);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogFavoriteFood)
+      await expect(firebaseWrapper.addDog("Lara",1,"Doberman","Ball",["Pizza"])).rejects.toEqual(errorDogFavoriteFood);
+      await expect(firebaseWrapper.addDog("Lara",1,"Doberman","Ball",true)).rejects.toEqual(errorDogFavoriteFood);
+      await expect(firebaseWrapper.addDog("Lara",1,"Doberman","Ball",1)).rejects.toEqual(errorDogFavoriteFood);
+    });
   });
 
   describe('getAllDogs', async () => {
