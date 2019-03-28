@@ -1,16 +1,16 @@
 <template>
   <v-card>
     <v-layout align-baseline>
-      <v-flex xs12 sm1>
+      <v-flex xs12 sm1 style="margin: auto">
         <v-avatar color="grey lighten-4">
           <img :src="userProfile.photo" alt="avatar" />
         </v-avatar>
       </v-flex>
-      <v-flex xs12 sm3>
-        <div>Name: {{ userProfile.name }}</div>
+      <v-flex xs12 sm3 style="margin: auto">
+        <div>Name: {{ userProfile.name || 'User' }}</div>
         <div>Price Range: £{{ userProfile.walk.price.min }} - £{{ userProfile.walk.price.max }} (/h)</div>
       </v-flex>
-      <v-flex xs12 sm3>
+      <v-flex xs12 sm3 style="margin: auto">
         <div class="rating-inline">
           <div style="padding-right: 5px">Rating:</div>
           <v-rating
@@ -24,7 +24,7 @@
         </div>
         <div>Distance: {{ userProfile.walk.distance }} Miles</div>
       </v-flex>
-      <v-flex xs12 sm5>
+      <v-flex xs12 sm5 style="margin: auto">
         <v-btn depressed color="primary" :to="profilePath">Profile</v-btn>
         <v-btn depressed>Check Availability</v-btn>
       </v-flex>
@@ -34,7 +34,7 @@
 
 <script>
 import _ from 'lodash';
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 
 export default {
   data: function() {

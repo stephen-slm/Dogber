@@ -247,9 +247,11 @@ class FirebaseWrapper {
     // location being a required property must be valid but we only need to validate that the notes
     // are correct if and only if they are set. If they are null then they just will be ingored
     // during the creation process.
-    if (_.isNil(location) || !_.isString(location) || location.trim() === '') {
-      throw new Error('location cannot be null or a invalid/empty string');
-    } else if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+    if (_.isNil(location) || _.isNil(location.lat) || _.isNil(location.lng)) {
+      throw new Error('location cannot be null and must contain lat and long');
+    }
+
+    if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
       throw new Error('if notes are set, they cannot be a invalid/empty string');
     }
 
@@ -264,17 +266,22 @@ class FirebaseWrapper {
         walkerProfile.email}`
     ];
 
+    const notesToPush = [];
+
     if (!_.isNil(notes)) {
       history.push(`${ownersProfile.name || ownersProfile.email} added notes to the walk!`);
+      notesToPush.push(notes);
     }
 
     const newWalkRequest = await this.database.ref(`walks`).push({
       walker: walkerId,
       owner: ownerId,
       dogs: ownerDogIds,
+      start: startDateTime.toJSON(),
+      end: endDateTime.toJSON(),
       location,
       status: firebaseConstants.WALK_STATUS.PENDING,
-      notes: [notes],
+      notes: notesToPush,
       history
     });
 

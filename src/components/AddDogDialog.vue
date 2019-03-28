@@ -45,7 +45,7 @@
 
 <script>
 import _ from 'lodash';
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 
 export default {
   props: {

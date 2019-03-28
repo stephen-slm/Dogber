@@ -300,7 +300,7 @@
 </template>
 
 <script>
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 export default {
   name: 'Introduction',
   data() {
