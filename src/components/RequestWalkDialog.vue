@@ -148,7 +148,7 @@
 <script>
 import _ from 'lodash';
 import moment from 'moment';
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 
 export default {
   props: {
@@ -242,8 +242,6 @@ export default {
       dog.id = index;
       return dog;
     });
-
-    console.log(this.ownerDogs);
 
     // load in the current location for the user
     this.currentLocation();

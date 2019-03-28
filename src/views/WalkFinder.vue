@@ -46,7 +46,7 @@
 
 <script>
 import WalkFinderResult from '@/components/WalkFinderResult.vue';
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 
 export default {
   name: 'WalkFinder',

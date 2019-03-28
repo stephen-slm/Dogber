@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 import DeleteAccountAgreement from '@/components/DeleteAccountAgreement.vue';
 
 export default {

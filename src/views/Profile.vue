@@ -92,7 +92,7 @@
 import _ from 'lodash';
 import * as moment from 'moment';
 
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 import GiveFeedback from '@/components/GiveFeedback.vue';
 import DogsGrid from '@/components/DogsGrid.vue';
 import RequestWalkDialog from '@/components/RequestWalkDialog.vue';

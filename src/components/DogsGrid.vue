@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 import DogProfile from '@/components/DogProfile.vue';
 import AddDogDialog from '@/components/AddDogDialog.vue';
 
