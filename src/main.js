@@ -14,7 +14,8 @@ Vue.use(Vuetify);
 Vue.use(VueGoogleMaps, {
   load: {
     key: 'AIzaSyDgafZMqcjBGFyYXLu9os5SP_SWXWt27NI',
-    v: '3.36'
+    v: '3.36',
+    useBetaRenderer: true
   }
 });
 

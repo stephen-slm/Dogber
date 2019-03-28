@@ -107,14 +107,13 @@
                     :zoom="14"
                     :options="googleMapsSettings"
                     class="maps-style"
+                    @click="onMapClick"
                   >
-                    <GmapMarker
-                      :position="location"
-                      :clickable="true"
-                      :draggable="true"
-                      @click="center = location"
-                    />
+                    <GmapMarker ref="mapMarkerRef" :position="location" :clickable="true" :draggable="true" />
                   </GmapMap>
+                </v-flex>
+                <v-flex style="margin-top: 25px">
+                  <v-text-field label="Notes" v-model="walker.notes"></v-text-field>
                 </v-flex>
               </v-layout>
             </v-form>
@@ -123,7 +122,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn flat="flat" @click="requestingWalk = false">Cancel</v-btn>
-          <v-btn color="primary" flat="flat" @click="addNewDog()">Request</v-btn>
+          <v-btn color="primary" flat="flat" @click="addWalkRequest()">Request</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -186,7 +185,8 @@ export default {
         startDate: null,
         endTime: null,
         endDate: null,
-        location: ''
+        location: { lat: 1, lng: 1 },
+        notes: ''
       },
       // panel based models, these models are used to show and hide the different kinds of inputs,
       // including date/time inputs. dropdowns and any releated popups.
@@ -234,8 +234,22 @@ export default {
     // will attempt to request the walk within the firebase wrapper, creating the walk for all
     // users. Making sure to reset the form and close it after completing.
     addWalkRequest: async function() {
+      // update the marker location for the given walk before attempting to validate it.
+      const marker = await this.$refs.mapMarkerRef.$markerPromise;
+      this.walk.location = { lat: marker.position.lat(), lng: marker.position.lng() };
+
       if (this.$refs.form.validate()) {
-        await firebaseWrapper.createWalkRequest(this.walkerId, this.ownerId, [], new Date(), new Date(), '');
+        const { location, notes } = this.walk;
+
+        await firebaseWrapper.createWalkRequest(
+          this.walkerId,
+          this.ownerId,
+          [],
+          new Date(),
+          new Date(),
+          location,
+          notes
+        );
 
         this.$refs.form.reset();
         this.requestingWalk = false;
@@ -243,10 +257,11 @@ export default {
     },
     // sets the current location for the current user based on the geolocation of the device. Used
     // for helping to select the correc position for the given user on the map.
-    currentLocation() {
+    currentLocation: function() {
       navigator.geolocation.getCurrentPosition((position) => {
         this.location.lat = position.coords.latitude;
         this.location.lng = position.coords.longitude;
+        this.walk.location = this.location;
       });
     }
   },
