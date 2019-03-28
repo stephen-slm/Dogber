@@ -107,7 +107,6 @@
                     :zoom="14"
                     :options="googleMapsSettings"
                     class="maps-style"
-                    @click="onMapClick"
                   >
                     <GmapMarker ref="mapMarkerRef" :position="location" :clickable="true" :draggable="true" />
                   </GmapMap>
@@ -248,7 +247,7 @@ export default {
           new Date(),
           new Date(),
           location,
-          notes
+          notes.trim() === '' ? undefined : notes
         );
 
         this.$refs.form.reset();
