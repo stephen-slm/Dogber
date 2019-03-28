@@ -35,6 +35,7 @@
                         label="Walk Date"
                         readonly
                         v-on="on"
+                        required
                       ></v-text-field>
                     </template>
                     <v-date-picker
@@ -61,6 +62,7 @@
                         v-model="walk.startTime"
                         label="Start Time"
                         readonly
+                        required
                         v-on="on"
                       ></v-text-field>
                     </template>
@@ -89,6 +91,7 @@
                         v-model="walk.endTime"
                         label="End Time"
                         readonly
+                        required
                         v-on="on"
                       ></v-text-field>
                     </template>
@@ -98,6 +101,20 @@
                       @click:minute="$refs.endTimeMenu.save(walk.endTime)"
                     ></v-time-picker>
                   </v-menu>
+                </v-flex>
+                <v-flex>
+                  <v-select
+                    ref="dogs"
+                    v-model="walk.dogs"
+                    :items="ownerDogs"
+                    label="Dog Selection"
+                    placeholder="Select a Dog"
+                    required
+                    auto-select-first
+                    item-text="name"
+                    item-value="id"
+                    multiple
+                  ></v-select>
                 </v-flex>
                 <v-flex>
                   <v-card-text>Drag the pointer to the location of the walk.</v-card-text>
@@ -112,7 +129,7 @@
                   </GmapMap>
                 </v-flex>
                 <v-flex style="margin-top: 25px">
-                  <v-text-field label="Notes" v-model="walker.notes"></v-text-field>
+                  <v-text-field label="Notes" v-model="walk.notes"></v-text-field>
                 </v-flex>
               </v-layout>
             </v-form>
@@ -129,6 +146,7 @@
 </template>
 
 <script>
+import _ from 'lodash';
 import moment from 'moment';
 import firebaseWrapper from '../lib/firebaseWrapper';
 
@@ -159,12 +177,13 @@ export default {
     return {
       // The walkers profile object, this is the person who will be walking the dog. This object is
       // going to be reflecting the persons profile, used for displaying reasons.
-      walker: {
-        name: 'test'
-      },
+      walker: {},
       // The owners profile object, this is the person who will be owning the dog. This object is
       // going to be reflecting the persons profile, used for displaying reasons.
       owner: {},
+      // the list of all the owner dogs, this is due to the current user selecting what dog or dogs
+      // they want walked during the requesting process.
+      ownerDogs: [],
       // if the given person can be requesting walks, generally related around if they are the
       // current person on the profile or not, as you cannot request a walk for yourself. This
       // reflects if the button to show the form should be displayed.
@@ -183,9 +202,9 @@ export default {
         startTime: null,
         startDate: null,
         endTime: null,
-        endDate: null,
         location: { lat: 1, lng: 1 },
-        notes: ''
+        notes: '',
+        dogs: null
       },
       // panel based models, these models are used to show and hide the different kinds of inputs,
       // including date/time inputs. dropdowns and any releated popups.
@@ -218,6 +237,14 @@ export default {
     this.walker = await firebaseWrapper.getProfile(this.walkerId);
     this.owner = await firebaseWrapper.getProfile(this.ownerId);
 
+    // create / generate the dog array. Used in the selection process.
+    this.ownerDogs = _.map(await firebaseWrapper.getAllDogs(this.ownerId), (dog, index) => {
+      dog.id = index;
+      return dog;
+    });
+
+    console.log(this.ownerDogs);
+
     // load in the current location for the user
     this.currentLocation();
   },
@@ -238,14 +265,20 @@ export default {
       this.walk.location = { lat: marker.position.lat(), lng: marker.position.lng() };
 
       if (this.$refs.form.validate()) {
-        const { location, notes } = this.walk;
+        const { location, notes, dogs } = this.walk;
+
+        const startDate = new Date(this.walk.startDate);
+        startDate.setHours(this.walk.startTime.split(':')[0], this.walk.startTime.split(':')[1]);
+
+        const endDate = new Date(this.walk.startDate);
+        endDate.setHours(this.walk.endTime.split(':')[0], this.walk.endTime.split(':')[1]);
 
         await firebaseWrapper.createWalkRequest(
           this.walkerId,
           this.ownerId,
-          [],
-          new Date(),
-          new Date(),
+          dogs,
+          startDate,
+          endDate,
           location,
           notes.trim() === '' ? undefined : notes
         );
