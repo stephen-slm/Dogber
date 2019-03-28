@@ -141,7 +141,8 @@
                 >This part is optional, if you have any dogs and would like to add them in your profile</p>
                 <v-container grid-list-md text-xs-center>
                   <v-layout row wrap>
-                    <v-flex xs6>
+                    <v-flex sm6 md3>
+                    <v-flex xs12>
                       <v-card>
                         <v-card-text class="px-0">Information about your Dogs</v-card-text>
                         <v-layout justify-center>
@@ -213,12 +214,12 @@
                         </v-layout>
                       </v-card>
                     </v-flex>
-                    <v-flex xs6>
+                    <v-flex xs12>
                       <v-card>
                         <v-card-text>Your Dogs added</v-card-text>
                         <v-container grid-list-md text-xs-center>
                           <v-layout row wrap>
-                            <v-flex xs6 v-for="(dog, index) in dogInformation" :key="index">
+                            <v-flex xs12 v-for="(dog, index) in dogInformation" :key="index">
                               <v-card color="cyan darken-2" class="white--text">
                                 <v-layout>
                                   <v-flex xs4>
@@ -257,6 +258,7 @@
                         </div>
                       </v-card>
                     </v-flex>
+                    </v-flex>
                   </v-layout>
                 </v-container>
               </v-card>
@@ -270,7 +272,7 @@
       <v-stepper-content step="4">
         <v-card class="mb-5" height="auto">
           <v-layout justify-center>
-            <v-flex xs6>
+            <v-flex xs12>
               <p>
                 You are expressly and emphatically restricted from all of the following: publishing any
                 Website material in any media; selling, sublicensing and/or otherwise commercializing any
@@ -319,7 +321,6 @@ export default {
       contactNumber: null,
 
       // Data from Service (form 2)
-      priceRange: ['0 - 5', '5 - 10', '10 - 20', '20+'],
       price: null,
       statusTypes: ['Dog Owner', 'Dog Walker'],
       status: null,
