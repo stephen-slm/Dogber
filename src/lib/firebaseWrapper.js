@@ -277,6 +277,8 @@ class FirebaseWrapper {
       walker: walkerId,
       owner: ownerId,
       dogs: ownerDogIds,
+      start: startDateTime.toJSON(),
+      end: endDateTime.toJSON(),
       location,
       status: firebaseConstants.WALK_STATUS.PENDING,
       notes: notesToPush,
