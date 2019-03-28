@@ -141,7 +141,7 @@
                 >This part is optional, if you have any dogs and would like to add them in your profile</p>
                 <v-container grid-list-md text-xs-center>
                   <v-layout row wrap>
-                    <v-flex sm6 md3>
+                    <v-flex sm6 md3 lg12>
                     <v-flex xs12>
                       <v-card>
                         <v-card-text class="px-0">Information about your Dogs</v-card-text>
