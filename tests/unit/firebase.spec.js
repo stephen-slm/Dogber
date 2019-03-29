@@ -584,7 +584,7 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.addFeedback('id', [1], 'm')).rejects.toEqual(feedtargetString);
       await expect(firebaseWrapper.addFeedback('id', false, 'm')).rejects.toEqual(feedtargetString);
       await expect(firebaseWrapper.addFeedback('id', true, 'm')).rejects.toEqual(feedtargetString);
-      await expect(firebaseWrapper.addFeedback('id', () => {}, 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback('id', () => { }, 'm')).rejects.toEqual(feedtargetString);
     });
 
     it('Should reject if the target id is null', async () => {
@@ -599,7 +599,7 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.addFeedback([1], 'id', 'm')).rejects.toEqual(feedtargetString);
       await expect(firebaseWrapper.addFeedback(false, 'id', 'm')).rejects.toEqual(feedtargetString);
       await expect(firebaseWrapper.addFeedback(true, 'id', 'm')).rejects.toEqual(feedtargetString);
-      await expect(firebaseWrapper.addFeedback(() => {}, 'id', 'm')).rejects.toEqual(feedtargetString);
+      await expect(firebaseWrapper.addFeedback(() => { }, 'id', 'm')).rejects.toEqual(feedtargetString);
     });
 
     it('Should reject the message if its null or undefined', async () => {
@@ -615,7 +615,7 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.addFeedback('id', 'id', [1])).rejects.toEqual(nullNotStringError);
       await expect(firebaseWrapper.addFeedback('id', 'id', false)).rejects.toEqual(nullNotStringError);
       await expect(firebaseWrapper.addFeedback('id', 'id', true)).rejects.toEqual(nullNotStringError);
-      await expect(firebaseWrapper.addFeedback('id', 'id', () => {})).rejects.toEqual(nullNotStringError);
+      await expect(firebaseWrapper.addFeedback('id', 'id', () => { })).rejects.toEqual(nullNotStringError);
     });
 
     it('Should reject adding feedback if you are attempting to add feedback to youself', async () => {
@@ -717,50 +717,62 @@ describe('Firebase Wrapper', async () => {
     const errorDogFavoriteToy = new Error('Dogs favorite toy cannot be empty and must be a string');
     const errorDogFavoriteFood = new Error('Dogs favorite food cannot be empty and must be a string');
 
-    it('Should reject if the name of dog is invalid', async()=>{
+    it('Should reject if the name of dog is invalid', async () => {
       expect.assertions(4);
 
       // It should reject all non-string values passed to the function addDog (parameter: dogName)
-      await expect(firebaseWrapper.addDog(1,1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
-      await expect(firebaseWrapper.addDog(true,1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
-      await expect(firebaseWrapper.addDog(0.1,1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
-      await expect(firebaseWrapper.addDog(["Maria"],1,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(1, 1, "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(true, 1, "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(0.1, 1, "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(["Maria"], 1, "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogName);
     });
 
-    it('Shoud reject if the age of dog is invalid', async()=>{
+    it('Shoud reject if the age of dog is invalid', async () => {
       expect.assertions(3);
 
       // It should reject all non-numeric values passed to the function addDog (parameter: dogAge)
-      await expect(firebaseWrapper.addDog("Lara","1","Doberman","Ball","Pizza")).rejects.toEqual(errorDogAge);
-      await expect(firebaseWrapper.addDog("Lara",[1],"Doberman","Ball","Pizza")).rejects.toEqual(errorDogAge);
-      await expect(firebaseWrapper.addDog("Lara",false,"Doberman","Ball","Pizza")).rejects.toEqual(errorDogAge);
+      await expect(firebaseWrapper.addDog("Lara", "1", "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogAge);
+      await expect(firebaseWrapper.addDog("Lara", [1], "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogAge);
+      await expect(firebaseWrapper.addDog("Lara", false, "Doberman", "Ball", "Pizza")).rejects.toEqual(errorDogAge);
     });
 
-    it('Shoud reject if the race of dog is invalid', async()=>{
+    it('Shoud reject if the race of dog is invalid', async () => {
       expect.assertions(3);
 
       // It should reject all non-string values passed to the function addDog (parameter: dogRace)
-      await expect(firebaseWrapper.addDog("Lara",1,5,"Ball","Pizza")).rejects.toEqual(errorDogRace);
-      await expect(firebaseWrapper.addDog("Lara",1,false,"Ball","Pizza")).rejects.toEqual(errorDogRace);
-      await expect(firebaseWrapper.addDog("Lara",1,["Doberman"],"Ball","Pizza")).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog("Lara", 1, 5, "Ball", "Pizza")).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog("Lara", 1, false, "Ball", "Pizza")).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog("Lara", 1, ["Doberman"], "Ball", "Pizza")).rejects.toEqual(errorDogRace);
     });
 
-    it('Shoud reject if the favorite toy of dog is invalid', async()=>{
+    it('Shoud reject if the favorite toy of dog is invalid', async () => {
       expect.assertions(3);
 
       // It should reject all non-string values passed to the function addDog (parameter: dogFavoriteToy)
-      await expect(firebaseWrapper.addDog("Lara",1,"Doberman",["Ball"],"Pizza")).rejects.toEqual(errorDogFavoriteToy);
-      await expect(firebaseWrapper.addDog("Lara",1,"Doberman",false,"Pizza")).rejects.toEqual(errorDogFavoriteToy);
-      await expect(firebaseWrapper.addDog("Lara",1,"Doberman",9,"Pizza")).rejects.toEqual(errorDogFavoriteToy);
+      await expect(firebaseWrapper.addDog("Lara", 1, "Doberman", ["Ball"], "Pizza")).rejects.toEqual(errorDogFavoriteToy);
+      await expect(firebaseWrapper.addDog("Lara", 1, "Doberman", false, "Pizza")).rejects.toEqual(errorDogFavoriteToy);
+      await expect(firebaseWrapper.addDog("Lara", 1, "Doberman", 9, "Pizza")).rejects.toEqual(errorDogFavoriteToy);
     });
 
-    it('Shoud reject if the favorite toy of dog is invalid', async()=>{
+    it('Shoud reject if the favorite toy of dog is invalid', async () => {
       expect.assertions(3);
 
       // It should reject all non-string values passed to the function addDog (parameter: dogFavoriteFood)
-      await expect(firebaseWrapper.addDog("Lara",1,"Doberman","Ball",["Pizza"])).rejects.toEqual(errorDogFavoriteFood);
-      await expect(firebaseWrapper.addDog("Lara",1,"Doberman","Ball",true)).rejects.toEqual(errorDogFavoriteFood);
-      await expect(firebaseWrapper.addDog("Lara",1,"Doberman","Ball",1)).rejects.toEqual(errorDogFavoriteFood);
+      await expect(firebaseWrapper.addDog("Lara", 1, "Doberman", "Ball", ["Pizza"])).rejects.toEqual(errorDogFavoriteFood);
+      await expect(firebaseWrapper.addDog("Lara", 1, "Doberman", "Ball", true)).rejects.toEqual(errorDogFavoriteFood);
+      await expect(firebaseWrapper.addDog("Lara", 1, "Doberman", "Ball", 1)).rejects.toEqual(errorDogFavoriteFood);
+    });
+
+    /**
+     * When the dog is created we must ensure that we are getting back to the key, this is
+     * the key we will be using to reference the dog. This would be used for the removing
+     * of dog as well. / single gathering.
+     */
+    it('Should should return the dog key if the dog has been created', async () => {
+      expect.assertions(1);
+
+      const dog = await firebaseWrapper.addDog("Lara", 1, "Doberman", "Ball", "Pizza");
+      expect(typeof dog).toBe('string');
     });
   });
 
@@ -1308,7 +1320,7 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.decreaseBalance(-1000)).rejects.toEqual(nonNegError);
     });
 
-    it('Should reject if the current amount - the change is less than 0', async () => {});
+    it('Should reject if the current amount - the change is less than 0', async () => { });
 
     it('Should decrease the amount of the balance by the given amount', async () => {
       expect.assertions(2);
@@ -1584,6 +1596,40 @@ describe('Firebase Wrapper', async () => {
 
       // expect that the notifications have now gone.
       expect(Object.keys(updatedNotifications)).not.toEqual(expect.arrayContaining([key, key2, key3]));
+    });
+  });
+
+  describe('updateContactNumber', async () => {
+    // We need to make sure that the contact number is added in correct format to the profile
+
+    // Get the possible erros of the functions
+    const errorNumber = new Error('Contact number cannot be a string or empty');
+    const errorNotaNumber = new Error('Contact number can only be a number');
+
+    it('Shoud not add the contact number if string or empty', async () => {
+      expect.assertions(2);
+      await expect(firebaseWrapper.updateContactNumber("string")).rejects.toEqual(errorNumber);
+      await expect(firebaseWrapper.updateContactNumber("")).rejects.toEqual(errorNumber);
+    });
+
+    it('Should not add the contact number if it not a number', async () => {
+      expect.assertions(2);
+      await expect(firebaseWrapper.updateContactNumber(false)).rejects.toEqual(errorNotaNumber);
+      await expect(firebaseWrapper.updateContactNumber([1])).rejects.toEqual(errorNotaNumber);
+    });
+
+  });
+
+  describe('updateStatusType', async () => {
+    // Get the errors when the entered values are not a string or empty
+    const statusNameError = new Error('The status must a string and non-empty value');
+
+    // We need to make sure invalid values do not pass
+    it.only('Should update the status if it is a string', async () => {
+      expect.assertions(3);
+      await expect(firebaseWrapper.updateStatusType(false)).rejects.toEqual(statusNameError);
+      await expect(firebaseWrapper.updateStatusType(1)).rejects.toEqual(statusNameError);
+      await expect(firebaseWrapper.updateStatusType(['hello'])).rejects.toEqual(statusNameError);
     });
   });
 });
