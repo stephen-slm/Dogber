@@ -1180,6 +1180,37 @@ class FirebaseWrapper {
     return this.database.ref(`users/${dogOwnerId}/dogs`);
   }
 
+  /*
+   * This function allows to add a contact number to the user
+   * @param {number} newNumber contact number of user
+   */
+  async updateContactNumber(newNumber) {
+    if (_.isNil(newNumber) || !_.isString(newNumber)) {
+      // We must validate the number is not empty or string
+      throw new Error('Contact number cannot be a string or empty');
+    }
+    if (!_.isNumber(newNumber)) {
+      // make sure that the newNumber parameter is a number
+      throw new Error('Contact number can only be a number');
+    }
+
+    // call the database where stored the default number and change the value
+    await this.database.ref(`users/${this.getUid}/profile/contact_number`).set(newNumber);
+  }
+
+  /**
+   * This function helps to set the type of account, dog walker or dog owner
+   * @param {string} newStatus if the user is dog walker or dog owner
+   */
+  async updateStatusType(newStatus) {
+    if (_.isNil(newStatus) || !_.isString(newStatus)) {
+      // The value passed to the parameter can only be a string
+      throw new Error('The status must a string and non-empty value');
+    }
+
+    // call the database where stored the default status and change the value
+    await this.database.ref(`users/${this.getUid}/profile/status_type`).set(newStatus);
+  }
   /**
    * creates a new user for which is called when a new sign in user happens.
    * @returns {firebase.Promise.<*>}
@@ -1194,12 +1225,11 @@ class FirebaseWrapper {
       last_login: Date.now(),
       login_count: 1,
       photo: user.photoURL || 'https://i.imgur.com/7c0tNV6.png',
-      phone_number: null,
       addresses: [],
       new: true,
       contact_number: 0,
-      status_type: null,
-      payment: null,
+      status_type: 'Dog Walker',
+      payment: 0,
       walk: {
         miles: 0,
         active: false,
