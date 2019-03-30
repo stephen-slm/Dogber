@@ -65,6 +65,7 @@
             </v-flex>
             <v-flex xs4>
               <ActionWithNotes
+                :disabled="isOwner"
                 v-if="walk.status != null && this.walk.status === walkStats.PENDING"
                 title="Accepting"
                 button-text="Accept"
@@ -72,6 +73,7 @@
             </v-flex>
             <v-flex xs4>
               <ActionWithNotes
+                :disabled="isOwner"
                 v-if="walk.status != null && this.walk.status === walkStats.PENDING"
                 title="Rejecting"
                 button-text="Reject"

@@ -21,7 +21,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn flat @click="showPanel = true">{{ buttonText }}</v-btn>
+    <v-btn :disabled="disabled" flat @click="showPanel = true">{{ buttonText }}</v-btn>
   </div>
 </template>
 
@@ -30,6 +30,10 @@ export default {
   props: {
     // triggered when the external requiring object is looking to display the panel.
     show: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     },
