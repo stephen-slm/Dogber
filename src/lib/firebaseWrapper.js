@@ -346,6 +346,10 @@ class FirebaseWrapper {
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.ACTIVE);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${walkerName} has accepted the walk.`);
 
+    if (_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).set(notes);
+    }
+
     // create the notification for the walker.
     this.createNotification(
       walkObject.owner,
@@ -398,6 +402,10 @@ class FirebaseWrapper {
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.REJECTED);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${walkerName} has rejected the walk.`);
 
+    if (_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).set(notes);
+    }
+
     // create the notification for the walker.
     this.createNotification(
       walkObject.owner,
@@ -447,6 +455,10 @@ class FirebaseWrapper {
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.CANCELLED);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${comName} has cancelled the walk.`);
 
+    if (!_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).push(notes);
+    }
+
     // create the notification for the walker.
     this.createNotification(
       whoGetsNotification,
@@ -493,6 +505,10 @@ class FirebaseWrapper {
     // update the walk request as now active, and push to the history object that the walk has accepted the walk.
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.COMPLETE);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${comName} has completed the walk.`);
+
+    if (!_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).push(notes);
+    }
 
     // create the notification for the walker.
     this.createNotification(
