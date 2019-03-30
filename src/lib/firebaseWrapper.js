@@ -687,7 +687,7 @@ class FirebaseWrapper {
    * @param {number} newNumber contact number of user 
    */
   async updateContactNumber(newNumber) {
-    if (_.isNil(newNumber) || !_.isString(newNumber)) {
+    if (_.isNil(newNumber) || _.isString(newNumber)) {
       // We must validate the number is not empty or string
       throw new Error('Contact number cannot be a string or empty');
     }
@@ -697,7 +697,7 @@ class FirebaseWrapper {
     }
 
     // call the database where stored the default number and change the value
-    await this.database.ref(`users/${this.getUid}/profile/contact_number`).set(newNumber);
+    await this.database.ref(`users/${this.getUid()}/profile/contact_number`).set(newNumber);
   }
 
   /**
@@ -711,7 +711,7 @@ class FirebaseWrapper {
     }
 
     // call the database where stored the default status and change the value
-    await this.database.ref(`users/${this.getUid}/profile/status_type`).set(newStatus);
+    await this.database.ref(`users/${this.getUid()}/profile/status_type`).set(newStatus);
   }
 
   /**

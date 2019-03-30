@@ -1618,6 +1618,22 @@ describe('Firebase Wrapper', async () => {
       await expect(firebaseWrapper.updateContactNumber([1])).rejects.toEqual(errorNotaNumber);
     });
 
+    it('Test to see if the contact number is updated successfully', async()=>{
+      expect.assertions(1);
+      // Data used to update the number
+      const number = 7777777777;
+
+      // Get the profile with default number
+      const profile = await firebaseWrapper.getProfile();
+
+      // Update the number
+      await firebaseWrapper.updateContactNumber(number);
+
+      // Get the profile with updated number
+      const updatedProfile = await firebaseWrapper.getProfile();
+      expect(updatedProfile.contact_number).toEqual(profile.contact_number + number);
+    });
+
   });
 
   describe('updateStatusType', async () => {
@@ -1625,11 +1641,26 @@ describe('Firebase Wrapper', async () => {
     const statusNameError = new Error('The status must a string and non-empty value');
 
     // We need to make sure invalid values do not pass
-    it.only('Should update the status if it is a string', async () => {
+    it('Should not update the status if it is not a string', async () => {
       expect.assertions(3);
       await expect(firebaseWrapper.updateStatusType(false)).rejects.toEqual(statusNameError);
       await expect(firebaseWrapper.updateStatusType(1)).rejects.toEqual(statusNameError);
       await expect(firebaseWrapper.updateStatusType(['hello'])).rejects.toEqual(statusNameError);
+    });
+
+    it('Should update the status if it is a string', async()=>{
+      expect.assertions(1);
+
+      // Data used to update the status
+      const status = 'Dog Owner';
+
+      // Update the status
+      await firebaseWrapper.updateStatusType(status);    
+      
+      // Get the profile with updated number
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.status_type).toEqual(status);
     });
   });
 });
