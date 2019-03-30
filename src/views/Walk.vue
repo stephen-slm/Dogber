@@ -71,6 +71,12 @@
                 button-text="Accept"
                 :submit="acceptWalk"
               />
+              <ActionWithNotes
+                v-if="walk.status != null && walk.status === walkStats.ACTIVE"
+                title="Completing"
+                button-text="Complete"
+                :submit="completeWalk"
+              />
             </v-flex>
             <v-flex xs4>
               <ActionWithNotes
@@ -302,7 +308,7 @@ export default {
 
     // sets and marks the walk as complete.
     completeWalk: async function(notes) {
-      return this.walkAction(firebaseWrapper.completeWalk.bind(firebaseWrapper), notes);
+      return this.walkAction(firebaseWrapper.completeWalkRequest.bind(firebaseWrapper), notes);
     },
 
     // standard walk request action format, all methods have the same standard param input so this
