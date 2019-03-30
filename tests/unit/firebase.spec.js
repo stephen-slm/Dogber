@@ -1663,4 +1663,64 @@ describe('Firebase Wrapper', async () => {
       expect(updatedProfile.status_type).toEqual(status);
     });
   });
+
+  describe('updateAge', async () => {
+    // Get the possible errors
+    const ageErrorString = new Error('The age cannot be a string and non-empty value');
+    const ageErrorNumber = new Error('The age can only be a number');
+
+    // We need to make sure the age is a valid input (input type: number)
+    it('Should not update the age of invalid input', async()=>{
+      expect.assertions(3);
+      await expect(firebaseWrapper.updateAge('23')).rejects.toEqual(ageErrorString);
+      await expect(firebaseWrapper.updateAge(['23'])).rejects.toEqual(ageErrorNumber);
+      await expect(firebaseWrapper.updateAge(false)).rejects.toEqual(ageErrorNumber);
+    });
+
+    it('Should update the age if valid input is entered', async () => {
+      expect.assertions(1);
+
+      // Data used to update the age
+      const newAge = 23;
+
+      // Get the profile with default age
+      const profile = await firebaseWrapper.getProfile();
+
+      // Update the age to new valie
+      await firebaseWrapper.updateAge(newAge);
+
+      // Get the profile with updated age
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.age).toEqual(profile.age + newAge);
+    });
+  });
+
+  describe('updatePaymentMethod', async () => {
+    // Get all possible errors
+    const paymentMethodError = new Error('The paymentMethod can only be a string and non-empty value');
+
+    // We need make sure that invalid input won't update the database
+    it('Should not update the payment method if invalid input', async()=>{
+      expect.assertions(3);
+      await expect(firebaseWrapper.updatePaymentMethod(false)).rejects.toEqual(paymentMethodError);
+      await expect(firebaseWrapper.updatePaymentMethod(1)).rejects.toEqual(paymentMethodError);
+      await expect(firebaseWrapper.updatePaymentMethod(['Cash'])).rejects.toEqual(paymentMethodError);
+    });
+
+    it('Should update the payment method if valid input is added', async()=>{
+      expect.assertions(1);
+
+      // Data used to update the payment method
+      const newPayment = 'Bank Transfer';
+
+      // Update the payment method
+      await firebaseWrapper.updatePaymentMethod(newPayment);
+
+      // Get the profile with updated payment method
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.payment_method).toEqual(newPayment);
+    });
+  });
 });
