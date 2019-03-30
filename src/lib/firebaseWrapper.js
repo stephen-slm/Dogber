@@ -424,7 +424,7 @@ class FirebaseWrapper {
     if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
       throw new Error('walk request id cannot be null or a invalid/empty string');
     } else if (_.isNil(cancelerId) || !_.isString(cancelerId) || cancelerId.trim() === '') {
-      throw new Error('rejector id cannot be null or a invalid/empty string');
+      throw new Error('cancelor id cannot be null or a invalid/empty string');
     }
 
     // validate that the notes are correct if and only if they are set. If they are null then they
