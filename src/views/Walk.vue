@@ -12,7 +12,7 @@
           <v-card-title>
             <div class="text-xs-center" style="margin: auto">
               <v-avatar size="50">
-                <img :src="owner.photo" alt="avatar">
+                <img :src="owner.photo" alt="avatar" />
               </v-avatar>
               <div style="margin-top: 5px; margin-bottom: -25px;">
                 Owner
@@ -35,7 +35,7 @@
           <v-card-title>
             <div class="text-xs-center" style="margin: auto">
               <v-avatar size="50">
-                <img :src="walker.photo" alt="avatar">
+                <img :src="walker.photo" alt="avatar" />
               </v-avatar>
               <div style="margin-top: 5px; margin-bottom: -25px;">
                 Walker
@@ -105,7 +105,7 @@
             :options="googleMapsSettings"
             class="maps-style"
           >
-            <GmapMarker ref="mapMarkerRef" :position="this.walk.location"/>
+            <GmapMarker ref="mapMarkerRef" :position="this.walk.location" />
           </GmapMap>
         </v-card>
       </v-flex>
@@ -138,7 +138,7 @@
           </v-card-text>
         </v-card>
       </v-flex>
-      <DogsGrid :profile="this.owner" :dogs="this.dogs" :owner-id="this.walk.owner"/>
+      <DogsGrid :profile="this.owner" :dogs="this.dogs" :owner-id="this.walk.owner" />
     </v-layout>
   </v-container>
 </template>
