@@ -462,14 +462,25 @@ class FirebaseWrapper {
    * @memberof FirebaseWrapper
    */
   async getWalkByKey(walkId) {
+    const walkObject = await this.getWalkReferenceByKey(walkId).once('value');
+    return walkObject.val();
+  }
+
+  /**
+   * Gets a the related walk reference by the id of the walk
+   *
+   * @param {string} walkId the id of the given walk.
+   * @returns
+   * @memberof FirebaseWrapper
+   */
+  getWalkReferenceByKey(walkId) {
     // ids are required and must be valid otherwise we cannot ensure that we are gathering the
     // correct related walk by a given id.
     if (_.isNil(walkId) || !_.isString(walkId) || walkId.trim() === '') {
       throw new Error('walk id cannot be null or a invalid/empty string');
     }
 
-    const walkObject = await this.database.ref(`walks/${walkId}`).once('value');
-    return walkObject.val();
+    return this.database.ref(`walks/${walkId}`);
   }
 
   /**
@@ -527,6 +538,19 @@ class FirebaseWrapper {
    * application.
    */
   async getProfile(id = this.getUid()) {
+    const profile = await this.getProfileReference(id).once('value');
+    return profile.val();
+  }
+
+  /**
+   * Returns a firebase reference to a place in the database. Focused around a given users
+   * preference.
+   *
+   * @param {string} [id=this.getUid()] The id that is gathering the reference.
+   * @returns Firebase Reference
+   * @memberof FirebaseWrapper
+   */
+  getProfileReference(id = this.getUid()) {
     if (_.isNil(id)) {
       // passed id must be of a type, we cannot work with the process if the id is null or
       // undefined. the user should always pass a valid id.
@@ -539,8 +563,8 @@ class FirebaseWrapper {
       throw new Error('Passed id should be of type string');
     }
 
-    const profile = await this.database.ref(`users/${id}/profile`).once('value');
-    return profile.val();
+    // return the given reference to the user.
+    return this.database.ref(`users/${id}/profile`);
   }
 
   /**

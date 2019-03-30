@@ -55,8 +55,29 @@
       </v-flex>
 
       <v-flex xs12>
-        <v-card>
-          <v-card-text class="px-0">12</v-card-text>
+        <v-card grid-list-md text-xs-center>
+          <v-layout row wrap>
+            <v-flex xs4 style="margin: auto">
+              <div>
+                Status:
+                <span :style="{ color: getStatusColor() }">{{ getStatus() }}</span>
+              </div>
+            </v-flex>
+            <v-flex xs4>
+              <ActionWithNotes
+                v-if="walk.status != null && this.walk.status === walkStats.PENDING"
+                title="Accepting"
+                button-text="Accept"
+              />
+            </v-flex>
+            <v-flex xs4>
+              <ActionWithNotes
+                v-if="walk.status != null && this.walk.status === walkStats.PENDING"
+                title="Rejecting"
+                button-text="Reject"
+              />
+            </v-flex>
+          </v-layout>
         </v-card>
       </v-flex>
       <v-flex xs12>
@@ -108,7 +129,9 @@
 
 <script>
 import firebaseWrapper from '../lib/firebaseWrapper.js';
+import * as firebaseConstants from '../constants/firebaseConstants.js';
 import DogsGrid from '@/components/DogsGrid.vue';
+import ActionWithNotes from '@/components/ActionWithNotes.vue';
 
 export default {
   data: function() {
@@ -138,7 +161,8 @@ export default {
         rotateControl: true,
         fullscreenControl: false,
         disableDefaultUi: true
-      }
+      },
+      walkStats: firebaseConstants.WALK_STATUS
     };
   },
 
@@ -190,11 +214,54 @@ export default {
     // if changes occure on the current walk, we want to update the whole object when the changes
     // happen. Keeping all related information live. This will also setup listeners for the owner
     // and the walker, just incase the profiles change at anypoint.
-    setupWalkListener: async function() {}
+    setupWalkListener: async function() {
+      const walkerReference = firebaseWrapper.getProfileReference(this.walk.walker);
+      const ownerReference = firebaseWrapper.getProfileReference(this.walk.owner);
+      const walkReference = firebaseWrapper.getWalkReferenceByKey(this.localWalkId);
+
+      walkerReference.on('value', (snapshot) => (this.walker = snapshot.val()));
+      ownerReference.on('value', (snapshot) => (this.owner = snapshot.val()));
+      walkReference.on('value', (snapshot) => (this.walk = snapshot.val()));
+    },
+    // gets the display related text for a given walk message, this is what the user is going to see
+    // as the text for a given status. This has to be clean and easy to read.
+    getStatus: function() {
+      switch (this.walk.status) {
+        case firebaseConstants.WALK_STATUS.ACTIVE:
+          return 'Active';
+        case firebaseConstants.WALK_STATUS.PENDING:
+          return 'Pending';
+        case firebaseConstants.WALK_STATUS.CANCELLED:
+          return 'Cancelled';
+        case firebaseConstants.WALK_STATUS.COMPLETE:
+          return 'Complete';
+        case firebaseConstants.WALK_STATUS.REJECTED:
+          return 'Rejected';
+        default:
+          return 'N/A';
+      }
+    },
+    // gets the display related text color for a given walk message, this is what the user is going to see
+    // as the text for a given status. This has to be clean and easy to read.
+    getStatusColor: function() {
+      switch (this.walk.status) {
+        case firebaseConstants.WALK_STATUS.ACTIVE:
+        case firebaseConstants.WALK_STATUS.COMPLETE:
+          return 'green';
+        case firebaseConstants.WALK_STATUS.PENDING:
+        case firebaseConstants.WALK_STATUS.CANCELLED:
+          return 'orange';
+        case firebaseConstants.WALK_STATUS.REJECTED:
+          return 'red';
+        default:
+          return 'black';
+      }
+    }
   },
 
   components: {
-    DogsGrid
+    DogsGrid,
+    ActionWithNotes
   }
 };
 </script>
