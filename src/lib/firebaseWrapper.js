@@ -409,6 +409,55 @@ class FirebaseWrapper {
   }
 
   /**
+   * Cancels the given walk, giving notifications the owner that the walk was cancelled and could not
+   * be processed.
+   *
+   * @param {string} rejecterId The person cancelling the walk.
+   * @param {string} walkRequestId The walk id of the walk that is being cancelled.
+   * @param {string} notes Any additional notes that are given when cancelling a walk.
+   * @memberof FirebaseWrapper
+   */
+
+  async cancelWalkRequest(cancelerId = this.getUid(), walkRequestId, notes) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
+      throw new Error('walk request id cannot be null or a invalid/empty string');
+    } else if (_.isNil(cancelerId) || !_.isString(cancelerId) || cancelerId.trim() === '') {
+      throw new Error('rejector id cannot be null or a invalid/empty string');
+    }
+
+    // validate that the notes are correct if and only if they are set. If they are null then they
+    // just will be ingored during the creation process.
+    if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+      throw new Error('if notes are set, they cannot be a invalid/empty string');
+    }
+
+    // gather the related walk so we can give the owner of the dogs a notification about that the
+    // walker has gone and rejected the walk.
+    const walkObject = await this.getWalkByKey(walkRequestId);
+
+    const completerProfile = await this.getProfile(cancelerId);
+    const comName = completerProfile.name || completerProfile.email;
+
+    // determine who should be getting the notification related to the walk request going through.
+    let whoGetsNotification = cancelerId === walkObject.owner ? walkObject.walker : walkObject.owner;
+
+    // update the walk request as now active, and push to the history object that the walk has accepted the walk.
+    await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.CANCELLED);
+    await this.database.ref(`walks/${walkRequestId}/history`).push(`${comName} has cancelled the walk.`);
+
+    // create the notification for the walker.
+    this.createNotification(
+      whoGetsNotification,
+      'Walk Cancelled 🏃',
+      `${comName} has cancelled your walk!`,
+      'navigation',
+      `/walks/${walkRequestId}`
+    );
+  }
+
+  /**
    * Completes a walk.
    *
    * @param {string} completerId The person rejecting the walk.
