@@ -1212,6 +1212,34 @@ class FirebaseWrapper {
     await this.database.ref(`users/${this.getUid()}/profile/status_type`).set(newStatus);
   }
   /**
+   * This function helps to update the age of the user
+   * @param {number} newAge The age of user
+   */
+  async updateAge(newAge){
+    if (_.isNil(newAge) || _.isString(newAge)) {
+      // The value passed to the parameter cannot be a string
+      throw new Error('The age cannot be a string and non-empty value');
+    }
+
+    if (!_.isNumber(newAge)) {
+      // make sure that the newAge parameter is a number
+      throw new Error('The age can only be a number');
+    }
+    // call the database where stored the default status and change the value
+    await this.database.ref(`users/${this.getUid()}/profile/age`).set(newAge);
+  }
+
+  async updatePaymentMethod(paymentMethod){
+    if (_.isNil(paymentMethod) || !_.isString(paymentMethod)) {
+      // The value passed to the parameter can only be a string
+      throw new Error('The paymentMethod can only be a string and non-empty value');
+    }
+
+    // call the database where stored the default status and change the value
+    await this.database.ref(`users/${this.getUid()}/profile/payment_method`).set(paymentMethod);
+  }
+
+  /**
    * creates a new user for which is called when a new sign in user happens.
    * @returns {firebase.Promise.<*>}
    */
@@ -1229,7 +1257,7 @@ class FirebaseWrapper {
       new: true,
       contact_number: 0,
       status_type: 'Dog Walker',
-      payment: 0,
+      payment_method: 'Cash',
       walk: {
         miles: 0,
         active: false,
