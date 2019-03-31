@@ -18,9 +18,11 @@
                     <div>{{ event.details }}</div>
                     <div>
                       Status:
-                      <span :style="{ color: getStatusColor(event.status) }">{{
+                      <span :style="{ color: getStatusColor(event.status) }">
+                        {{
                         getStatus(event.status)
-                      }}</span>
+                        }}
+                      </span>
                     </div>
                     <div>
                       {{ new Date(event.start).toLocaleString() }} -
@@ -40,7 +42,9 @@
     </v-flex>
 
     <v-flex sm4 xs12 class="text-sm-left text-xs-center">
-      <v-btn @click="$refs.calendar.prev()"> <v-icon dark left>keyboard_arrow_left</v-icon>Prev </v-btn>
+      <v-btn @click="$refs.calendar.prev()">
+        <v-icon dark left>keyboard_arrow_left</v-icon>Prev
+      </v-btn>
     </v-flex>
     <v-flex sm4 xs12 class="text-xs-center"></v-flex>
     <v-flex sm4 xs12 class="text-sm-right text-xs-center">
@@ -84,7 +88,7 @@ export default {
 
       this.walks[walkid].title = 'Walk Request 🏃‍♂️';
 
-      if (owner) {
+      if (isOwner) {
         this.walks[walkid].details = `Walk with ${walker.name || walker.email}`;
       } else {
         this.walks[walkid].details = `Walk with ${owner.name || owner.email}`;
