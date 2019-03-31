@@ -9,7 +9,10 @@
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex>
-                <v-text-field v-model="notes" clearable maxlength="100" counter label="Notes"></v-text-field>
+                <slot></slot>
+                <v-flex>
+                  <v-text-field v-model="notes" clearable maxlength="100" counter label="Notes"></v-text-field>
+                </v-flex>
               </v-flex>
             </v-layout>
           </v-container>
@@ -66,14 +69,11 @@ export default {
     // cleaner process. The external requiring process does not need to worry about clearning up
     // the text fields.
     submitLocal: async function() {
-      const message = this.notes;
-      const submittedFeedback = await this.submit(message.trim());
+      const submittedFeedback = await this.submit(this.notes.trim());
 
       if (submittedFeedback) {
         this.showPanel = false;
         this.notes = '';
-      } else {
-        this.notes = this.notes.trim();
       }
     },
 
