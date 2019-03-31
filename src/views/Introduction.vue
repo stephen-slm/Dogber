@@ -30,8 +30,7 @@
               <v-text-field
                 ref="age"
                 v-model="age"
-                :rules="[
-                  () => !!age || 'This field is required']"
+                :rules="[() => !!age || 'This field is required']"
                 label="Your age"
                 placeholder="23"
                 required
@@ -39,8 +38,7 @@
               <v-text-field
                 ref="address"
                 v-model="address"
-                :rules="[
-                  () => !!address || 'This field is required']"
+                :rules="[() => !!address || 'This field is required']"
                 label="Address Line"
                 placeholder="22 Cliverton Roads"
                 required
@@ -83,9 +81,7 @@
               <v-text-field
                 ref="contactNumber"
                 v-model="contactNumber"
-                :rules="[
-                  () => !!contactNumber || 'This field is required',
-                  ()=> typeof(parseInt(contactNumber))==!'number' || 'This field must be a number']"
+                :rules="[() => !!contactNumber || 'This field is required']"
                 label="Contact Number"
                 required
                 placeholder="7721775589"
@@ -156,128 +152,130 @@
                 <div>Add Dogs (optional)</div>
               </template>
               <v-card>
-                <p
-                  style="text-align:center"
-                >This part is optional, if you have any dogs and would like to add them in your profile</p>
+                <p style="text-align:center">
+                  This part is optional, if you have any dogs and would like to add them in your profile
+                </p>
                 <v-container grid-list-md text-xs-center>
                   <v-layout row wrap>
                     <v-flex sm6 md3 lg12>
-                    <v-flex xs12>
-                      <v-card>
-                        <v-card-text class="px-0">Information about your Dogs</v-card-text>
-                        <v-layout justify-center>
-                          <v-flex xs12 sm10 md8 lg6>
-                            <v-card ref="getFormDogResult">
-                              <v-card-text>
-                                <v-text-field
-                                  ref="dogName"
-                                  v-model="dogName"
-                                  :rules="[() => !!dogName || 'This field is required']"
-                                  :error-messages="errorMessages"
-                                  label="Dog Name"
-                                  placeholder="Charlie"
-                                  required
-                                  counter
-                                  maxlength="15"
-                                ></v-text-field>
-                                <v-text-field
-                                  ref="dogAge"
-                                  v-model="dogAge"
-                                  :rules="[() => !!dogAge || 'This field is required']"
-                                  :error-messages="errorMessages"
-                                  label="Dog Age"
-                                  placeholder="3"
-                                  required
-                                  counter
-                                  maxlength="2"
-                                ></v-text-field>
-                                <v-text-field
-                                  ref="dogRace"
-                                  v-model="dogRace"
-                                  :rules="[() => !!dogRace || 'This field is required']"
-                                  :error-messages="errorMessages"
-                                  label="Dog Race"
-                                  placeholder="Doberman"
-                                  required
-                                  counter
-                                  maxlength="10"
-                                ></v-text-field>
-                                <v-text-field
-                                  ref="dogFavoriteToy"
-                                  v-model="dogFavoriteToy"
-                                  :rules="[() => !!dogFavoriteToy || 'This field is required']"
-                                  label="Favorite toy"
-                                  placeholder="Ball"
-                                  counter
-                                  maxlength="15"
-                                ></v-text-field>
-                                <v-text-field
-                                  ref="dogFavoriteFood"
-                                  v-model="dogFavoriteFood"
-                                  :rules="[() => !!dogFavoriteFood || 'This field is required']"
-                                  label="Favorite food"
-                                  placeholder="Pizza"
-                                  counter
-                                  maxlength="15"
-                                ></v-text-field>
-                              </v-card-text>
-                              <v-divider class="mt-5"></v-divider>
-                              <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-slide-x-reverse-transition>
-                                  <!-- <v-tooltip v-if="formHasErrors" left></v-tooltip> -->
-                                </v-slide-x-reverse-transition>
-                                <v-btn color="primary" flat @click="addOptionalDog">Add</v-btn>
-                              </v-card-actions>
-                            </v-card>
-                          </v-flex>
-                        </v-layout>
-                      </v-card>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-card>
-                        <v-card-text>Your Dogs added</v-card-text>
-                        <v-container grid-list-md text-xs-center>
-                          <v-layout row wrap>
-                            <v-flex xs12 md6 lg3 v-for="(dog, index) in dogInformation" :key="index">
-                              <v-card color="cyan darken-2" class="white--text">
-                                <v-layout>
-                                  <v-flex xs4>
-                                    <v-img
-                                      src="https://dogber.co.uk/img/logo.001118af.png"
-                                      height="125px"
-                                      contain
-                                    ></v-img>
-                                  </v-flex>
-                                  <v-flex xs7>
-                                    <v-card-title primary-title>
-                                      <div>
-                                        <div class="headline">{{ dog.name }}</div>
-                                        <div>Age: {{ dog.age }}</div>
-                                        <div>Race: {{ dog.race }}</div>
-                                      </div>
-                                    </v-card-title>
-                                  </v-flex>
-                                </v-layout>
-                                <v-divider light></v-divider>
-                                <v-card-actions class="pa-2">Toy:
+                      <v-flex xs12>
+                        <v-card>
+                          <v-card-text class="px-0">Information about your Dogs</v-card-text>
+                          <v-layout justify-center>
+                            <v-flex xs12 sm10 md8 lg6>
+                              <v-card ref="getFormDogResult">
+                                <v-card-text>
+                                  <v-text-field
+                                    ref="dogName"
+                                    v-model="dogName"
+                                    :rules="[() => !!dogName || 'This field is required']"
+                                    :error-messages="errorMessages"
+                                    label="Dog Name"
+                                    placeholder="Charlie"
+                                    required
+                                    counter
+                                    maxlength="15"
+                                  ></v-text-field>
+                                  <v-text-field
+                                    ref="dogAge"
+                                    v-model="dogAge"
+                                    :rules="[() => !!dogAge || 'This field is required']"
+                                    :error-messages="errorMessages"
+                                    label="Dog Age"
+                                    placeholder="3"
+                                    required
+                                    counter
+                                    maxlength="2"
+                                  ></v-text-field>
+                                  <v-text-field
+                                    ref="dogRace"
+                                    v-model="dogRace"
+                                    :rules="[() => !!dogRace || 'This field is required']"
+                                    :error-messages="errorMessages"
+                                    label="Dog Race"
+                                    placeholder="Doberman"
+                                    required
+                                    counter
+                                    maxlength="10"
+                                  ></v-text-field>
+                                  <v-text-field
+                                    ref="dogFavoriteToy"
+                                    v-model="dogFavoriteToy"
+                                    :rules="[() => !!dogFavoriteToy || 'This field is required']"
+                                    label="Favorite toy"
+                                    placeholder="Ball"
+                                    counter
+                                    maxlength="15"
+                                  ></v-text-field>
+                                  <v-text-field
+                                    ref="dogFavoriteFood"
+                                    v-model="dogFavoriteFood"
+                                    :rules="[() => !!dogFavoriteFood || 'This field is required']"
+                                    label="Favorite food"
+                                    placeholder="Pizza"
+                                    counter
+                                    maxlength="15"
+                                  ></v-text-field>
+                                </v-card-text>
+                                <v-divider class="mt-5"></v-divider>
+                                <v-card-actions>
                                   <v-spacer></v-spacer>
-                                  <p>{{ dog.favoriteToy }}</p>
-                                </v-card-actions>
-                                <v-card-actions class="pa-2">Food:
-                                  <v-spacer></v-spacer>
-                                  <p>{{ dog.favoriteFood }}</p>
+                                  <v-slide-x-reverse-transition>
+                                    <!-- <v-tooltip v-if="formHasErrors" left></v-tooltip> -->
+                                  </v-slide-x-reverse-transition>
+                                  <v-btn color="primary" flat @click="addOptionalDog">Add</v-btn>
                                 </v-card-actions>
                               </v-card>
                             </v-flex>
                           </v-layout>
-                        </v-container>
-                        <v-divider class="mt-5"></v-divider>
-                        <div style="margin-top: 3px">
-                          <v-btn color="warning" flat @click="clearDogsList">Reset List</v-btn>
-                        </div>
-                      </v-card>
-                    </v-flex>
+                        </v-card>
+                      </v-flex>
+                      <v-flex xs12>
+                        <v-card>
+                          <v-card-text>Your Dogs added</v-card-text>
+                          <v-container grid-list-md text-xs-center>
+                            <v-layout row wrap>
+                              <v-flex xs12 md6 lg3 v-for="(dog, index) in dogInformation" :key="index">
+                                <v-card color="cyan darken-2" class="white--text">
+                                  <v-layout>
+                                    <v-flex xs4>
+                                      <v-img
+                                        src="https://dogber.co.uk/img/logo.001118af.png"
+                                        height="125px"
+                                        contain
+                                      ></v-img>
+                                    </v-flex>
+                                    <v-flex xs7>
+                                      <v-card-title primary-title>
+                                        <div>
+                                          <div class="headline">{{ dog.name }}</div>
+                                          <div>Age: {{ dog.age }}</div>
+                                          <div>Race: {{ dog.race }}</div>
+                                        </div>
+                                      </v-card-title>
+                                    </v-flex>
+                                  </v-layout>
+                                  <v-divider light></v-divider>
+                                  <v-card-actions class="pa-2"
+                                    >Toy:
+                                    <v-spacer></v-spacer>
+                                    <p>{{ dog.favoriteToy }}</p>
+                                  </v-card-actions>
+                                  <v-card-actions class="pa-2"
+                                    >Food:
+                                    <v-spacer></v-spacer>
+                                    <p>{{ dog.favoriteFood }}</p>
+                                  </v-card-actions>
+                                </v-card>
+                              </v-flex>
+                            </v-layout>
+                          </v-container>
+                          <v-divider class="mt-5"></v-divider>
+                          <div style="margin-top: 3px">
+                            <v-btn color="warning" flat @click="clearDogsList">Reset List</v-btn>
+                          </div>
+                        </v-card>
+                      </v-flex>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -320,7 +318,6 @@
 <script>
 import _ from 'lodash';
 import firebaseWrapper from '@/lib/firebaseWrapper';
-import { async } from 'q';
 
 export default {
   name: 'Introduction',
@@ -438,7 +435,7 @@ export default {
      * Resets all the contents that is currently being used on the first form to null.
      */
     resetFormOne: function() {
-      this.age=null;
+      this.age = null;
       this.address = null;
       this.city = null;
       this.state = null;
@@ -547,13 +544,12 @@ export default {
     },
 
     /**
-     * Updates the profile with the information from the forms filled by the user. If the user does 
+     * Updates the profile with the information from the forms filled by the user. If the user does
      * not complete the form it will always redirect to introduction page until the user has filled
      * all the information and marked as not new user.
      * If any of the steps has an error it will not mark the user as not new.
      */
-    completeProfile: async function(){
-
+    completeProfile: async function() {
       // Update user information from form 1: personal information
       await firebaseWrapper.updateAge(_.parseInt(this.age));
       await firebaseWrapper.addAddress({
@@ -567,18 +563,19 @@ export default {
 
       // Update user information from form 2: service information
       await firebaseWrapper.updateStatusType(this.status);
-      await firebaseWrapper.updateWalkCost(_.parseInt(this.minPrice),
-                                           _.parseInt(this.maxPrice));
+      await firebaseWrapper.updateWalkCost(_.parseInt(this.minPrice), _.parseInt(this.maxPrice));
       await firebaseWrapper.updatePaymentMethod(this.payment);
 
       // If the user added dogs then update the list of dogs.
-      if(this.dogInformation.length>=1){
-        for(let dog of this.dogInformation){
-          await firebaseWrapper.addDog(dog.name,
-                                       _.parseInt(dog.age),
-                                       dog.race,
-                                       dog.favoriteToy,
-                                       dog.favoriteFood);
+      if (this.dogInformation.length >= 1) {
+        for (let dog of this.dogInformation) {
+          await firebaseWrapper.addDog(
+            dog.name,
+            _.parseInt(dog.age),
+            dog.race,
+            dog.favoriteToy,
+            dog.favoriteFood
+          );
         }
       }
 
@@ -588,7 +585,7 @@ export default {
       // If the profile has successfully changed to not new then redirect to home page
       const updatedProfile = await firebaseWrapper.getProfile();
       if (!updatedProfile.new) this.$router.push({ name: 'home' });
-    },
+    }
   }
 };
 </script>

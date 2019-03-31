@@ -161,7 +161,7 @@ class FirebaseWrapper {
     return this.createNotification(
       `Welcome ${this.authentication.currentUser.displayName || 'User'}!`,
       `Welcome to Dogber! Currently in Alpha at version ${
-      packageJson.version
+        packageJson.version
       }, if you have any problems please send feedback via the menu.`
     );
   }
@@ -684,7 +684,7 @@ class FirebaseWrapper {
 
   /**
    * This function allows to add a contact number to the user
-   * @param {number} newNumber contact number of user 
+   * @param {number} newNumber contact number of user
    */
   async updateContactNumber(newNumber) {
     if (_.isNil(newNumber) || _.isString(newNumber)) {
@@ -702,7 +702,7 @@ class FirebaseWrapper {
 
   /**
    * This function helps to set the type of account, dog walker or dog owner
-   * @param {string} newStatus if the user is dog walker or dog owner 
+   * @param {string} newStatus if the user is dog walker or dog owner
    */
   async updateStatusType(newStatus) {
     if (_.isNil(newStatus) || !_.isString(newStatus)) {
@@ -718,7 +718,7 @@ class FirebaseWrapper {
    * This function helps to update the age of the user
    * @param {number} newAge The age of user
    */
-  async updateAge(newAge){
+  async updateAge(newAge) {
     if (_.isNil(newAge) || _.isString(newAge)) {
       // The value passed to the parameter cannot be a string
       throw new Error('The age cannot be a string and non-empty value');
@@ -732,7 +732,11 @@ class FirebaseWrapper {
     await this.database.ref(`users/${this.getUid()}/profile/age`).set(newAge);
   }
 
-  async updatePaymentMethod(paymentMethod){
+  /**
+   * This function helps to set the payment method making sure the input is valid
+   * @param {string} paymentMethod The preference payment method by the user
+   */
+  async updatePaymentMethod(paymentMethod) {
     if (_.isNil(paymentMethod) || !_.isString(paymentMethod)) {
       // The value passed to the parameter can only be a string
       throw new Error('The paymentMethod can only be a string and non-empty value');
