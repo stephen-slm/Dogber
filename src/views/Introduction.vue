@@ -30,8 +30,7 @@
               <v-text-field
                 ref="age"
                 v-model="age"
-                :rules="[
-                  () => !!age || 'This field is required']"
+                :rules="[() => !!age || 'This field is required']"
                 label="Your age"
                 placeholder="23"
                 required
@@ -39,8 +38,7 @@
               <v-text-field
                 ref="address"
                 v-model="address"
-                :rules="[
-                  () => !!address || 'This field is required']"
+                :rules="[() => !!address || 'This field is required']"
                 label="Address Line"
                 placeholder="22 Cliverton Roads"
                 required
@@ -83,9 +81,7 @@
               <v-text-field
                 ref="contactNumber"
                 v-model="contactNumber"
-                :rules="[
-                  () => !!contactNumber || 'This field is required',
-                  ()=> typeof(parseInt(contactNumber))==!'number' || 'This field must be a number']"
+                :rules="[() => !!contactNumber || 'This field is required']"
                 label="Contact Number"
                 required
                 placeholder="7721775589"

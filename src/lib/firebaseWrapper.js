@@ -1215,7 +1215,7 @@ class FirebaseWrapper {
    * This function helps to update the age of the user
    * @param {number} newAge The age of user
    */
-  async updateAge(newAge){
+  async updateAge(newAge) {
     if (_.isNil(newAge) || _.isString(newAge)) {
       // The value passed to the parameter cannot be a string
       throw new Error('The age cannot be a string and non-empty value');
@@ -1229,14 +1229,18 @@ class FirebaseWrapper {
     await this.database.ref(`users/${this.getUid()}/profile/age`).set(newAge);
   }
 
-  async updatePaymentMethod(paymentMethod){
+  /**
+   * This function helps to set the payment method making sure the input is valid
+   * @param {string} paymentMethod The preference payment method by the user
+   */
+  async updatePaymentMethod(paymentMethod) {
     if (_.isNil(paymentMethod) || !_.isString(paymentMethod)) {
       // The value passed to the parameter can only be a string
       throw new Error('The paymentMethod can only be a string and non-empty value');
     }
 
     // call the database where stored the default status and change the value
-    await this.database.ref(`users/${this.getUid()}/profile/payment_method`).set(paymentMethod);
+    return this.database.ref(`users/${this.getUid()}/profile/payment_method`).set(paymentMethod);
   }
 
   /**
