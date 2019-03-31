@@ -3,16 +3,16 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-text class="subheading text-sm-left gray lighten-1"
-            >Dog Walker Profile: {{ profile.name }}</v-card-text
-          >
+          <v-card-text
+            class="subheading text-sm-left gray lighten-1"
+          >Dog Walker Profile: {{ profile.name }}</v-card-text>
         </v-card>
       </v-flex>
       <v-flex xs12 sm6 md4>
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
-              <img :src="profile.photo" alt="avatar" />
+              <img :src="profile.photo" alt="avatar">
             </v-avatar>
             <div class="core-text">
               <div style="text-align: center; margin-left: -50px;">
@@ -46,10 +46,16 @@
               <v-card-title>Feedback</v-card-title>
               <v-card-text grid-list-xl>
                 <div v-if="feedback.length === 0">No Feedback 😓</div>
-                <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
+                <v-layout
+                  class="feedback-item"
+                  row
+                  wrap
+                  v-for="item in feedback"
+                  :key="item.timestamp"
+                >
                   <v-flex shrink>
                     <v-avatar size="32px">
-                      <img :src="item.feedbacker.photo" alt="Dogber" />
+                      <img :src="item.feedbacker.photo" alt="Dogber">
                     </v-avatar>
                   </v-flex>
                   <v-flex>
@@ -59,15 +65,15 @@
                     </div>
                   </v-flex>
                   <v-flex>
-                    <div class="feedback-time text-sm-right">
-                      {{ new Date(item.timestamp).toLocaleDateString() }}
-                    </div>
+                    <div
+                      class="feedback-time text-sm-right"
+                    >{{ new Date(item.timestamp).toLocaleDateString() }}</div>
                   </v-flex>
                 </v-layout>
               </v-card-text>
 
               <v-card-actions v-if="canGiveFeedback">
-                <GiveFeedback :submit="saveFeedback.bind(this)" />
+                <GiveFeedback :submit="saveFeedback.bind(this)"/>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -128,7 +134,7 @@ export default {
       if (_.isNil(profile)) profile = await firebaseWrapper.getProfile();
 
       // If the account is new redirect to introduction page
-      if (profile.new) {
+      if (profile.new && this.localUserId === firebaseWrapper.getUid()) {
         this.$router.push({ name: 'introduction' });
       }
 
