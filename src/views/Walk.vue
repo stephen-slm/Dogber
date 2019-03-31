@@ -75,8 +75,21 @@
                 v-if="walk.status != null && walk.status === walkStats.ACTIVE"
                 title="Completing"
                 button-text="Complete"
+                :disabled="!isOwner"
                 :submit="completeWalk"
-              />
+              >
+                <v-flex>
+                  <v-card-text
+                    >How well do you rate {{ this.walker.name || this.walker.email }} (walker)?</v-card-text
+                  >
+                  <v-rating
+                    v-model="completeRating"
+                    background-color="grey darken-1"
+                    hover
+                    half-increments
+                  ></v-rating>
+                </v-flex>
+              </ActionWithNotes>
             </v-flex>
             <v-flex xs4>
               <ActionWithNotes
@@ -87,7 +100,10 @@
                 :submit="rejectWalk"
               />
               <ActionWithNotes
-                v-if="walk.status != null && walk.status === walkStats.PENDING"
+                v-if="
+                  (walk.status != null && isOwner && walk.status === walkStats.PENDING) ||
+                    walk.status === walkStats.ACTIVE
+                "
                 title="Cancelling"
                 button-text="Cancel"
                 :submit="cancelWalk"
@@ -180,7 +196,8 @@ export default {
         fullscreenControl: false,
         disableDefaultUi: true
       },
-      walkStats: firebaseConstants.WALK_STATUS
+      walkStats: firebaseConstants.WALK_STATUS,
+      completeRating: 0
     };
   },
 
@@ -308,14 +325,18 @@ export default {
 
     // sets and marks the walk as complete.
     completeWalk: async function(notes) {
-      return this.walkAction(firebaseWrapper.completeWalkRequest.bind(firebaseWrapper), notes);
+      return this.walkAction(
+        firebaseWrapper.completeWalkRequest.bind(firebaseWrapper),
+        notes,
+        this.completeRating
+      );
     },
 
     // standard walk request action format, all methods have the same standard param input so this
     // can be used instead of repeating lots of codes.
-    walkAction: async function(asyncMethod, notes) {
+    walkAction: async function(asyncMethod, notes, ...params) {
       const localUserId = this.isOwner ? this.owner.id : this.walker.id;
-      await asyncMethod(localUserId, this.localWalkId, notes === '' ? undefined : notes);
+      await asyncMethod(localUserId, this.localWalkId, notes === '' ? null : notes, ...params);
       return true;
     }
   },

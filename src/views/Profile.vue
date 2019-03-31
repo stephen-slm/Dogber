@@ -43,7 +43,7 @@
                 <div>Age: {{ profile.age }}</div>
                 <div>Completed Walks: {{ profile.walk.completed }}</div>
                 <div>Area: {{ area }}</div>
-                <div>Distance: {{ distance }}</div>
+                <div>Distance: {{ profile.walk.miles }}</div>
               </div>
 
               <div>Price Range: £{{ profile.walk.price.min }} - £{{ profile.walk.price.max }} (/h)</div>
@@ -107,7 +107,6 @@ export default {
         walk: { rating: 0, price: { min: 0, max: 0 } }
       },
       dogs: {},
-      distance: '',
       area: '',
       feedback: [],
       isCurrentUser: false

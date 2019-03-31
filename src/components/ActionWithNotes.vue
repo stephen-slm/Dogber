@@ -11,7 +11,13 @@
               <v-flex>
                 <slot></slot>
                 <v-flex>
-                  <v-text-field v-model="notes" clearable maxlength="100" counter label="Notes"></v-text-field>
+                  <v-text-field
+                    v-model="notes"
+                    clearable
+                    maxlength="100"
+                    counter
+                    label="Notes"
+                  ></v-text-field>
                 </v-flex>
               </v-flex>
             </v-layout>
