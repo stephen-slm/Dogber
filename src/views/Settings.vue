@@ -29,46 +29,6 @@
                   required
                 ></v-text-field>
                 <v-text-field
-                  ref="address"
-                  v-model="address"
-                  :rules="[
-                    () => !!address || 'This field is required']"
-                  label="Address Line"
-                  required
-                  counter
-                  maxlength="25"
-                ></v-text-field>
-                <v-text-field
-                  ref="city"
-                  v-model="city"
-                  :rules="[() => !!city || 'This field is required', addressCheck]"
-                  label="City"
-                  required
-                ></v-text-field>
-                <v-text-field
-                  ref="state"
-                  v-model="state"
-                  :rules="[() => !!state || 'This field is required']"
-                  label="State/Province/Region"
-                  required
-                ></v-text-field>
-                <v-text-field
-                  ref="zip"
-                  v-model="zip"
-                  :rules="[() => !!zip || 'This field is required']"
-                  label="ZIP / Postal Code"
-                  required
-                ></v-text-field>
-                <v-autocomplete
-                  ref="country"
-                  v-model="country"
-                  :rules="[() => !!country || 'This field is required']"
-                  :items="countries"
-                  label="Country"
-                  placeholder="Select..."
-                  required
-                ></v-autocomplete>
-                <v-text-field
                   ref="contactNumber"
                   v-model="contactNumber"
                   :rules="[
@@ -163,11 +123,6 @@ export default {
       name: '',
       email: '',
       age: '',
-      address: '',
-      city: '',
-      state: '',
-      zip: '',
-      country: '',
       contactNumber: '',
 
       // Data from service information form
@@ -200,10 +155,15 @@ export default {
     // update active state
     this.activeWalker = currentProfile.walk.active;
 
-    // Retrieve the data from database
+    // Get the data from database
     this.name = currentProfile.name;
     this.email = currentProfile.email;
     this.age = currentProfile.age;
+    this.contactNumber = currentProfile.contact_number;
+    this.status = currentProfile.status_type;
+    this.minPrice = currentProfile.walk.price.min;
+    this.maxPrice = currentProfile.walk.price.max;
+    this.payment = currentProfile.payment_method;
 
     // get the object of countries to be used instead of hard coded into the file.
     const countriesReference = await firebaseWrapper.database.ref('/countries').once('value');
@@ -222,11 +182,6 @@ export default {
     getFormPersonalResults: function() {
       return {
         age: this.age,
-        address: this.address,
-        city: this.city,
-        state: this.state,
-        zip: this.zip,
-        country: this.country,
         contactNumber: this.contactNumber
       };
     },
@@ -250,13 +205,20 @@ export default {
      * requirement of the fields have not been completed correctly. If completed it will update the database,
      * othwerise say in the current location.
      */
-     completeFormPersonal: function() {
+     completeFormPersonal: async function() {
+
+       // Checking for errors
       this.formOneErrored = false;
       Object.keys(this.getFormPersonalResults).forEach((f) => {
         if (_.isNil(this.getFormPersonalResults[f])) this.formOneErrored = true;
         this.$refs[f].validate(true);
       });
-      console.log(this.age);
+
+      // If the form has no errors then update the database
+      if(!this.formOneErrored){
+        await firebaseWrapper.updateAge(_.parseInt(this.age));
+        await firebaseWrapper.updateContactNumber(_.parseInt(this.contactNumber));
+      }
     },
 
     /**
@@ -264,13 +226,21 @@ export default {
      * requirement of the fields have not been completed correctly. If completed it will update the database,
      * othwerise say in the current location.
      */
-    completeFormService: function() {
+    completeFormService: async function() {
+
+      //Checking for errors
       this.formTwoErrored = false;
       Object.keys(this.getFormServiceResults).forEach((f) => {
         if (_.isNil(this.getFormServiceResults[f])) this.formTwoErrored = true;
         this.$refs[f].validate(true);
       });
-      
+
+      // If the form has no errors then update the database
+      if(!this.formTwoErrored){
+        await firebaseWrapper.updateStatusType(this.status);
+        await firebaseWrapper.updateWalkCost(_.parseInt(this.minPrice), _.parseInt(this.maxPrice));
+        await firebaseWrapper.updatePaymentMethod(this.payment);
+      }
     },
    },
   
