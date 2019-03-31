@@ -5,10 +5,9 @@
         <v-card>
           <v-layout row wrap>
             <v-flex xs6>
-              <v-card-title
-                primary
-                class="subheading text-sm-left"
-              >Dog Walker Profile: {{ profile.name }}</v-card-title>
+              <v-card-title primary class="subheading text-sm-left"
+                >Dog Walker Profile: {{ profile.name }}</v-card-title
+              >
             </v-flex>
             <v-flex xs6 class="text-sm-right" v-if="!isCurrentUser" style="margin: auto">
               <RequestWalkDialog
@@ -25,7 +24,7 @@
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
-              <img :src="profile.photo" alt="avatar">
+              <img :src="profile.photo" alt="avatar" />
             </v-avatar>
             <div class="core-text">
               <div style="text-align: center; margin-left: -50px;">
@@ -59,16 +58,10 @@
               <v-card-title>Feedback</v-card-title>
               <v-card-text>
                 <div v-if="feedback == null">No Feedback 😓</div>
-                <v-layout
-                  class="feedback-item"
-                  row
-                  wrap
-                  v-for="item in feedback"
-                  :key="item.timestamp"
-                >
+                <v-layout class="feedback-item" row wrap v-for="item in feedback" :key="item.timestamp">
                   <v-flex shrink>
                     <v-avatar size="32px">
-                      <img :src="item.feedbacker.photo" alt="Dogber">
+                      <img :src="item.feedbacker.photo" alt="Dogber" />
                     </v-avatar>
                   </v-flex>
                   <v-flex>
@@ -84,13 +77,13 @@
               </v-card-text>
 
               <v-card-actions class="text-sm-left" v-if="!isCurrentUser">
-                <GiveFeedback :submit="saveFeedback.bind(this)"/>
+                <GiveFeedback :submit="saveFeedback.bind(this)" />
               </v-card-actions>
             </v-card>
           </v-flex>
         </v-layout>
       </v-flex>
-      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId"/>
+      <DogsGrid :profile="profile" :dogs="dogs" :owner-id="localUserId" />
     </v-layout>
   </v-container>
 </template>

@@ -30,12 +30,7 @@
             <v-select :items="dropdown_date" label="Date"></v-select>
           </v-flex>
           <v-flex xs12>
-            <SingleWalkResult
-              v-for="(item, index) in walks"
-              :key="index"
-              class="walk-history"
-              :id="item"
-            />
+            <SingleWalkResult v-for="(item, index) in walks" :key="index" class="walk-history" :id="item" />
           </v-flex>
         </v-layout>
       </v-container>

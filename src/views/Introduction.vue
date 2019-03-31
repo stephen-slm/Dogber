@@ -152,9 +152,9 @@
                 <div>Add Dogs (optional)</div>
               </template>
               <v-card>
-                <p
-                  style="text-align:center"
-                >This part is optional, if you have any dogs and would like to add them in your profile</p>
+                <p style="text-align:center">
+                  This part is optional, if you have any dogs and would like to add them in your profile
+                </p>
                 <v-container grid-list-md text-xs-center>
                   <v-layout row wrap>
                     <v-flex sm6 md3 lg12>
@@ -235,13 +235,7 @@
                           <v-card-text>Your Dogs added</v-card-text>
                           <v-container grid-list-md text-xs-center>
                             <v-layout row wrap>
-                              <v-flex
-                                xs12
-                                md6
-                                lg3
-                                v-for="(dog, index) in dogInformation"
-                                :key="index"
-                              >
+                              <v-flex xs12 md6 lg3 v-for="(dog, index) in dogInformation" :key="index">
                                 <v-card color="cyan darken-2" class="white--text">
                                   <v-layout>
                                     <v-flex xs4>
