@@ -34,6 +34,11 @@ export default {
   created: async function() {
     const currentProfile = await firebaseWrapper.getProfile();
 
+    // If the profile is new redirect to introduction
+    if (currentProfile.new) {
+      this.$router.push({ name: 'introduction' });
+    }
+
     // update active state
     this.activeWalker = currentProfile.walk.active;
   },
