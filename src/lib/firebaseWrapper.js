@@ -273,6 +273,9 @@ class FirebaseWrapper {
       notesToPush.push(notes);
     }
 
+    notesToPush.push(`Walk starts at ${startDateTime.toLocaleString()}`);
+    notesToPush.push(`Walk ends at ${endDateTime.toLocaleString()}`);
+
     const newWalkRequest = await this.database.ref(`walks`).push({
       walker: walkerId,
       owner: ownerId,
