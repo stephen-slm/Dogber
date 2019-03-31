@@ -8,6 +8,136 @@
         <div class="text-sm-left gray lighten-1">Account Related</div>
         <v-divider />
         <v-switch v-model="activeWalker" label="Active Walker"></v-switch>
+        <v-divider style="margin-bottom: 18px" />
+        <v-expansion-panel>
+          <v-expansion-panel-content>
+            <template v-slot:header>
+              <div>Edit: Personal Information</div>
+            </template>
+            <v-card>
+              <v-layout justify-center style="margin-bottom: 13px">
+              <v-flex xs12 sm6 md6>
+                <v-text-field ref="name" v-model="name" label="Full Name" disabled></v-text-field>
+                <v-text-field ref="email" v-model="email" label="E-Mail" disabled></v-text-field>
+                <v-text-field
+                  ref="age"
+                  v-model="age"
+                  :rules="[
+                    () => !!age || 'This field is required']"
+                  label="Your age"
+                  placeholder="23"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  ref="address"
+                  v-model="address"
+                  :rules="[
+                    () => !!address || 'This field is required']"
+                  label="Address Line"
+                  required
+                  counter
+                  maxlength="25"
+                ></v-text-field>
+                <v-text-field
+                  ref="city"
+                  v-model="city"
+                  :rules="[() => !!city || 'This field is required', addressCheck]"
+                  label="City"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  ref="state"
+                  v-model="state"
+                  :rules="[() => !!state || 'This field is required']"
+                  label="State/Province/Region"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  ref="zip"
+                  v-model="zip"
+                  :rules="[() => !!zip || 'This field is required']"
+                  label="ZIP / Postal Code"
+                  required
+                ></v-text-field>
+                <v-autocomplete
+                  ref="country"
+                  v-model="country"
+                  :rules="[() => !!country || 'This field is required']"
+                  :items="countries"
+                  label="Country"
+                  placeholder="Select..."
+                  required
+                ></v-autocomplete>
+                <v-text-field
+                  ref="contactNumber"
+                  v-model="contactNumber"
+                  :rules="[
+                    () => !!contactNumber || 'This field is required']"
+                  label="Contact Number"
+                  required
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+            </v-card>
+            <v-layout justify-center style="margin-bottom: 15px">
+              <v-btn color="primary" @click="completeFormPersonal">Change</v-btn>
+            </v-layout>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-divider style="margin-bottom: 18px" />
+        <v-expansion-panel>
+          <v-expansion-panel-content>
+            <template v-slot:header>
+              <div>Edit: Service Information</div>
+            </template>
+            <v-card>
+              <v-layout justify-center style="margin-bottom: 13px">
+              <v-flex xs12 sm6 md6>
+                <v-select
+                ref="status"
+                v-model="status"
+                :rules="[() => !!status || 'This field is required']"
+                :items="statusTypes"
+                label="Dog owner or Dog Walker?"
+                placeholder="Select..."
+                required
+              ></v-select>
+              <v-text-field
+                ref="minPrice"
+                v-model="minPrice"
+                :rules="[() => !!minPrice || 'This field is required']"
+                label="Minimum Price required for services"
+                placeholder="5.00"
+                prefix="£"
+                required
+              ></v-text-field>
+              <v-text-field
+                ref="maxPrice"
+                v-model="maxPrice"
+                :rules="[() => !!maxPrice || 'This field is required']"
+                label="Maximum Price required for services"
+                placeholder="12.50"
+                prefix="£"
+                required
+              ></v-text-field>
+              <v-select
+                ref="payment"
+                v-model="payment"
+                :items="paymentMethods"
+                :rules="[() => !!payment || 'This field is required']"
+                label="Payment Methods"
+                placeholder="Select..."
+                required
+              ></v-select>
+              </v-flex>
+            </v-layout>
+            </v-card>
+            <v-layout justify-center style="margin-bottom: 15px">
+              <v-btn color="primary" @click="completeFormService">Change</v-btn>
+            </v-layout>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-divider style="margin-bottom: 25px" />
         <DeleteAccountAgreement />
       </form>
     </v-card>
@@ -17,14 +147,42 @@
 <script>
 import firebaseWrapper from '../lib/firebaseWrapper.js';
 import DeleteAccountAgreement from '@/components/DeleteAccountAgreement.vue';
+import _ from 'lodash';
 
 export default {
   name: 'Settings',
 
   data: function() {
     return {
+      countries: [],
+
       dark: false,
-      activeWalker: false
+      activeWalker: false,
+
+      // Data from personal information form
+      name: '',
+      email: '',
+      age: '',
+      address: '',
+      city: '',
+      state: '',
+      zip: '',
+      country: '',
+      contactNumber: '',
+
+      // Data from service information form
+      price: '',
+      statusTypes: ['Dog Owner', 'Dog Walker'],
+      status: '',
+      minPrice: '',
+      maxPrice: '',
+      paymentMethods: ['Bank Transfer', 'Cash', 'Online Payment'],
+      payment: '',
+
+      // Checkings for form one (personal information)
+      formOneErrored: false,
+      // Checkings for form two (service information)
+      formTwoErrored: false,
     };
   },
 
@@ -36,11 +194,81 @@ export default {
 
     // update active state
     this.activeWalker = currentProfile.walk.active;
+
+    // Retrieve the data from database
+    this.name = currentProfile.name;
+    this.email = currentProfile.email;
+    this.age = currentProfile.age;
+
+    // get the object of countries to be used instead of hard coded into the file.
+    const countriesReference = await firebaseWrapper.database.ref('/countries').once('value');
+    this.countries = _.map(countriesReference.val(), (value) => value);
   },
 
   mounted: function() {
     if (localStorage.dark) this.dark = localStorage.dark === 'true' ? true : false;
   },
+
+
+  computed: {
+    /**
+     * Gets the results from form 1. This is used for checkings
+     */
+    getFormPersonalResults: function() {
+      return {
+        age: this.age,
+        address: this.address,
+        city: this.city,
+        state: this.state,
+        zip: this.zip,
+        country: this.country,
+        contactNumber: this.contactNumber
+      };
+    },
+
+    /**
+     * Gets the results from form 2. This is used for checkings
+     */
+    getFormServiceResults: function() {
+      return {
+        status: this.status,
+        minPrice: this.minPrice,
+        maxPrice: this.maxPrice,
+        payment: this.payment
+      };
+    }
+  },
+
+   methods: {
+     /**
+     * Checks and validates that the form Personal Information has completed correctly. Warning the user of all
+     * requirement of the fields have not been completed correctly. If completed it will update the database,
+     * othwerise say in the current location.
+     */
+     completeFormPersonal: function() {
+      this.formOneErrored = false;
+      Object.keys(this.getFormPersonalResults).forEach((f) => {
+        if (_.isNil(this.getFormPersonalResults[f])) this.formOneErrored = true;
+        this.$refs[f].validate(true);
+      });
+      console.log(this.age);
+    },
+
+    /**
+     * Checks and validates that the form Service Information has completed correctly. Warning the user of all
+     * requirement of the fields have not been completed correctly. If completed it will update the database,
+     * othwerise say in the current location.
+     */
+    completeFormService: function() {
+      this.formTwoErrored = false;
+      Object.keys(this.getFormServiceResults).forEach((f) => {
+        if (_.isNil(this.getFormServiceResults[f])) this.formTwoErrored = true;
+        this.$refs[f].validate(true);
+      });
+      
+    },
+   },
+  
 
   watch: {
     // if the user enables dark mode, let the upper listening app trigger dark mode across the
