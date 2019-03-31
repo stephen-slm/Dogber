@@ -7,7 +7,7 @@
       </v-card-title>
       <v-card-text>
         <div v-if="dogs == null">No Dogs 😓</div>
-        <v-layout text-xs-center row wrap>
+        <v-layout text-xs-center row wrap style="float: left;">
           <v-flex v-for="(item, index) in dogs" :key="item.timestamp">
             <DogProfile class="dogs-item" :owner-id="ownerId" :id="index" :dog="item" />
           </v-flex>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 import DogProfile from '@/components/DogProfile.vue';
 import AddDogDialog from '@/components/AddDogDialog.vue';
 

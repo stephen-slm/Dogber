@@ -1231,6 +1231,7 @@ describe('Firebase Wrapper', async () => {
     // required.
     const createWalKIdError = new Error('required ids cannot be null or a invalid/empty string');
     const createWalkValidArray = new Error('owner dog ids must be a valid array');
+    const loc = { lat: 1, lng: 1 };
 
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
@@ -1239,16 +1240,8 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(2);
 
       // the two possible requests for null and undefined (not awaited so it will just return a promise)
-      const nullRequest = createWalk(null, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const undefinedRequest = createWalk(
-        undefined,
-        'owner',
-        ['dog'],
-        new Date(),
-        new Date(),
-        'loc',
-        'notes'
-      );
+      const nullRequest = createWalk(null, 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
+      const undefinedRequest = createWalk(undefined, 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
 
       await expect(nullRequest).rejects.toEqual(createWalKIdError);
       await expect(undefinedRequest).rejects.toEqual(createWalKIdError);
@@ -1258,10 +1251,10 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(4);
 
       // the four possible requests for non string values (not awaited so it will just return a promise)
-      const requestArray = createWalk([], 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const requestBool = createWalk(false, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const requestObject = createWalk({ walk: 5 }, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const requestNum = createWalk(5, 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestArray = createWalk([], 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
+      const requestBool = createWalk(false, 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
+      const requestObject = createWalk({ walk: 5 }, 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
+      const requestNum = createWalk(5, 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
 
       await expect(requestArray).rejects.toEqual(createWalKIdError);
       await expect(requestBool).rejects.toEqual(createWalKIdError);
@@ -1273,7 +1266,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the single possible requests for a non empty string (not awaited so it will just return a promise)
-      const requestNotEmpty = createWalk('    ', 'owner', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestNotEmpty = createWalk('    ', 'owner', ['dog'], new Date(), new Date(), loc, 'notes');
       await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
     });
 
@@ -1281,8 +1274,8 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(2);
 
       // the two possible requests for null and undefined (not awaited so it will just return a promise)
-      const nullRequest = createWalk('walk', null, ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const undefinedRequest = createWalk('walk', undefined, ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const nullRequest = createWalk('walk', null, ['dog'], new Date(), new Date(), loc, 'notes');
+      const undefinedRequest = createWalk('walk', undefined, ['dog'], new Date(), new Date(), loc, 'notes');
 
       await expect(nullRequest).rejects.toEqual(createWalKIdError);
       await expect(undefinedRequest).rejects.toEqual(createWalKIdError);
@@ -1292,10 +1285,10 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(4);
 
       // the four possible requests for non string values (not awaited so it will just return a promise)
-      const requestArray = createWalk('walk', [], ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const requestBool = createWalk('walk', false, ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const requestObject = createWalk('walk', { walk: 5 }, ['dog'], new Date(), new Date(), 'loc', 'notes');
-      const requestNum = createWalk('walk', 5, ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestArray = createWalk('walk', [], ['dog'], new Date(), new Date(), loc, 'notes');
+      const requestBool = createWalk('walk', false, ['dog'], new Date(), new Date(), loc, 'notes');
+      const requestObject = createWalk('walk', { walk: 5 }, ['dog'], new Date(), new Date(), loc, 'notes');
+      const requestNum = createWalk('walk', 5, ['dog'], new Date(), new Date(), loc, 'notes');
 
       await expect(requestArray).rejects.toEqual(createWalKIdError);
       await expect(requestBool).rejects.toEqual(createWalKIdError);
@@ -1307,7 +1300,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the single possible requests for a non empty string (not awaited so it will just return a promise)
-      const requestNotEmpty = createWalk('walk', '    ', ['dog'], new Date(), new Date(), 'loc', 'notes');
+      const requestNotEmpty = createWalk('walk', '    ', ['dog'], new Date(), new Date(), loc, 'notes');
       await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
     });
 
@@ -1315,8 +1308,8 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(2);
 
       // the two possible requests for null and undefined (not awaited so it will just return a promise)
-      const nullRequest = createWalk('walk', 'owner', null, new Date(), new Date(), 'loc', 'notes');
-      const undefinedRequest = createWalk('walk', 'owner', undefined, new Date(), new Date(), 'loc', 'notes');
+      const nullRequest = createWalk('walk', 'owner', null, new Date(), new Date(), loc, 'notes');
+      const undefinedRequest = createWalk('walk', 'owner', undefined, new Date(), new Date(), loc, 'notes');
 
       await expect(nullRequest).rejects.toEqual(createWalkValidArray);
       await expect(undefinedRequest).rejects.toEqual(createWalkValidArray);
@@ -1326,9 +1319,9 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(3);
 
       // the three possible requests for non string values (not awaited so it will just return a promise)
-      const requestBool = createWalk('walk', 'owner', false, new Date(), new Date(), 'loc', 'notes');
-      const requestObject = createWalk('walk', 'owner', { walk: 5 }, new Date(), new Date(), 'loc', 'notes');
-      const requestNum = createWalk('walk', 'owner', 5, new Date(), new Date(), 'loc', 'notes');
+      const requestBool = createWalk('walk', 'owner', false, new Date(), new Date(), loc, 'notes');
+      const requestObject = createWalk('walk', 'owner', { walk: 5 }, new Date(), new Date(), loc, 'notes');
+      const requestNum = createWalk('walk', 'owner', 5, new Date(), new Date(), loc, 'notes');
 
       await expect(requestBool).rejects.toEqual(createWalkValidArray);
       await expect(requestObject).rejects.toEqual(createWalkValidArray);
@@ -1339,7 +1332,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the single possible requests for a non empty string (not awaited so it will just return a promise)
-      const requestNotEmpty = createWalk('w', 'o', ['dog', null], new Date(), new Date(), 'loc', 'notes');
+      const requestNotEmpty = createWalk('w', 'o', ['dog', null], new Date(), new Date(), loc, 'notes');
       await expect(requestNotEmpty).rejects.toEqual(createWalKIdError);
     });
 
@@ -1348,7 +1341,7 @@ describe('Firebase Wrapper', async () => {
 
       // validate that if and when the datetime inputs are not a correct date time input,then it should be fully rejected.
       const dateTimeError = new Error('start date time and end date time must be date time objects.');
-      const dateTimeRequest = createWalk('walk', 'owner', ['dog'], 'date', new Date(), 'loc', 'notes');
+      const dateTimeRequest = createWalk('walk', 'owner', ['dog'], 'date', new Date(), loc, 'notes');
       await expect(dateTimeRequest).rejects.toEqual(dateTimeError);
     });
 
@@ -1357,7 +1350,7 @@ describe('Firebase Wrapper', async () => {
 
       // validate that if and when the datetime inputs are not a correct date time input,then it should be fully rejected.
       const dateTimeError = new Error('start date time and end date time must be date time objects.');
-      const dateTimeRequest = createWalk('walk', 'owner', ['dog'], new Date(), 'date', 'loc', 'notes');
+      const dateTimeRequest = createWalk('walk', 'owner', ['dog'], new Date(), 'date', loc, 'notes');
       await expect(dateTimeRequest).rejects.toEqual(dateTimeError);
     });
 
@@ -1365,18 +1358,18 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // the related error expected to be thrown when the method is called badly.
-      const locationError = new Error('location cannot be null or a invalid/empty string');
+      const locationError = new Error('location cannot be null and must contain lat and long');
 
       // validation and checking that the location parameter is correctly rejected.
       const locationRequest = createWalk('w', 'o', ['dog'], new Date(), new Date(), '     ', 'notes');
       await expect(locationRequest).rejects.toEqual(locationError);
     });
 
-    it('Should reject if the location is not a string', async () => {
+    it('Should reject if the location is not a object with lat and lng', async () => {
       expect.assertions(2);
 
       // the related error expected to be thrown when the method is called badly.
-      const locationError = new Error('location cannot be null or a invalid/empty string');
+      const locationError = new Error('location cannot be null and must contain lat and long');
 
       // validation and checking that the location parameter is correctly rejected.
       const locationRequestBool = createWalk('w', 'o', ['dog'], new Date(), new Date(), false, 'notes');
@@ -1393,9 +1386,11 @@ describe('Firebase Wrapper', async () => {
       const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
 
       // validation and checking that the notes parameter is correctly rejected.
-      const notesRequestArray = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', ['notes']);
-      const notesRequestBool = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', false);
-      const notesRequestNum = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', 5);
+      const loc = { lat: 1, lng: 1 };
+
+      const notesRequestArray = createWalk('w', 'o', ['dog'], new Date(), new Date(), loc, ['notes']);
+      const notesRequestBool = createWalk('w', 'o', ['dog'], new Date(), new Date(), loc, false);
+      const notesRequestNum = createWalk('w', 'o', ['dog'], new Date(), new Date(), loc, 5);
 
       await expect(notesRequestArray).rejects.toEqual(noteError);
       await expect(notesRequestBool).rejects.toEqual(noteError);
@@ -1409,7 +1404,7 @@ describe('Firebase Wrapper', async () => {
       const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
 
       // validation and checking that the notes parameter is correctly rejected.
-      const notesRequest = createWalk('w', 'o', ['dog'], new Date(), new Date(), 'location', '   ');
+      const notesRequest = createWalk('w', 'o', ['dog'], new Date(), new Date(), loc, '   ');
       await expect(notesRequest).rejects.toEqual(noteError);
     });
 
@@ -1423,7 +1418,7 @@ describe('Firebase Wrapper', async () => {
 
       // current date used for the date properties for the testing process.
       const insertD = new Date();
-      const walkRequestId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+      const walkRequestId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, loc, 'N/A');
 
       // lets first validate the the walkRequestId back is valid, this should at least show that the
       // id was created within firebase.
@@ -1438,7 +1433,7 @@ describe('Firebase Wrapper', async () => {
       expect(walkObject.walker).toEqual(userTwoId);
       expect(walkObject.owner).toEqual(userOneId);
       expect(walkObject.dogs).toEqual(['d']);
-      expect(walkObject.location).toEqual('Port');
+      expect(walkObject.location).toEqual(loc);
       expect(walkObject.notes.includes('N/A')).toEqual(true);
       expect(walkObject.status).toEqual(firebaseConstants.WALK_STATUS.PENDING);
     });
@@ -1448,7 +1443,7 @@ describe('Firebase Wrapper', async () => {
       // to validate that the id exists within the  two users. Both users need to have a reference
       // to this id otherwise there is no way for each user to see there owned and walking walks.
       const insertD = new Date();
-      const walkRequestId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+      const walkRequestId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, loc, 'N/A');
 
       const ownerKeys = await firebaseWrapper.getAllWalkKeys(userTwoId);
       const walkerKeys = await firebaseWrapper.getAllWalkKeys(userOneId);
@@ -1462,6 +1457,7 @@ describe('Firebase Wrapper', async () => {
   describe('acceptWalkRequest', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
 
     it('Should reject if the accepter or walk request ids are not valid', async () => {
       expect.assertions(11);
@@ -1515,7 +1511,7 @@ describe('Firebase Wrapper', async () => {
       // first lets create the walk, the walk request id can then be used to regather and accept the
       // walk request, ensuring that its not being accepted due to the ownership limitation.
       const inDate = new Date();
-      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
 
       // the error that is expected to occure when accepting a walk as the given owner of the dog.
       const ownerError = new Error('You cannot accept a walk if you are the owner.');
@@ -1531,7 +1527,7 @@ describe('Firebase Wrapper', async () => {
       // first lets create the walk, the walk request id can then be used to regather and accept the
       // walk request, ensuring that its beging accepted.
       const inDate = new Date();
-      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
 
       // short hand accept for cleaner testing. lets accept the walk, the accepting process does
       // not return anything so we should have to regather the walk object and validate that the
@@ -1550,6 +1546,7 @@ describe('Firebase Wrapper', async () => {
   describe('rejectWalkRequest', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
 
     it('Should reject if the rejector or walk request ids are not valid', async () => {
       expect.assertions(11);
@@ -1603,14 +1600,14 @@ describe('Firebase Wrapper', async () => {
       // first lets create the walk, the walk request id can then be used to regather and accept the
       // walk request, ensuring that its not being accepted due to the ownership limitation.
       const inDate = new Date();
-      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
 
       // the error that is expected to occure when accepting a walk as the given owner of the dog.
       const ownerError = new Error('You cannot reject a walk if you are the owner, cancel the walk instead');
 
       // short hand accept for cleaner testing.
-      const reeject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
-      await expect(reeject(userOneId, acceptWalk, 'notes')).rejects.toEqual(ownerError);
+      const reject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
+      await expect(reject(userOneId, acceptWalk, 'notes')).rejects.toEqual(ownerError);
     });
 
     it('Should reject the walk if all required properties are correctly set', async () => {
@@ -1619,7 +1616,7 @@ describe('Firebase Wrapper', async () => {
       // first lets create the walk, the walk request id can then be used to regather and accept the
       // walk request, ensuring that its beging accepted.
       const inDate = new Date();
-      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
 
       // short hand reject for cleaner testing. lets reject the walk, the rejecting process does
       // not return anything so we should have to regather the walk object and validate that the
@@ -1635,9 +1632,83 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
+  describe.only('cancelWalkRequest', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
+
+    it('Should cancel if the cancelor or walk request ids are not valid', async () => {
+      expect.assertions(11);
+
+      // the two possible related errors that can occure if the request or accepter id is not valid.
+      const requestError = new Error('walk request id cannot be null or a invalid/empty string');
+      const cancelerError = new Error('cancelor id cannot be null or a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const cancel = firebaseWrapper.cancelWalkRequest.bind(firebaseWrapper);
+
+      // validate the common cases related to invalid value inputs.
+      // accepter id does not validate for undefined due to it being replaced with the current
+      // authenticated user if the value is undefined (using default params).
+      await expect(cancel(null, 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel(['value'], 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel(false, 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel(5, 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel('    ', 'reqid', 'notes')).rejects.toEqual(cancelerError);
+
+      await expect(cancel('cancel', null, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', undefined, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', ['value'], 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', false, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', 5, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', '    ', 'notes')).rejects.toEqual(requestError);
+    });
+
+    it('Should cancel if notes are set that they are not null, invalid or not a string', async () => {
+      expect.assertions(3);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const cancel = firebaseWrapper.cancelWalkRequest.bind(firebaseWrapper);
+
+      // validation and checking that the notes parameter is correctly canceled.
+      const notescancelArray = cancel('acept', 'walkId', ['notes']);
+      const notescancelBool = cancel('acept', 'walkId', false);
+      const notescancelNum = cancel('acept', 'walkId', 5);
+
+      await expect(notescancelArray).rejects.toEqual(noteError);
+      await expect(notescancelBool).rejects.toEqual(noteError);
+      await expect(notescancelNum).rejects.toEqual(noteError);
+    });
+
+    it('Should cancel the walk if all required properties are correctly set', async () => {
+      expect.assertions(2);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its beging accepted.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
+
+      // short hand cancel for cleaner testing. lets cancel the walk, the canceling process does
+      // not return anything so we should have to regather the walk object and validate that the
+      // status and history object has been updated.
+      const cancel = firebaseWrapper.cancelWalkRequest.bind(firebaseWrapper);
+      await cancel(userTwoId, acceptWalk, 'notes');
+
+      // rgathered walk since the accepting process has gone through.
+      const updatedWalk = await firebaseWrapper.getWalkByKey(acceptWalk);
+
+      expect(!_.isNil(updatedWalk)).toEqual(true);
+      expect(updatedWalk.status).toEqual(firebaseConstants.WALK_STATUS.CANCELLED);
+    });
+  });
+
   describe('completeWalkRequest', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
 
     it('Should reject if the completer or walk request ids are not valid', async () => {
       expect.assertions(11);
@@ -1691,7 +1762,7 @@ describe('Firebase Wrapper', async () => {
       // first lets create the walk, the walk request id can then be used to regather and accept the
       // walk request, ensuring that its beging accepted.
       const inDate = new Date();
-      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, 'Port', 'N/A');
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
 
       // short hand complete for cleaner testing. lets complete the walk, the completeing process does
       // not return anything so we should have to regather the walk object and validate that the
@@ -1710,6 +1781,7 @@ describe('Firebase Wrapper', async () => {
   describe('getWalkByKey', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
 
     it('Should return the related work with all properties for a given walk key', async () => {
       // to be consistant, we would first need to properly go and create the given walk, this id of
@@ -1717,7 +1789,7 @@ describe('Firebase Wrapper', async () => {
       // are expecting it ot all be.
       expect.assertions(7);
 
-      const walkId = await createWalk(userTwoId, userOneId, ['d'], new Date(), new Date(), 'Port', 'N/A');
+      const walkId = await createWalk(userTwoId, userOneId, ['d'], new Date(), new Date(), loc, 'N/A');
       const regatheredWalk = await firebaseWrapper.getWalkByKey(walkId);
 
       // first validate that the regathered walk is not null or undefined.
@@ -1727,7 +1799,7 @@ describe('Firebase Wrapper', async () => {
       expect(regatheredWalk.walker).toEqual(userTwoId);
       expect(regatheredWalk.owner).toEqual(userOneId);
       expect(regatheredWalk.dogs).toEqual(['d']);
-      expect(regatheredWalk.location).toEqual('Port');
+      expect(regatheredWalk.location).toEqual(loc);
       expect(regatheredWalk.notes.includes('N/A')).toEqual(true);
       expect(regatheredWalk.status).toEqual(firebaseConstants.WALK_STATUS.PENDING);
     });
@@ -1761,6 +1833,7 @@ describe('Firebase Wrapper', async () => {
   describe('getAllWalks', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
 
     it('Should return all walks for a given user', async () => {
       // first we must create a  couple of walks (validating that they don't exist before hand)
@@ -1772,8 +1845,8 @@ describe('Firebase Wrapper', async () => {
 
       // create the two walks
       const insertD = new Date();
-      const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
-      const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+      const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, loc, 'N/A');
+      const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, loc, 'N/A');
 
       // assert that new ids dont exist within the old set of walks before regathering the most
       // recent walks.
@@ -1808,6 +1881,7 @@ describe('Firebase Wrapper', async () => {
   describe('getAllWalkKeys', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
 
     it('Should return all walk ids for a given user', async () => {
       // first we must create the at least two given walks, these ids then can be used to validate
@@ -1820,8 +1894,8 @@ describe('Firebase Wrapper', async () => {
 
       // create the two walks
       const insertD = new Date();
-      const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
-      const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, 'Port', 'N/A');
+      const walkOneId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, loc, 'N/A');
+      const walkTwoId = await createWalk(userTwoId, userOneId, ['d'], insertD, insertD, loc, 'N/A');
 
       // assert that new ids dont exist within the old set of keys before regathering the most
       // recent keys.

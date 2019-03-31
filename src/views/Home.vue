@@ -3,13 +3,13 @@
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
         <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">{{
-          pendingWalks
+          getPendingWalkCount()
         }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
         <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">{{
-          confirmedWalks
+          getConfirmedWalks()
         }}</GenericPanel>
       </v-flex>
 
@@ -47,7 +47,8 @@
 <script>
 import _ from 'lodash';
 
-import firebaseWrapper from '@/lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
+import * as firebsaeConstants from '../constants/firebaseConstants.js';
 import GenericPanel from '@/components/GenericPanel.vue';
 import RatingPanel from '@/components/RatingPanel.vue';
 import Calendar from '@/components/Calendar.vue';
@@ -57,12 +58,13 @@ export default {
 
   data: function() {
     return {
-      pendingWalks: 0,
-      confirmedWalks: 0,
       milesWalked: 0,
       currentRating: 0,
       completedWalks: 0,
-      availableIncome: `£0`
+      availableIncome: `£0`,
+      // these are all the current walks that the person is enrolled in, we will use this
+      // information to display related data for the user, including pending, miles, active etc.
+      walks: {}
     };
   },
 
@@ -70,23 +72,48 @@ export default {
     // get the currenlty authenticated user.
     const user = firebaseWrapper.getCurrentUser();
     const profile = await firebaseWrapper.getProfile();
+    this.walks = await firebaseWrapper.getAllWalks();
 
-    if (!_.isNil(profile) && !_.isNil(user)) {
-      this.name = profile.name;
-      this.image = user.photoURL;
+    this.name = profile.name;
+    this.image = user.photoURL;
 
-      // set all the required data fields on the home page for displaying.
-      this.currentRating = profile.walk.rating / profile.walk.completed;
-      this.completedWalks = profile.walk.completed;
-      this.availableIncome = `£${profile.walk.balance}`;
+    // set all the required data fields on the home page for displaying.
+    this.currentRating = profile.walk.rating / profile.walk.completed;
+    this.completedWalks = profile.walk.completed;
+    this.availableIncome = `£${profile.walk.balance}`;
+    this.milesWalked = profile.walk.miles;
 
-      // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
-      // is true then we are just just to set the value back to 0
-      if (_.isNaN(this.currentRating)) this.currentRating = 0;
-    }
+    // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
+    // is true then we are just just to set the value back to 0
+    if (_.isNaN(this.currentRating)) this.currentRating = 0;
   },
 
-  methods: {},
+  methods: {
+    // returns the count of the total amount of walks that are currently pending for the given user,
+    // this are walks in which the walker (or self if walker) has not confirmed, rejected or
+    // completed a given walk.
+    getPendingWalkCount: function() {
+      let totalPendingWalks = 0;
+
+      _.forEach(this.walks, (walk) => {
+        if (walk.status === firebsaeConstants.WALK_STATUS.PENDING) totalPendingWalks += 1;
+      });
+
+      return totalPendingWalks;
+    },
+    // returns the count of the total amount of walks that are currently confirmed for the given
+    // user, this are walks in which the walker (or self if walker) has confirmed completed a given
+    // walk.
+    getConfirmedWalks: function() {
+      let totalConfirmedWalks = 0;
+
+      _.forEach(this.walks, (walk) => {
+        if (walk.status === firebsaeConstants.WALK_STATUS.ACTIVE) totalConfirmedWalks += 1;
+      });
+
+      return totalConfirmedWalks;
+    }
+  },
 
   components: {
     GenericPanel,

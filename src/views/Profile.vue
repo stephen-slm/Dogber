@@ -3,12 +3,24 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-text class="subheading text-sm-left gray lighten-1"
-            >Dog Walker Profile: {{ profile.name }}</v-card-text
-          >
+          <v-layout row wrap>
+            <v-flex xs6>
+              <v-card-title primary class="subheading text-sm-left"
+                >Dog Walker Profile: {{ profile.name }}</v-card-title
+              >
+            </v-flex>
+            <v-flex xs6 class="text-sm-right" v-if="!isCurrentUser" style="margin: auto">
+              <RequestWalkDialog
+                :owner-id="authenticatedUserId"
+                :walker-id="localUserId"
+                :show-form-button="!isCurrentUser"
+              />
+            </v-flex>
+          </v-layout>
         </v-card>
       </v-flex>
-      <v-flex xs12 sm6 md4>
+
+      <v-flex xs12 sm6 md4 row wrap>
         <v-card>
           <v-card-text class="px-0">
             <v-avatar size="75">
@@ -31,7 +43,7 @@
                 <div>Age: {{ profile.age }}</div>
                 <div>Completed Walks: {{ profile.walk.completed }}</div>
                 <div>Area: {{ area }}</div>
-                <div>Distance: {{ distance }}</div>
+                <div>Distance: {{ profile.walk.miles }}</div>
               </div>
 
               <div>Price Range: £{{ profile.walk.price.min }} - £{{ profile.walk.price.max }} (/h)</div>
@@ -64,7 +76,7 @@
                 </v-layout>
               </v-card-text>
 
-              <v-card-actions class="text-sm-left" v-if="canGiveFeedback">
+              <v-card-actions class="text-sm-left" v-if="!isCurrentUser">
                 <GiveFeedback :submit="saveFeedback.bind(this)" />
               </v-card-actions>
             </v-card>
@@ -80,23 +92,24 @@
 import _ from 'lodash';
 import * as moment from 'moment';
 
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 import GiveFeedback from '@/components/GiveFeedback.vue';
 import DogsGrid from '@/components/DogsGrid.vue';
+import RequestWalkDialog from '@/components/RequestWalkDialog.vue';
 
 export default {
   name: 'Profile',
   data: function() {
     return {
       localUserId: '',
+      authenticatedUserId: '',
       profile: {
         walk: { rating: 0, price: { min: 0, max: 0 } }
       },
       dogs: {},
-      distance: '',
       area: '',
       feedback: [],
-      canGiveFeedback: false
+      isCurrentUser: false
     };
   },
 
@@ -114,16 +127,17 @@ export default {
   methods: {
     initalizePage: async function() {
       this.localUserId = this.$route.params.id || '';
+      this.authenticatedUserId = firebaseWrapper.getUid();
 
       // if no id was given via the param of the url then we will just fall to setting it as the id of
       // the current authenticated user, this will lead to always having somethigng being displayed.
       if (_.isNil(this.localUserId) || this.localUserId === 'me') {
-        this.localUserId = firebaseWrapper.getUid();
+        this.localUserId = this.authenticatedUserId;
       }
 
       // the user should only be able to give feedback to a person who is not themselves
-      if (this.localUserId !== firebaseWrapper.getUid()) {
-        this.canGiveFeedback = true;
+      if (this.localUserId === this.authenticatedUserId) {
+        this.isCurrentUser = true;
       }
 
       await this.loadProfile();
@@ -203,7 +217,8 @@ export default {
 
   components: {
     GiveFeedback,
-    DogsGrid
+    DogsGrid,
+    RequestWalkDialog
   }
 };
 </script>

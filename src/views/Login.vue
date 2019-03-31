@@ -34,7 +34,7 @@
 
 <script>
 import _ from 'lodash';
-import firebaseWrapper from '../lib/firebaseWrapper';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 
 import Snackbar from '@/components/Snackbar.vue';
 import Loading from '@/components/Loading.vue';

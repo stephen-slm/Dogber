@@ -5,7 +5,22 @@
         <v-layout row wrap>
           <v-flex xs12>
             <v-card>
-              <v-card-title primary class="subheading text-sm-left">My Walks</v-card-title>
+              <v-layout row wrap>
+                <v-flex xs6>
+                  <v-card-title primary class="subheading text-sm-left">My Walks</v-card-title>
+                </v-flex>
+                <v-flex xs6 class="text-sm-right">
+                  <v-btn
+                    icon
+                    large
+                    :loading="refreshingMyWalks"
+                    :disabled="refreshingMyWalks"
+                    @click="refreshMyWalks"
+                  >
+                    <v-icon>refresh</v-icon>
+                  </v-btn>
+                </v-flex>
+              </v-layout>
             </v-card>
           </v-flex>
           <v-flex xs12 sm3>
@@ -25,6 +40,7 @@
 
 <script>
 import SingleWalkResult from '@/components/SingleWalkResult.vue';
+import firebaseWrapper from '../lib/firebaseWrapper.js';
 
 export default {
   name: 'Walks',
@@ -32,8 +48,22 @@ export default {
     return {
       dropdown_walkCompleted: ['Yes', 'No'],
       dropdown_date: ['Ascending', 'Descending'],
-      walks: {}
+      walks: {},
+      refreshingMyWalks: false
     };
+  },
+
+  created: async function() {
+    this.walks = await firebaseWrapper.getAllWalkKeys();
+  },
+
+  methods: {
+    refreshMyWalks: async function() {
+      this.refreshingMyWalks = true;
+      this.walks = {};
+      this.walks = await firebaseWrapper.getAllWalkKeys();
+      this.refreshingMyWalks = false;
+    }
   },
 
   components: {
