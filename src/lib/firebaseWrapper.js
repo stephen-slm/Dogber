@@ -273,6 +273,9 @@ class FirebaseWrapper {
       notesToPush.push(notes);
     }
 
+    notesToPush.push(`Walk starts at ${startDateTime.toLocaleString()}`);
+    notesToPush.push(`Walk ends at ${endDateTime.toLocaleString()}`);
+
     const newWalkRequest = await this.database.ref(`walks`).push({
       walker: walkerId,
       owner: ownerId,
@@ -346,6 +349,10 @@ class FirebaseWrapper {
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.ACTIVE);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${walkerName} has accepted the walk.`);
 
+    if (_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).set(notes);
+    }
+
     // create the notification for the walker.
     this.createNotification(
       walkObject.owner,
@@ -398,6 +405,10 @@ class FirebaseWrapper {
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.REJECTED);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${walkerName} has rejected the walk.`);
 
+    if (_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).set(notes);
+    }
+
     // create the notification for the walker.
     this.createNotification(
       walkObject.owner,
@@ -409,14 +420,68 @@ class FirebaseWrapper {
   }
 
   /**
+   * Cancels the given walk, giving notifications the owner that the walk was cancelled and could not
+   * be processed.
+   *
+   * @param {string} rejecterId The person cancelling the walk.
+   * @param {string} walkRequestId The walk id of the walk that is being cancelled.
+   * @param {string} notes Any additional notes that are given when cancelling a walk.
+   * @memberof FirebaseWrapper
+   */
+
+  async cancelWalkRequest(cancelerId = this.getUid(), walkRequestId, notes) {
+    // ids are required and must be valid otherwise we cannot ensure that we are gathering the
+    // correct related walk by a given id.
+    if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
+      throw new Error('walk request id cannot be null or a invalid/empty string');
+    } else if (_.isNil(cancelerId) || !_.isString(cancelerId) || cancelerId.trim() === '') {
+      throw new Error('cancelor id cannot be null or a invalid/empty string');
+    }
+
+    // validate that the notes are correct if and only if they are set. If they are null then they
+    // just will be ingored during the creation process.
+    if (!_.isNil(notes) && (!_.isString(notes) || notes.trim() === '')) {
+      throw new Error('if notes are set, they cannot be a invalid/empty string');
+    }
+
+    // gather the related walk so we can give the owner of the dogs a notification about that the
+    // walker has gone and rejected the walk.
+    const walkObject = await this.getWalkByKey(walkRequestId);
+
+    const completerProfile = await this.getProfile(cancelerId);
+    const comName = completerProfile.name || completerProfile.email;
+
+    // determine who should be getting the notification related to the walk request going through.
+    let whoGetsNotification = cancelerId === walkObject.owner ? walkObject.walker : walkObject.owner;
+
+    // update the walk request as now active, and push to the history object that the walk has accepted the walk.
+    await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.CANCELLED);
+    await this.database.ref(`walks/${walkRequestId}/history`).push(`${comName} has cancelled the walk.`);
+
+    if (!_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).push(notes);
+    }
+
+    // create the notification for the walker.
+    this.createNotification(
+      whoGetsNotification,
+      'Walk Cancelled 🏃',
+      `${comName} has cancelled your walk!`,
+      'navigation',
+      `/walks/${walkRequestId}`
+    );
+  }
+
+  /**
    * Completes a walk.
    *
    * @param {string} completerId The person rejecting the walk.
    * @param {string} walkRequestId The walk id of the walk that is being completed.
    * @param {string} notes Any additional notes that are given when rejecting a walk.
+   * @param {string} rating The rating given by the owner of the walk.
    * @memberof FirebaseWrapper
    */
-  async completeWalkRequest(completerId = this.getUid(), walkRequestId, notes) {
+  async completeWalkRequest(completerId = this.getUid(), walkRequestId, notes, rating) {
     // ids are required and must be valid otherwise we cannot ensure that we are gathering the
     // correct related walk by a given id.
     if (_.isNil(walkRequestId) || !_.isString(walkRequestId) || walkRequestId.trim() === '') {
@@ -445,6 +510,30 @@ class FirebaseWrapper {
     await this.database.ref(`walks/${walkRequestId}/status`).set(firebaseConstants.WALK_STATUS.COMPLETE);
     await this.database.ref(`walks/${walkRequestId}/history`).push(`${comName} has completed the walk.`);
 
+    // update completed walk count for obth users.
+    await this.incrementCompletedWalks(walkObject.walker);
+    await this.incrementRating(walkObject.walker, rating);
+
+    // update total miles walked for the current walker
+    const timeDiff = Math.abs(new Date(walkObject.start).getTime() - new Date(walkObject.end).getTime());
+
+    if (!_.isNaN(timeDiff)) {
+      const averageMilesPerHour = 60 / 20;
+      const miles = ((timeDiff / (1000 * 3600 * 1)) * averageMilesPerHour).toFixed(2);
+      const walker = await this.getProfile(walkObject.walker);
+
+      // update the current walkers miles walked, (this could be computed at any  point in the code
+      // but we need it fixed to stop duplicate code, might as well do it before it goes in)
+      await this.database
+        .ref(`users/${walkObject.walker}/profile/walk/miles`)
+        .set(Number(walker.walk.miles) + Number(miles));
+    }
+
+    // add notes if they have actually been set
+    if (!_.isNil(notes)) {
+      await this.database.ref(`walks/${walkRequestId}/notes`).push(notes);
+    }
+
     // create the notification for the walker.
     this.createNotification(
       whoGetsNotification,
@@ -462,14 +551,25 @@ class FirebaseWrapper {
    * @memberof FirebaseWrapper
    */
   async getWalkByKey(walkId) {
+    const walkObject = await this.getWalkReferenceByKey(walkId).once('value');
+    return walkObject.val();
+  }
+
+  /**
+   * Gets a the related walk reference by the id of the walk
+   *
+   * @param {string} walkId the id of the given walk.
+   * @returns
+   * @memberof FirebaseWrapper
+   */
+  getWalkReferenceByKey(walkId) {
     // ids are required and must be valid otherwise we cannot ensure that we are gathering the
     // correct related walk by a given id.
     if (_.isNil(walkId) || !_.isString(walkId) || walkId.trim() === '') {
       throw new Error('walk id cannot be null or a invalid/empty string');
     }
 
-    const walkObject = await this.database.ref(`walks/${walkId}`).once('value');
-    return walkObject.val();
+    return this.database.ref(`walks/${walkId}`);
   }
 
   /**
@@ -527,6 +627,19 @@ class FirebaseWrapper {
    * application.
    */
   async getProfile(id = this.getUid()) {
+    const profile = await this.getProfileReference(id).once('value');
+    return profile.val();
+  }
+
+  /**
+   * Returns a firebase reference to a place in the database. Focused around a given users
+   * preference.
+   *
+   * @param {string} [id=this.getUid()] The id that is gathering the reference.
+   * @returns Firebase Reference
+   * @memberof FirebaseWrapper
+   */
+  getProfileReference(id = this.getUid()) {
     if (_.isNil(id)) {
       // passed id must be of a type, we cannot work with the process if the id is null or
       // undefined. the user should always pass a valid id.
@@ -539,8 +652,8 @@ class FirebaseWrapper {
       throw new Error('Passed id should be of type string');
     }
 
-    const profile = await this.database.ref(`users/${id}/profile`).once('value');
-    return profile.val();
+    // return the given reference to the user.
+    return this.database.ref(`users/${id}/profile`);
   }
 
   /**
@@ -607,9 +720,10 @@ class FirebaseWrapper {
   /**
    * Increments the user ratings, respecting the rating limits of being a int, less than or greater
    * than 5 and a modulo of 0.5.
+   * @param {string} id The id of the current user getting the data incremneted.
    * @param {int} newRating The newly added rating value.
    */
-  async incrementRating(newRating) {
+  async incrementRating(id = this.getUid(), newRating) {
     if (!_.isNumber(newRating)) {
       throw new Error('Previous rating must be number');
     }
@@ -622,12 +736,10 @@ class FirebaseWrapper {
       throw new Error('Your rating should be between 0 to 5');
     }
 
-    const profile = await this.getProfile();
+    const profile = await this.getProfile(id);
 
     if (!_.isNil(profile)) {
-      await this.database
-        .ref(`users/${this.getUid()}/profile/walk/rating`)
-        .set(profile.walk.rating + newRating);
+      await this.database.ref(`users/${id}/profile/walk/rating`).set(profile.walk.rating + newRating);
     }
   }
 
@@ -635,20 +747,21 @@ class FirebaseWrapper {
    * Increments the number of completed walks for the given authenticated user. This will gather the
    * existing profile and the existing profiles walk.completed and increment this by 1. Always being
    * consistant with what is currently being stored on the server.
+   *
+   * @param {string} id The id fo the person who is getting the completed walks incremented.
    */
-  async incrementCompletedWalks() {
-    const profile = await this.getProfile();
+  async incrementCompletedWalks(id = this.getUid()) {
+    const profile = await this.getProfile(id);
 
-    if (!_.isNull(profile)) {
-      await this.database
-        .ref(`users/${this.getUid()}/profile/walk/completed`)
-        .set(profile.walk.completed + 1);
+    if (!_.isNil(profile)) {
+      await this.database.ref(`users/${id}/profile/walk/completed`).set(profile.walk.completed + 1);
     }
   }
 
   /**
    * Updates the existing profile with the properties that are set on the profile object. This will
    * be limited to what is currently being stored on the profile, attempting to add anymore
+   *
    * information will result in the data being filted out.
    * @param {object} profileObject The profile object containing all required updating properties.
    */
@@ -1088,6 +1201,7 @@ class FirebaseWrapper {
       status_type: null,
       payment: null,
       walk: {
+        miles: 0,
         active: false,
         rating: 0,
         completed: 0,

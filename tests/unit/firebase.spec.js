@@ -1606,8 +1606,8 @@ describe('Firebase Wrapper', async () => {
       const ownerError = new Error('You cannot reject a walk if you are the owner, cancel the walk instead');
 
       // short hand accept for cleaner testing.
-      const reeject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
-      await expect(reeject(userOneId, acceptWalk, 'notes')).rejects.toEqual(ownerError);
+      const reject = firebaseWrapper.rejectWalkRequest.bind(firebaseWrapper);
+      await expect(reject(userOneId, acceptWalk, 'notes')).rejects.toEqual(ownerError);
     });
 
     it('Should reject the walk if all required properties are correctly set', async () => {
@@ -1629,6 +1629,79 @@ describe('Firebase Wrapper', async () => {
 
       expect(!_.isNil(updatedWalk)).toEqual(true);
       expect(updatedWalk.status).toEqual(firebaseConstants.WALK_STATUS.REJECTED);
+    });
+  });
+
+  describe.only('cancelWalkRequest', async () => {
+    // short hand create walk for smaller tests for easier readablility.
+    const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
+    const loc = { lat: 1, lng: 1 };
+
+    it('Should cancel if the cancelor or walk request ids are not valid', async () => {
+      expect.assertions(11);
+
+      // the two possible related errors that can occure if the request or accepter id is not valid.
+      const requestError = new Error('walk request id cannot be null or a invalid/empty string');
+      const cancelerError = new Error('cancelor id cannot be null or a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const cancel = firebaseWrapper.cancelWalkRequest.bind(firebaseWrapper);
+
+      // validate the common cases related to invalid value inputs.
+      // accepter id does not validate for undefined due to it being replaced with the current
+      // authenticated user if the value is undefined (using default params).
+      await expect(cancel(null, 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel(['value'], 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel(false, 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel(5, 'reqid', 'notes')).rejects.toEqual(cancelerError);
+      await expect(cancel('    ', 'reqid', 'notes')).rejects.toEqual(cancelerError);
+
+      await expect(cancel('cancel', null, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', undefined, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', ['value'], 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', false, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', 5, 'notes')).rejects.toEqual(requestError);
+      await expect(cancel('cancel', '    ', 'notes')).rejects.toEqual(requestError);
+    });
+
+    it('Should cancel if notes are set that they are not null, invalid or not a string', async () => {
+      expect.assertions(3);
+
+      // the related error expected to be thrown when the method is called badly.
+      const noteError = new Error('if notes are set, they cannot be a invalid/empty string');
+
+      // short hand accept for cleaner testing.
+      const cancel = firebaseWrapper.cancelWalkRequest.bind(firebaseWrapper);
+
+      // validation and checking that the notes parameter is correctly canceled.
+      const notescancelArray = cancel('acept', 'walkId', ['notes']);
+      const notescancelBool = cancel('acept', 'walkId', false);
+      const notescancelNum = cancel('acept', 'walkId', 5);
+
+      await expect(notescancelArray).rejects.toEqual(noteError);
+      await expect(notescancelBool).rejects.toEqual(noteError);
+      await expect(notescancelNum).rejects.toEqual(noteError);
+    });
+
+    it('Should cancel the walk if all required properties are correctly set', async () => {
+      expect.assertions(2);
+
+      // first lets create the walk, the walk request id can then be used to regather and accept the
+      // walk request, ensuring that its beging accepted.
+      const inDate = new Date();
+      const acceptWalk = await createWalk(userTwoId, userOneId, ['d'], inDate, inDate, loc, 'N/A');
+
+      // short hand cancel for cleaner testing. lets cancel the walk, the canceling process does
+      // not return anything so we should have to regather the walk object and validate that the
+      // status and history object has been updated.
+      const cancel = firebaseWrapper.cancelWalkRequest.bind(firebaseWrapper);
+      await cancel(userTwoId, acceptWalk, 'notes');
+
+      // rgathered walk since the accepting process has gone through.
+      const updatedWalk = await firebaseWrapper.getWalkByKey(acceptWalk);
+
+      expect(!_.isNil(updatedWalk)).toEqual(true);
+      expect(updatedWalk.status).toEqual(firebaseConstants.WALK_STATUS.CANCELLED);
     });
   });
 
