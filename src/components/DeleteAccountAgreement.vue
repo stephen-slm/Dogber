@@ -1,10 +1,10 @@
 <template>
   <v-layout>
-    <v-btn flat color="primary" @click="showDeleteAccountLocal = true">Delete Account</v-btn>
+    <v-btn flat color="warning" @click="showDeleteAccountLocal = true">Delete Account</v-btn>
     <v-dialog v-model="showDeleteAccountLocal" max-width="290">
       <v-card>
         <v-card-title class="headline">Delete your account {{ name }}?</v-card-title>
-        <v-progress-circular v-if="deleting" indeterminate color="primary"></v-progress-circular>
+        <v-progress-circular v-if="deleting" indeterminate color="warning"></v-progress-circular>
         <v-card-text v-if="!deleting">
           Deleting your account will remove all records and information Dogber as currently about you. You
           will no longer exist at all in the system.
@@ -13,7 +13,7 @@
           <v-spacer></v-spacer>
 
           <v-btn v-if="!deleting" flat="flat" @click="showDeleteAccountLocal = false">Cancel</v-btn>
-          <v-btn v-if="!deleting" color="primary" flat="flat" @click="deleteAccount()">Delete</v-btn>
+          <v-btn v-if="!deleting" color="warning" flat="flat" @click="deleteAccount()">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
