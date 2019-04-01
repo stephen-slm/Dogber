@@ -767,7 +767,119 @@ describe('Firebase Wrapper', async () => {
   });
 
   describe('addDog', async () => {
-    // tests for Mukluk.
+    // Get all add dog related errors messages for help with writting cleaner test code.
+    const errorDogName = new Error('Dog name cannot be empty and must be a string');
+    const errorDogAge = new Error('Dog age cannot be empty and must be a number');
+    const errorDogRace = new Error('Dog race cannot be empty and must be a string');
+    const errorDogFavoriteToy = new Error('Dogs favorite toy cannot be empty and must be a string');
+    const errorDogFavoriteFood = new Error('Dogs favorite food cannot be empty and must be a string');
+
+    it('Should reject if the name of dog is invalid', async () => {
+      expect.assertions(4);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogName)
+      await expect(firebaseWrapper.addDog(1, 1, 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(true, 1, 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(
+        errorDogName
+      );
+      await expect(firebaseWrapper.addDog(0.1, 1, 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(errorDogName);
+      await expect(firebaseWrapper.addDog(['Maria'], 1, 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(
+        errorDogName
+      );
+    });
+
+    it('Shoud reject if the age of dog is invalid', async () => {
+      expect.assertions(3);
+
+      // It should reject all non-numeric values passed to the function addDog (parameter: dogAge)
+      await expect(firebaseWrapper.addDog('Lara', '1', 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(
+        errorDogAge
+      );
+      await expect(firebaseWrapper.addDog('Lara', [1], 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(
+        errorDogAge
+      );
+      await expect(firebaseWrapper.addDog('Lara', false, 'Doberman', 'Ball', 'Pizza')).rejects.toEqual(
+        errorDogAge
+      );
+    });
+
+    it('Shoud reject if the race of dog is invalid', async () => {
+      expect.assertions(3);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogRace)
+      await expect(firebaseWrapper.addDog('Lara', 1, 5, 'Ball', 'Pizza')).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog('Lara', 1, false, 'Ball', 'Pizza')).rejects.toEqual(errorDogRace);
+      await expect(firebaseWrapper.addDog('Lara', 1, ['Doberman'], 'Ball', 'Pizza')).rejects.toEqual(
+        errorDogRace
+      );
+    });
+
+    it('Shoud reject if the favorite toy of dog is invalid', async () => {
+      expect.assertions(3);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogFavoriteToy)
+      await expect(firebaseWrapper.addDog('Lara', 1, 'Doberman', ['Ball'], 'Pizza')).rejects.toEqual(
+        errorDogFavoriteToy
+      );
+      await expect(firebaseWrapper.addDog('Lara', 1, 'Doberman', false, 'Pizza')).rejects.toEqual(
+        errorDogFavoriteToy
+      );
+      await expect(firebaseWrapper.addDog('Lara', 1, 'Doberman', 9, 'Pizza')).rejects.toEqual(
+        errorDogFavoriteToy
+      );
+    });
+
+    it('Shoud reject if the favorite toy of dog is invalid', async () => {
+      expect.assertions(3);
+
+      // It should reject all non-string values passed to the function addDog (parameter: dogFavoriteFood)
+      await expect(firebaseWrapper.addDog('Lara', 1, 'Doberman', 'Ball', ['Pizza'])).rejects.toEqual(
+        errorDogFavoriteFood
+      );
+      await expect(firebaseWrapper.addDog('Lara', 1, 'Doberman', 'Ball', true)).rejects.toEqual(
+        errorDogFavoriteFood
+      );
+      await expect(firebaseWrapper.addDog('Lara', 1, 'Doberman', 'Ball', 1)).rejects.toEqual(
+        errorDogFavoriteFood
+      );
+    });
+
+    /**
+     * When the dog is created we must ensure that we are getting back to the key, this is
+     * the key we will be using to reference the dog. This would be used for the removing
+     * of dog as well. / single gathering.
+     */
+    it('Should return the dog key if the dog has been created', async () => {
+      expect.assertions(1);
+
+      const dog = await firebaseWrapper.addDog('Lara', 1, 'Doberman', 'Ball', 'Pizza');
+      expect(typeof dog).toBe('string');
+    });
+
+    it('If the dog has been created successfully then all the attributes should be same as the input', async () => {
+      // Lets define a new dog and its attributes
+      const newDog = {
+        name: 'Kevin',
+        age: 2,
+        race: 'Labrador',
+        favoriteToy: 'Tennis ball',
+        favoriteFood: 'Chicken'
+      };
+
+      // We will create the dog and will return the key related to the dog
+      const dogCreated = await firebaseWrapper.addDog(
+        newDog.name,
+        newDog.age,
+        newDog.race,
+        newDog.favoriteToy,
+        newDog.favoriteFood
+      );
+
+      // lets validate that we can now regather that dog and it matches correctly.
+      const regatheredDog = await firebaseWrapper.getSingleDog(userOneId, dogCreated);
+
+      expect(regatheredDog).toEqual(newDog);
+    });
   });
 
   describe('getAllDogs', async () => {
@@ -2352,6 +2464,127 @@ describe('Firebase Wrapper', async () => {
 
       // expect that the notifications have now gone.
       expect(Object.keys(updatedNotifications)).not.toEqual(expect.arrayContaining([key, key2, key3]));
+    });
+  });
+
+  describe('updateContactNumber', async () => {
+    // We need to make sure that the contact number is added in correct format to the profile
+
+    // Get the possible erros of the functions
+    const errorNumber = new Error('Contact number cannot be a string or empty');
+    const errorNotaNumber = new Error('Contact number can only be a number');
+
+    it('Shoud not add the contact number if string or empty', async () => {
+      expect.assertions(2);
+      await expect(firebaseWrapper.updateContactNumber('string')).rejects.toEqual(errorNumber);
+      await expect(firebaseWrapper.updateContactNumber('')).rejects.toEqual(errorNumber);
+    });
+
+    it('Should not add the contact number if it not a number', async () => {
+      expect.assertions(2);
+      await expect(firebaseWrapper.updateContactNumber(false)).rejects.toEqual(errorNotaNumber);
+      await expect(firebaseWrapper.updateContactNumber([1])).rejects.toEqual(errorNotaNumber);
+    });
+
+    it('Test to see if the contact number is updated successfully', async () => {
+      expect.assertions(1);
+      // Data used to update the number
+      const number = 7777777777;
+
+      // Get the profile with default number
+      const profile = await firebaseWrapper.getProfile();
+
+      // Update the number
+      await firebaseWrapper.updateContactNumber(number);
+
+      // Get the profile with updated number
+      const updatedProfile = await firebaseWrapper.getProfile();
+      expect(updatedProfile.contact_number).toEqual(profile.contact_number + number);
+    });
+  });
+
+  describe('updateStatusType', async () => {
+    // Get the errors when the entered values are not a string or empty
+    const statusNameError = new Error('The status must a string and non-empty value');
+
+    // We need to make sure invalid values do not pass
+    it('Should not update the status if it is not a string', async () => {
+      expect.assertions(3);
+      await expect(firebaseWrapper.updateStatusType(false)).rejects.toEqual(statusNameError);
+      await expect(firebaseWrapper.updateStatusType(1)).rejects.toEqual(statusNameError);
+      await expect(firebaseWrapper.updateStatusType(['hello'])).rejects.toEqual(statusNameError);
+    });
+
+    it('Should update the status if it is a string', async () => {
+      expect.assertions(1);
+
+      // Data used to update the status
+      const status = 'Dog Owner';
+
+      // Update the status
+      await firebaseWrapper.updateStatusType(status);
+
+      // Get the profile with updated number
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.status_type).toEqual(status);
+    });
+  });
+
+  describe('updateAge', async () => {
+    // Get the possible errors
+    const ageErrorString = new Error('The age cannot be a string and non-empty value');
+    const ageErrorNumber = new Error('The age can only be a number');
+
+    // We need to make sure the age is a valid input (input type: number)
+    it('Should not update the age of invalid input', async () => {
+      expect.assertions(3);
+      await expect(firebaseWrapper.updateAge('23')).rejects.toEqual(ageErrorString);
+      await expect(firebaseWrapper.updateAge(['23'])).rejects.toEqual(ageErrorNumber);
+      await expect(firebaseWrapper.updateAge(false)).rejects.toEqual(ageErrorNumber);
+    });
+
+    it('Should update the age if valid input is entered', async () => {
+      expect.assertions(1);
+
+      // Data used to update the age
+      const newAge = 23;
+
+      // Update the age to new valie
+      await firebaseWrapper.updateAge(newAge);
+
+      // Get the profile with updated age
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.age).toEqual(newAge);
+    });
+  });
+
+  describe('updatePaymentMethod', async () => {
+    // Get all possible errors
+    const paymentMethodError = new Error('The paymentMethod can only be a string and non-empty value');
+
+    // We need make sure that invalid input won't update the database
+    it('Should not update the payment method if invalid input', async () => {
+      expect.assertions(3);
+      await expect(firebaseWrapper.updatePaymentMethod(false)).rejects.toEqual(paymentMethodError);
+      await expect(firebaseWrapper.updatePaymentMethod(1)).rejects.toEqual(paymentMethodError);
+      await expect(firebaseWrapper.updatePaymentMethod(['Cash'])).rejects.toEqual(paymentMethodError);
+    });
+
+    it('Should update the payment method if valid input is added', async () => {
+      expect.assertions(1);
+
+      // Data used to update the payment method
+      const newPayment = 'Bank Transfer';
+
+      // Update the payment method
+      await firebaseWrapper.updatePaymentMethod(newPayment);
+
+      // Get the profile with updated payment method
+      const updatedProfile = await firebaseWrapper.getProfile();
+
+      expect(updatedProfile.payment_method).toEqual(newPayment);
     });
   });
 });

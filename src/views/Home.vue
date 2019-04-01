@@ -74,18 +74,22 @@ export default {
     const profile = await firebaseWrapper.getProfile();
     this.walks = await firebaseWrapper.getAllWalks();
 
-    this.name = profile.name;
-    this.image = user.photoURL;
+    // if the profile is new redirect to introduction page
+    if (profile.new) {
+      this.$router.push({ name: 'introduction' });
+    }
 
-    // set all the required data fields on the home page for displaying.
-    this.currentRating = profile.walk.rating / profile.walk.completed;
-    this.completedWalks = profile.walk.completed;
-    this.availableIncome = `£${profile.walk.balance}`;
-    this.milesWalked = profile.walk.miles;
+    if (!_.isNil(profile) && !_.isNil(user)) {
+      // set all the required data fields on the home page for displaying.
+      this.currentRating = profile.walk.rating / profile.walk.completed;
+      this.completedWalks = profile.walk.completed;
+      this.availableIncome = `£${profile.walk.balance}`;
+      this.milesWalked = profile.walk.miles;
 
-    // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
-    // is true then we are just just to set the value back to 0
-    if (_.isNaN(this.currentRating)) this.currentRating = 0;
+      // when a user has 0 rating and 0 complted walks then there value is going to be NaN, if this
+      // is true then we are just just to set the value back to 0
+      if (_.isNaN(this.currentRating)) this.currentRating = 0;
+    }
   },
 
   methods: {

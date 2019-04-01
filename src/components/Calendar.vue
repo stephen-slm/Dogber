@@ -18,11 +18,9 @@
                     <div>{{ event.details }}</div>
                     <div>
                       Status:
-                      <span :style="{ color: getStatusColor(event.status) }">
-                        {{
+                      <span :style="{ color: getStatusColor(event.status) }">{{
                         getStatus(event.status)
-                        }}
-                      </span>
+                      }}</span>
                     </div>
                     <div>
                       {{ new Date(event.start).toLocaleString() }} -
@@ -42,9 +40,7 @@
     </v-flex>
 
     <v-flex sm4 xs12 class="text-sm-left text-xs-center">
-      <v-btn @click="$refs.calendar.prev()">
-        <v-icon dark left>keyboard_arrow_left</v-icon>Prev
-      </v-btn>
+      <v-btn @click="$refs.calendar.prev()"> <v-icon dark left>keyboard_arrow_left</v-icon>Prev </v-btn>
     </v-flex>
     <v-flex sm4 xs12 class="text-xs-center"></v-flex>
     <v-flex sm4 xs12 class="text-sm-right text-xs-center">
@@ -78,15 +74,26 @@ export default {
     for (const walkid of Object.keys(this.walks)) {
       const walk = this.walks[walkid];
 
+      // if for any reason if we do not have any related walker or owner then we just want to skip
+      // this process, and continue to the next walk object.
+      if (_.isNil(walk.walker) || _.isNil(walk.owner)) continue;
+
       this.walks[walkid].walkId = this.walks[walkid].id;
       this.walks[walkid].id = walkid;
 
+      // determine if the current authenticated person is the walker or the owner of the walk, this
+      // will determine how we go about formatting the walk display information.
       const isOwner = firebaseWrapper.getUid() === walk.owner;
 
+      // gather the related walker and owner.
       const walker = await firebaseWrapper.getProfile(walk.walker);
       const owner = await firebaseWrapper.getProfile(walk.owner);
 
-      this.walks[walkid].title = 'Walk Request 🏃‍♂️';
+      // If and when the accounts are being deleted and removed, then gathering them could result in
+      // one of them being null or undefined. Its best to check this here.
+      if (_.isNil(walker) || _.isNil(owner)) continue;
+
+      this.walks[walkid].title = 'Walk 🏃‍♂️';
 
       if (isOwner) {
         this.walks[walkid].details = `Walk with ${walker.name || walker.email}`;
