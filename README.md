@@ -4,6 +4,21 @@ _Official Repro for [Dogber](https://app.dogber.co.uk)_
 
 ---
 
+- [Stack:](#stack-)
+- [Project Structure](#project-structure)
+- [Travis](#travis)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installing](#installing)
+- [Running the application (or visit https://app.dogber.co.uk)](#running-the-application--or-visit-https---appdogbercouk-)
+- [Running the Linting Process](#running-the-linting-process)
+- [Running the tests](#running-the-tests)
+- [Running the Precommit Process](#running-the-precommit-process)
+- [Built With](#built-with)
+- [Versioning](#versioning)
+- [Authors / Legend (Current Contributions)](#authors---legend--current-contributions-)
+- [License](#license)
+
 ## Stack:
 
 [![Build Status](https://travis-ci.com/tehstun/Dogber.svg?token=yBBSq1qd5HMhutV7avm8&branch=master)](https://travis-ci.com/tehstun/Dogber)
@@ -15,6 +30,8 @@ _Official Repro for [Dogber](https://app.dogber.co.uk)_
 ![Jest](https://img.shields.io/npm/v/jest.svg?label=Jest&logo=Jest)
 
 ---
+
+<img src="https://i.imgur.com/muL4NQS.png" width=250>
 
 ## Project Structure
 
@@ -29,15 +46,17 @@ Overview
     ├── test                           - tests to validate completeness and correctness.
     |   ├── unit                        - The unit tests for the app.
 
-<img align="middle" src="https://i.imgur.com/M2LPQXY.png" alt="Preview">
-
 Dogber is the Uber for dogs, allowing owners to get there dogs walked when they are busy, away or lazy by dog lovers who are active, free and in need of some extra cash.
+
+## Travis
+
+Travis is being used to autotest all branches, pull requests and changes on any non-master content, while all master pull requests result in a complete build and deployment to http://app.dogber.co.uk - (https://travis-ci.com/tehstun/Dogber)
+
+<img src="https://i.imgur.com/mCBEZSa.png" width=500>
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-**IMPORTANT:** Git commits will be rejected on the master branch, all commits must be pushed and made on the develop branch.
 
 ### Prerequisites
 
@@ -74,11 +93,19 @@ or run:
 start.bat
 ```
 
-Running "vue ui" will load up a local website that can be used for the helping in the development of the application, this website will look something like the below image. We will use this website UI for building, testing and linting our code. You can follow the below information to understand how to test, run, lint and get the code ready for committing. You might have to specify the directory of dogber.
+Running "vue ui" will load up a local website that can be used for the helping in the development of the application, this website will look something like the below image. We will use this website UI for building, testing and linting our code. You can follow the below information to understand how to test, run, lint and get the code ready for committing. You might have to specify the directory of dogber. This website is created by the underlining VueJs framework and is not apart of the project development.
 
 <img align="middle" src="https://i.imgur.com/376sSE4.png" alt="Vue Ui">
 
-## Running the application
+## Running the application (or visit https://app.dogber.co.uk)
+
+run
+
+```
+npm run serve
+```
+
+or follow the UI guide:
 
 0. Making sure you have correctly ran "vue ui" in a terminal within the project directory.
 1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
@@ -94,6 +121,14 @@ From this page you can then go and edit the website, making changes to the files
 ## Running the Linting Process
 
 Linting is run to make sure that your code is syntactically correct for the running of the application, so linting should be run before making commits, this is covered within the precommit process. To run the linting process manually to see errors that have occurred do the following.
+
+run
+
+```
+npm run lint
+```
+
+or follow the UI guide:
 
 0. Making sure you have correctly run "vue ui" in a terminal within the project directory.
 1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
@@ -112,7 +147,15 @@ If the linting process fails, you will get an error message specifying what need
 
 ## Running the tests
 
-Tests can be run to validate the functionality of the vue components.
+Tests can be run to validate the functionality of the vue components. There are over 160 test cases which span 5 different test suits validating the core logic and functionality of the application.
+
+run
+
+```
+npm run test
+```
+
+or follow the UI guide:
 
 0. Making sure you have correctly run "vue ui" in a terminal within the project directory.
 1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
@@ -123,7 +166,7 @@ Tests can be run to validate the functionality of the vue components.
 
 If tests pass you will get a message stating the tests that have passed.
 
-<img align="middle" src="https://i.imgur.com/JXbhfJs.png" alt="Vue Test Unit Pass">
+<img align="middle" src="https://i.imgur.com/MsWh5et.png" alt="Vue Test Unit Pass">
 
 If the tests failed you will get a message telling you which failed and why. Fix the tests before committing into the branch. All tests must pass before committing.
 
@@ -131,7 +174,15 @@ If the tests failed you will get a message telling you which failed and why. Fix
 
 ## Running the Precommit Process
 
-Precommit process must be ran (which runs the tests and the linting process) and must pass before you commit code into the project. This is to ensure that the code going in is correct and will function properly.
+Precommit process must be run (which runs the tests and the linting process) and must pass before you commit code into the project. This is to ensure that the code going in is correct and will function properly.
+
+run
+
+```
+npm run precommit
+```
+
+or follow the UI guide:
 
 0. Making sure you have correctly run "vue ui" in a terminal within the project directory.
 1. Click Tasks from the left-hand side navigation bar (bottommost clipboard).
