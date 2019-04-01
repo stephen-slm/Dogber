@@ -2,15 +2,15 @@
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">
-          {{ getPendingWalkCount() }}
-        </GenericPanel>
+        <GenericPanel top-text="Welcome to Dogber" bottom-text="Pending walk requests">{{
+          getPendingWalkCount()
+        }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md6 class="box-spacing">
-        <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">
-          {{ getConfirmedWalks() }}
-        </GenericPanel>
+        <GenericPanel top-text="Activities" bottom-text="Confirmed/Future Walks">{{
+          getConfirmedWalks()
+        }}</GenericPanel>
       </v-flex>
 
       <v-flex xs12 sm6 md3 class="box-spacing">
@@ -80,9 +80,6 @@ export default {
     }
 
     if (!_.isNil(profile) && !_.isNil(user)) {
-      this.name = profile.name;
-      this.image = user.photoURL;
-
       // set all the required data fields on the home page for displaying.
       this.currentRating = profile.walk.rating / profile.walk.completed;
       this.completedWalks = profile.walk.completed;

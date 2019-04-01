@@ -16,28 +16,26 @@
             </template>
             <v-card>
               <v-layout justify-center style="margin-bottom: 13px">
-              <v-flex xs12 sm6 md6>
-                <v-text-field ref="name" v-model="name" label="Full Name" disabled></v-text-field>
-                <v-text-field ref="email" v-model="email" label="E-Mail" disabled></v-text-field>
-                <v-text-field
-                  ref="age"
-                  v-model="age"
-                  :rules="[
-                    () => !!age || 'This field is required']"
-                  label="Your age"
-                  placeholder="23"
-                  required
-                ></v-text-field>
-                <v-text-field
-                  ref="contactNumber"
-                  v-model="contactNumber"
-                  :rules="[
-                    () => !!contactNumber || 'This field is required']"
-                  label="Contact Number"
-                  required
-                ></v-text-field>
-              </v-flex>
-            </v-layout>
+                <v-flex xs12 sm6 md6>
+                  <v-text-field ref="name" v-model="name" label="Full Name" disabled></v-text-field>
+                  <v-text-field ref="email" v-model="email" label="E-Mail" disabled></v-text-field>
+                  <v-text-field
+                    ref="age"
+                    v-model="age"
+                    :rules="[() => !!age || 'This field is required']"
+                    label="Your age"
+                    placeholder="23"
+                    required
+                  ></v-text-field>
+                  <v-text-field
+                    ref="contactNumber"
+                    v-model="contactNumber"
+                    :rules="[() => !!contactNumber || 'This field is required']"
+                    label="Contact Number"
+                    required
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
             </v-card>
             <v-layout justify-center style="margin-bottom: 15px">
               <v-btn color="primary" @click="completeFormPersonal">Change</v-btn>
@@ -52,45 +50,45 @@
             </template>
             <v-card>
               <v-layout justify-center style="margin-bottom: 13px">
-              <v-flex xs12 sm6 md6>
-                <v-select
-                ref="status"
-                v-model="status"
-                :rules="[() => !!status || 'This field is required']"
-                :items="statusTypes"
-                label="Dog owner or Dog Walker?"
-                placeholder="Select..."
-                required
-              ></v-select>
-              <v-text-field
-                ref="minPrice"
-                v-model="minPrice"
-                :rules="[() => !!minPrice || 'This field is required']"
-                label="Minimum Price required for services"
-                placeholder="5.00"
-                prefix="£"
-                required
-              ></v-text-field>
-              <v-text-field
-                ref="maxPrice"
-                v-model="maxPrice"
-                :rules="[() => !!maxPrice || 'This field is required']"
-                label="Maximum Price required for services"
-                placeholder="12.50"
-                prefix="£"
-                required
-              ></v-text-field>
-              <v-select
-                ref="payment"
-                v-model="payment"
-                :items="paymentMethods"
-                :rules="[() => !!payment || 'This field is required']"
-                label="Payment Methods"
-                placeholder="Select..."
-                required
-              ></v-select>
-              </v-flex>
-            </v-layout>
+                <v-flex xs12 sm6 md6>
+                  <v-select
+                    ref="status"
+                    v-model="status"
+                    :rules="[() => !!status || 'This field is required']"
+                    :items="statusTypes"
+                    label="Dog owner or Dog Walker?"
+                    placeholder="Select..."
+                    required
+                  ></v-select>
+                  <v-text-field
+                    ref="minPrice"
+                    v-model="minPrice"
+                    :rules="[() => !!minPrice || 'This field is required']"
+                    label="Minimum Price required for services"
+                    placeholder="5.00"
+                    prefix="£"
+                    required
+                  ></v-text-field>
+                  <v-text-field
+                    ref="maxPrice"
+                    v-model="maxPrice"
+                    :rules="[() => !!maxPrice || 'This field is required']"
+                    label="Maximum Price required for services"
+                    placeholder="12.50"
+                    prefix="£"
+                    required
+                  ></v-text-field>
+                  <v-select
+                    ref="payment"
+                    v-model="payment"
+                    :items="paymentMethods"
+                    :rules="[() => !!payment || 'This field is required']"
+                    label="Payment Methods"
+                    placeholder="Select..."
+                    required
+                  ></v-select>
+                </v-flex>
+              </v-layout>
             </v-card>
             <v-layout justify-center style="margin-bottom: 15px">
               <v-btn color="primary" @click="completeFormService">Change</v-btn>
@@ -137,7 +135,7 @@ export default {
       // Checkings for form one (personal information)
       formOneErrored: false,
       // Checkings for form two (service information)
-      formTwoErrored: false,
+      formTwoErrored: false
     };
   },
 
@@ -174,7 +172,6 @@ export default {
     if (localStorage.dark) this.dark = localStorage.dark === 'true' ? true : false;
   },
 
-
   computed: {
     /**
      * Gets the results from form 1. This is used for checkings
@@ -199,15 +196,14 @@ export default {
     }
   },
 
-   methods: {
-     /**
+  methods: {
+    /**
      * Checks and validates that the form Personal Information has completed correctly. Warning the user of all
      * requirement of the fields have not been completed correctly. If completed it will update the database,
      * othwerise say in the current location.
      */
-     completeFormPersonal: async function() {
-
-       // Checking for errors
+    completeFormPersonal: async function() {
+      // Checking for errors
       this.formOneErrored = false;
       Object.keys(this.getFormPersonalResults).forEach((f) => {
         if (_.isNil(this.getFormPersonalResults[f])) this.formOneErrored = true;
@@ -215,7 +211,7 @@ export default {
       });
 
       // If the form has no errors then update the database
-      if(!this.formOneErrored){
+      if (!this.formOneErrored) {
         await firebaseWrapper.updateAge(_.parseInt(this.age));
         await firebaseWrapper.updateContactNumber(_.parseInt(this.contactNumber));
       }
@@ -227,7 +223,6 @@ export default {
      * othwerise say in the current location.
      */
     completeFormService: async function() {
-
       //Checking for errors
       this.formTwoErrored = false;
       Object.keys(this.getFormServiceResults).forEach((f) => {
@@ -236,14 +231,13 @@ export default {
       });
 
       // If the form has no errors then update the database
-      if(!this.formTwoErrored){
+      if (!this.formTwoErrored) {
         await firebaseWrapper.updateStatusType(this.status);
         await firebaseWrapper.updateWalkCost(_.parseInt(this.minPrice), _.parseInt(this.maxPrice));
         await firebaseWrapper.updatePaymentMethod(this.payment);
       }
-    },
-   },
-  
+    }
+  },
 
   watch: {
     // if the user enables dark mode, let the upper listening app trigger dark mode across the
