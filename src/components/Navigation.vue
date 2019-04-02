@@ -150,6 +150,9 @@ export default {
           return notification;
         });
 
+        // sorting the notifications by the timestamp and revsering, this means that the newest
+        // notifications will be displayed at the top of compared to the older ones lower down, as
+        // you would expect when looking at the notifications.
         this.notifications = _.reverse(_.sortBy(notifications, (e) => e.timestamp));
         this.notificationCount = _.size(this.notifications);
       });
