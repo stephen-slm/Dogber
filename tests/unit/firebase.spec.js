@@ -255,7 +255,7 @@ describe('Firebase Wrapper', async () => {
       const currentRating = profile.walk.rating;
 
       // Increment the profile rating to 3
-      await firebaseWrapper.incrementRating(3);
+      await firebaseWrapper.incrementRating(undefined, 3);
 
       // Get the updated profile with new rating
       const updatedProfile = await firebaseWrapper.getProfile();
@@ -265,15 +265,15 @@ describe('Firebase Wrapper', async () => {
       expect(updatedCurrentRating).toEqual(currentRating + 3);
 
       // Increment profile rating by 7 using different calls
-      await firebaseWrapper.incrementRating(2);
-      await firebaseWrapper.incrementRating(5);
+      await firebaseWrapper.incrementRating(undefined, 2);
+      await firebaseWrapper.incrementRating(undefined, 5);
 
       // Check if the profile rating has added the values correctly
       const updatedProfile2 = await firebaseWrapper.getProfile();
       expect(updatedProfile2.walk.rating).toEqual(updatedCurrentRating + 7);
 
       // Increment floating point .5
-      await firebaseWrapper.incrementRating(2.5);
+      await firebaseWrapper.incrementRating(undefined, 2.5);
 
       // Check if the profile rating has added the values correctly
       const updatedProfile3 = await firebaseWrapper.getProfile();
@@ -283,7 +283,7 @@ describe('Firebase Wrapper', async () => {
     it('The rating should be a number', async () => {
       expect.assertions(1);
 
-      await expect(firebaseWrapper.incrementRating('Not a number')).rejects.toEqual(
+      await expect(firebaseWrapper.incrementRating(undefined, 'Not a number')).rejects.toEqual(
         new Error('Previous rating must be number')
       );
     });
@@ -291,7 +291,7 @@ describe('Firebase Wrapper', async () => {
     it('The rating should be a number', async () => {
       expect.assertions(1);
 
-      await expect(firebaseWrapper.incrementRating(true)).rejects.toEqual(
+      await expect(firebaseWrapper.incrementRating(undefined, true)).rejects.toEqual(
         new Error('Previous rating must be number')
       );
     });
@@ -299,7 +299,7 @@ describe('Firebase Wrapper', async () => {
     it('The rating should be a number', async () => {
       expect.assertions(1);
 
-      await expect(firebaseWrapper.incrementRating([1, 2])).rejects.toEqual(
+      await expect(firebaseWrapper.incrementRating(undefined, [1, 2])).rejects.toEqual(
         new Error('Previous rating must be number')
       );
     });
@@ -308,7 +308,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // must fit within the correct ranges of 0-5
-      await expect(firebaseWrapper.incrementRating(-1)).rejects.toEqual(
+      await expect(firebaseWrapper.incrementRating(undefined, -1)).rejects.toEqual(
         new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
       );
     });
@@ -317,7 +317,7 @@ describe('Firebase Wrapper', async () => {
       expect.assertions(1);
 
       // must fit within the correct ranges of 0-5
-      await expect(firebaseWrapper.incrementRating(10)).rejects.toEqual(
+      await expect(firebaseWrapper.incrementRating(undefined, 10)).rejects.toEqual(
         new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
       );
     });
@@ -327,7 +327,7 @@ describe('Firebase Wrapper', async () => {
 
       // all though we allow decimal numbers, it should be in the range of 0.5, so we must make sure
       // to reject the possible chance of it being a decimal place but not .5
-      await expect(firebaseWrapper.incrementRating(3.2)).rejects.toEqual(
+      await expect(firebaseWrapper.incrementRating(undefined, 3.2)).rejects.toEqual(
         new Error('Your rating should be between 0 to 5 and integer or .5 floating number')
       );
     });
@@ -877,6 +877,7 @@ describe('Firebase Wrapper', async () => {
 
       // lets validate that we can now regather that dog and it matches correctly.
       const regatheredDog = await firebaseWrapper.getSingleDog(userOneId, dogCreated);
+      delete regatheredDog.timestamp;
 
       expect(regatheredDog).toEqual(newDog);
     });
@@ -1744,7 +1745,7 @@ describe('Firebase Wrapper', async () => {
     });
   });
 
-  describe.only('cancelWalkRequest', async () => {
+  describe('cancelWalkRequest', async () => {
     // short hand create walk for smaller tests for easier readablility.
     const createWalk = firebaseWrapper.createWalkRequest.bind(firebaseWrapper);
     const loc = { lat: 1, lng: 1 };
@@ -1880,7 +1881,7 @@ describe('Firebase Wrapper', async () => {
       // not return anything so we should have to regather the walk object and validate that the
       // status and history object has been updated.
       const complete = firebaseWrapper.completeWalkRequest.bind(firebaseWrapper);
-      await complete(userTwoId, acceptWalk, 'notes');
+      await complete(userTwoId, acceptWalk, 'notes', 5);
 
       // rgathered walk since the accepting process has gone through.
       const updatedWalk = await firebaseWrapper.getWalkByKey(acceptWalk);

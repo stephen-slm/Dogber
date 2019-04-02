@@ -57,6 +57,14 @@ class FirebaseWrapper {
     return await this.authenticate(mobile, this.getAuthenticationProvider('facebook'));
   }
 
+  /**
+   * Returns the authentication provider object based on the providers name given, this is used for
+   * setting up the authentication and authenticating a user with a given provider.
+   *
+   * @param {string} name The name of thee provider.
+   * @returns
+   * @memberof FirebaseWrapper
+   */
   getAuthenticationProvider(name) {
     switch (name) {
       case 'facebook':
@@ -273,6 +281,7 @@ class FirebaseWrapper {
       notesToPush.push(notes);
     }
 
+    // add the related information about when the walk starts and ends.
     notesToPush.push(`Walk starts at ${startDateTime.toLocaleString()}`);
     notesToPush.push(`Walk ends at ${endDateTime.toLocaleString()}`);
 
