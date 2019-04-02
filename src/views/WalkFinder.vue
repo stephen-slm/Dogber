@@ -23,18 +23,6 @@
               </v-layout>
             </v-card>
           </v-flex>
-          <v-flex xs12 sm3>
-            <v-select :items="dropdown_distanceArea" label="Distance Area"></v-select>
-          </v-flex>
-          <v-flex xs12 sm3>
-            <v-select :items="dropdown_ratings" label="Ratings"></v-select>
-          </v-flex>
-          <v-flex xs12 sm3>
-            <v-select :items="dropdown_availability" label="Availability"></v-select>
-          </v-flex>
-          <v-flex xs12 sm3>
-            <v-select :items="dropdown_priceRange" label="Price Range"></v-select>
-          </v-flex>
           <v-flex xs12>
             <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item" />
           </v-flex>

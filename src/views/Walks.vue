@@ -23,12 +23,6 @@
               </v-layout>
             </v-card>
           </v-flex>
-          <v-flex xs12 sm3>
-            <v-select :items="dropdown_walkCompleted" label="Walk Completed"></v-select>
-          </v-flex>
-          <v-flex xs12 sm3>
-            <v-select :items="dropdown_date" label="Date"></v-select>
-          </v-flex>
           <v-flex xs12>
             <SingleWalkResult v-for="(item, index) in walks" :key="index" class="walk-history" :id="item" />
           </v-flex>

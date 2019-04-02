@@ -59,8 +59,6 @@ export default {
     if (this.ownerId === currentProfileId) this.canAdd = true;
   },
 
-  methods: {},
-
   components: {
     DogProfile,
     AddDogDialog
