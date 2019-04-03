@@ -23,7 +23,7 @@
               </v-layout>
             </v-card>
           </v-flex>
-          <v-flex xs12>
+          <v-flex xs12 style="margin-top: 25px">
             <WalkFinderResult v-for="item in userKeys" :key="item" class="walk-result" :id="item" />
           </v-flex>
         </v-layout>
