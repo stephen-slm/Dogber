@@ -26,7 +26,6 @@
       </v-flex>
       <v-flex xs12 sm5 style="margin: auto">
         <v-btn depressed color="primary" :to="profilePath">Profile</v-btn>
-        <v-btn depressed>Check Availability</v-btn>
       </v-flex>
     </v-layout>
   </v-card>
