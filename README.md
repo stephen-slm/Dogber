@@ -1,6 +1,13 @@
-# Dogber <img align="right" src="https://i.imgur.com/UeDgJwK.png" width=100>
+<h1 align="center">
+    <a href="https://github.com/tehstun/Dogber">
+      <img src="https://i.imgur.com/UeDgJwK.png" alt="dogber-logo" width="100">
+    </a>
+    <br>Dogber<br>
+</h1>
 
-_Official Repro for [Dogber](https://app.dogber.co.uk)_
+<h4 align="center">Dogber is the Uber for dogs, allowing owners to get there dogs walked when they are busy, away or lazy by dog lovers who are active, free and in need of some extra cash.</h4>
+<h5 align="center">University Software Engineering Programming Project 30%</h5>
+<h6 align="center">Resulting grade: 100/100</h6>
 
 ---
 
